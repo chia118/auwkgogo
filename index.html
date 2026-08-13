@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Check-in | 打卡系統</title>
+  <!-- Google Fonts: Noto Sans TC & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* CSS Rest & Minimal Style Definition */
+    :root {
+      --bg-color: #f7f5f0;
+      --card-bg: #ffffff;
+      --primary-color: #7d6e63;
+      --primary-hover: #63564d;
+      --text-main: #4a403a;
+      --text-muted: #9e938a;
+      --border-color: #eae5df;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+      --radius: 16px;
+
+      /* 類別色彩定義 */
+      --tag-work-bg: #e8f3ec;
+      --tag-work-text: #3d7a5a;
+      --tag-off-bg: #fbeee9;
+      --tag-off-text: #b56247;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 460px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 28px;
+      border: 1px solid var(--border-color);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      color: var(--primary-color);
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .header .date-display {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--primary-color);
+      letter-spacing: 0.5px;
+    }
+
+    /* 主分頁頁籤 */
+    .nav-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 0;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s ease;
+      line-height: 1.3;
+    }
+
+    .tab-btn span.en {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+
+    .tab-btn.active {
+      color: var(--primary-color);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--primary-color);
+    }
+
+    /* 分頁區塊顯示/隱藏 */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      min-width: 0;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+      min-width: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--primary-color);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    label .en {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-left: 4px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: #faf9f7;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary-color);
+      background-color: #ffffff;
+    }
+
+    .time-select-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .time-select-group select {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .type-toggle-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .type-btn {
+      flex: 1;
+      padding: 10px 8px;
+      border: 1px solid var(--border-color);
+      background-color: #faf9f7;
+      color: var(--text-muted);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .type-btn .en {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 400;
+    }
+
+    .type-btn.active[data-type="上班"] {
+      background-color: var(--tag-work-bg);
+      color: var(--tag-work-text);
+      border-color: var(--tag-work-text);
+    }
+
+    .type-btn.active[data-type="下班"] {
+      background-color: var(--tag-off-bg);
+      color: var(--tag-off-text);
+      border-color: var(--tag-off-text);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary-color);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.2s ease;
+      line-height: 1.3;
+    }
+
+    .btn-submit .en {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 400;
+      opacity: 0.85;
+    }
+
+    .btn-submit:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-submit:disabled {
+      background-color: #b0a8a0;
+      cursor: not-allowed;
+    }
+
+    /* 紀錄頁面時間篩選器 */
+    .filter-group {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .filter-btn {
+      flex: 1;
+      padding: 6px 2px;
+      background-color: #faf9f7;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .filter-btn .en {
+      display: block;
+      font-size: 0.68rem;
+      opacity: 0.85;
+    }
+
+    .filter-btn.active {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      border-color: var(--primary-color);
+    }
+
+    /* 匯出按鈕 */
+    .btn-export {
+      width: 100%;
+      padding: 10px;
+      background-color: #faf9f7;
+      border: 1px dashed var(--primary-color);
+      color: var(--primary-color);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-export:hover {
+      background-color: #f2efe9;
+    }
+
+    /* 計算機面板 */
+    .calc-panel {
+      background-color: #f5f2ec;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .calc-panel h3 {
+      font-size: 0.95rem;
+      color: var(--primary-color);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .calc-panel h3 .en {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    .calc-panel input {
+      padding: 8px 6px;
+      font-size: 0.8rem;
+      background-color: #ffffff;
+    }
+
+    .rule-tip {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.2;
+    }
+
+    .result-box {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-box label {
+      margin-bottom: 0;
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    .result-box strong {
+      font-size: 1.35rem;
+      color: #3d7a5a;
+    }
+
+    .record-list {
+      list-style: none;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .record-item {
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background-color: #faf9f7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .record-item:hover {
+      background-color: #f2efe9;
+      border-color: #dcd4cc;
+    }
+
+    .record-item:active {
+      transform: scale(0.99);
+    }
+
+    .record-info {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+
+    .record-info strong {
+      color: var(--primary-color);
+      font-weight: 500;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-left: 6px;
+    }
+
+    .tag-上班 {
+      background-color: var(--tag-work-bg);
+      color: var(--tag-work-text);
+    }
+
+    .tag-下班 {
+      background-color: var(--tag-off-bg);
+      color: var(--tag-off-text);
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 4px 8px;
+      line-height: 1;
+      transition: color 0.2s ease;
+    }
+
+    .btn-delete:hover {
+      color: #d9534f;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 24px 0;
+    }
+
+    /* 複製成功提示文字 Popup */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(74, 64, 58, 0.9);
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    /* 手機版防重疊優化 */
+    @media (max-width: 420px) {
+      .container {
+        padding: 20px 16px;
+      }
+      .calc-panel .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      .calc-panel input {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>DAILY CHECK-IN</h1>
+      <p>打卡系統 <span style="font-size: 0.8rem; opacity: 0.8;">/ Attendance System</span></p>
+      <div id="todayDate" class="date-display"></div>
+    </div>
+
+    <!-- 主頁籤導覽 -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('checkin')">
+        新增打卡
+        <span class="en">New Check-in</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('records')">
+        打卡紀錄
+        <span class="en">Records</span>
+      </button>
+    </div>
+
+    <!-- 分頁一：打卡表單 -->
+    <div id="checkinTab" class="tab-content active">
+      <form id="checkinForm">
+        <div class="form-group">
+          <label for="userName">姓名 <span class="en">Name</span> *</label>
+          <input type="text" id="userName" placeholder="請輸入姓名" required>
+        </div>
+
+        <div class="form-group">
+          <label>打卡類別 <span class="en">Category</span> *</label>
+          <div class="type-toggle-group">
+            <button type="button" class="type-btn active" data-type="上班" onclick="selectType('上班')">
+              上班
+              <span class="en">Check-in</span>
+            </button>
+            <button type="button" class="type-btn" data-type="下班" onclick="selectType('下班')">
+              下班
+              <span class="en">Check-out</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>時間 <span class="en">Time</span> *</label>
+          <div class="time-select-group">
+            <select id="hour"></select>
+            <select id="minute"></select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="location">地點 <span class="en">Location</span> *</label>
+          <input type="text" id="location" placeholder="OW、八度、飛龍" required>
+        </div>
+
+        <!-- 下班限定填寫欄位 (僅保留備註) -->
+        <div id="offWorkFields" style="display: none;">
+          <div class="form-group">
+            <label for="note">備註 <span class="en">Note</span></label>
+            <input type="text" id="note" placeholder="自收、客人算xx小、未收車資">
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn-submit">
+          完成打卡
+          <span class="en">Submit Check-in</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- 分頁二：打卡紀錄與時數查詢 -->
+    <div id="recordsTab" class="tab-content">
+      <div class="filter-group">
+        <button class="filter-btn active" onclick="setFilter('daily', this)">
+          每日
+          <span class="en">Daily</span>
+        </button>
+        <button class="filter-btn" onclick="setFilter('weekly', this)">
+          本週
+          <span class="en">Weekly</span>
+        </button>
+        <button class="filter-btn" onclick="setFilter('3months', this)">
+          近三個月
+          <span class="en">3 Months</span>
+        </button>
+        <button class="filter-btn" onclick="setFilter('calc', this)">
+          時數查詢
+          <span class="en">Calculator</span>
+        </button>
+      </div>
+
+      <!-- 匯出按鈕 -->
+      <button id="btnExport" class="btn-export" onclick="exportFilteredRecords()">
+        📥 匯出當前紀錄 (Export CSV)
+      </button>
+
+      <!-- 計算機面板 (點擊「時數查詢」時展開) -->
+      <div id="calcPanel" class="calc-panel" style="display: none;">
+        <h3>🧮 計算機 <span class="en">/ Hours Calculator</span></h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="calcStartDate">上班日期 <span class="en">Start Date</span></label>
+            <input type="date" id="calcStartDate" onchange="calculateTotalAmount()">
+          </div>
+          <div class="form-group">
+            <label for="calcStartTime">上班時間 <span class="en">Start Time</span></label>
+            <input type="time" id="calcStartTime" value="23:00" onchange="calculateTotalAmount()">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="calcEndDate">下班日期 <span class="en">End Date</span></label>
+            <input type="date" id="calcEndDate" onchange="calculateTotalAmount()">
+          </div>
+          <div class="form-group">
+            <label for="calcEndTime">下班時間 <span class="en">End Time</span></label>
+            <input type="time" id="calcEndTime" value="02:00" onchange="calculateTotalAmount()">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="calcRate">時薪 ($) <span class="en">Hourly Rate</span></label>
+            <input type="number" id="calcRate" value="140" oninput="calculateTotalAmount()">
+            <div class="rule-tip">>=15m = +0.5h, >=45m = +1h</div>
+          </div>
+          <div class="form-group">
+            <label for="calcFare">車資 ($) <span class="en">Fare</span></label>
+            <input type="number" id="calcFare" value="0" oninput="calculateTotalAmount()">
+          </div>
+        </div>
+
+        <!-- 計算機最終結果 -->
+        <div class="result-box">
+          <label>
+            計算結果 (<span id="calculatedHoursText">0</span> 小時/hrs)：<br>
+            <span style="color: var(--text-muted); font-size: 0.75rem;">(時數/Hours × 時薪/Rate + 車資/Fare)</span>
+          </label>
+          <strong id="calcResult">$0</strong>
+        </div>
+      </div>
+
+      <ul id="recordList" class="record-list">
+        <!-- 動態帶入紀錄 -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- 複製成功提示小氣泡 -->
+  <div id="toast" class="toast">已複製打卡紀錄 / Copied to clipboard</div>
+
+  <script>
+    // 🔗 你的最新 Google Apps Script Web App 網址
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwlYplY3dmZtnrwF2Fdr4og_GeDMQACA4GQdG8eoaC7c4QNjsJAuMoyj8VRBEDX6Rs/exec';
+
+    let selectedType = '上班';
+    let currentFilter = 'daily';
+
+    // 取得今天 YYYY-MM-DD 字串格式
+    function getTodayStr() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // 初始化日期顯示
+    function initDateDisplay() {
+      const now = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+      document.getElementById('todayDate').innerText = now.toLocaleDateString('zh-TW', options);
+
+      const todayStr = getTodayStr();
+      document.getElementById('calcStartDate').value = todayStr;
+
+      // 預設跨日範例下班日期帶入明天
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+      const tYear = tomorrow.getFullYear();
+      const tMonth = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      const tDay = String(tomorrow.getDate()).padStart(2, '0');
+      document.getElementById('calcEndDate').value = `${tYear}-${tMonth}-${tDay}`;
+    }
+
+    // 主分頁切換
+    function switchTab(tabName) {
+      const tabs = document.querySelectorAll('.tab-btn');
+      const contents = document.querySelectorAll('.tab-content');
+
+      tabs.forEach(tab => tab.classList.remove('active'));
+      contents.forEach(content => content.classList.remove('active'));
+
+      if (tabName === 'checkin') {
+        tabs[0].classList.add('active');
+        document.getElementById('checkinTab').classList.add('active');
+      } else {
+        tabs[1].classList.add('active');
+        document.getElementById('recordsTab').classList.add('active');
+        renderRecords();
+      }
+    }
+
+    // 初始化 24小時制時間選單
+    function initTimeOptions() {
+      const hourSelect = document.getElementById('hour');
+      const minuteSelect = document.getElementById('minute');
+
+      hourSelect.innerHTML = '';
+      minuteSelect.innerHTML = '';
+
+      for (let i = 0; i < 24; i++) {
+        const val = i < 10 ? '0' + i : '' + i;
+        hourSelect.innerHTML += `<option value="${val}">${val} 時 (HH)</option>`;
+      }
+
+      for (let i = 0; i < 60; i++) {
+        const val = i < 10 ? '0' + i : '' + i;
+        minuteSelect.innerHTML += `<option value="${val}">${val} 分 (MM)</option>`;
+      }
+
+      setNowTime();
+    }
+
+    function setNowTime() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+
+      document.getElementById('hour').value = hours < 10 ? '0' + hours : '' + hours;
+      document.getElementById('minute').value = minutes < 10 ? '0' + minutes : '' + minutes;
+    }
+
+    // 切換上班/下班類別
+    function selectType(type) {
+      selectedType = type;
+      const buttons = document.querySelectorAll('.type-btn');
+      buttons.forEach(btn => {
+        if (btn.getAttribute('data-type') === type) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      const offWorkFields = document.getElementById('offWorkFields');
+
+      if (type === '下班') {
+        offWorkFields.style.display = 'block';
+      } else {
+        offWorkFields.style.display = 'none';
+        document.getElementById('note').value = '';
+      }
+    }
+
+    function getRecords() {
+      return JSON.parse(localStorage.getItem('checkin_records')) || [];
+    }
+
+    function saveRecords(records) {
+      localStorage.setItem('checkin_records', JSON.stringify(records));
+    }
+
+    // 切換紀錄篩選器
+    function setFilter(filterType, btnElement) {
+      currentFilter = filterType;
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      filterBtns.forEach(btn => btn.classList.remove('active'));
+      btnElement.classList.add('active');
+
+      const calcPanel = document.getElementById('calcPanel');
+      const btnExport = document.getElementById('btnExport');
+
+      if (filterType === 'calc') {
+        calcPanel.style.display = 'block';
+        btnExport.style.display = 'none';
+      } else {
+        calcPanel.style.display = 'none';
+        btnExport.style.display = 'flex';
+      }
+
+      renderRecords();
+    }
+
+    function filterRecords(records) {
+      const now = new Date();
+      const todayStr = getTodayStr();
+
+      return records.filter(item => {
+        const recordDate = new Date(item.date);
+
+        if (currentFilter === 'daily') {
+          return item.date === todayStr;
+        }
+
+        if (currentFilter === 'weekly') {
+          const oneWeekAgo = new Date();
+          oneWeekAgo.setDate(now.getDate() - 7);
+          return recordDate >= oneWeekAgo && recordDate <= now;
+        }
+
+        if (currentFilter === '3months') {
+          const threeMonthsAgo = new Date();
+          threeMonthsAgo.setDate(now.getDate() - 90);
+          return recordDate >= threeMonthsAgo && recordDate <= now;
+        }
+
+        return true;
+      });
+    }
+
+    function calculateCrossDayHours(startDateStr, startTimeStr, endDateStr, endTimeStr) {
+      if (!startDateStr || !startTimeStr || !endDateStr || !endTimeStr) return 0;
+
+      const startDateTime = new Date(`${startDateStr}T${startTimeStr}:00`);
+      const endDateTime = new Date(`${endDateStr}T${endTimeStr}:00`);
+
+      let diffMinutes = Math.floor((endDateTime - startDateTime) / (1000 * 60));
+      if (isNaN(diffMinutes) || diffMinutes <= 0) return 0;
+
+      const fullHours = Math.floor(diffMinutes / 60);
+      const remainingMinutes = diffMinutes % 60;
+
+      let extraHours = 0;
+      if (remainingMinutes >= 45) {
+        extraHours = 1.0;
+      } else if (remainingMinutes >= 15) {
+        extraHours = 0.5;
+      }
+
+      return fullHours + extraHours;
+    }
+
+    function calculateTotalAmount() {
+      const startDate = document.getElementById('calcStartDate').value;
+      const startTime = document.getElementById('calcStartTime').value;
+      const endDate = document.getElementById('calcEndDate').value;
+      const endTime = document.getElementById('calcEndTime').value;
+      const rate = parseFloat(document.getElementById('calcRate').value) || 0;
+      const fare = parseFloat(document.getElementById('calcFare').value) || 0;
+
+      const hours = calculateCrossDayHours(startDate, startTime, endDate, endTime);
+      const total = (hours * rate) + fare;
+
+      document.getElementById('calculatedHoursText').innerText = hours;
+      document.getElementById('calcResult').innerText = `$${Math.round(total).toLocaleString()}`;
+    }
+
+    function exportFilteredRecords() {
+      const allRecords = getRecords();
+      const filteredRecords = filterRecords(allRecords);
+
+      if (filteredRecords.length === 0) {
+        alert('目前無紀錄可供匯出！ / No records to export');
+        return;
+      }
+
+      let csvContent = "\uFEFF姓名,日期,時間,地點,類別,備註\n";
+
+      filteredRecords.forEach(item => {
+        const name = `"${(item.name || '').replace(/"/g, '""')}"`;
+        const date = `"${(item.date || '').replace(/"/g, '""')}"`;
+        const time = `"${(item.time || '').replace(/"/g, '""')}"`;
+        const location = `"${(item.location || '').replace(/"/g, '""')}"`;
+        const type = `"${(item.type || '').replace(/"/g, '""')}"`;
+        const note = `"${(item.note || '').replace(/"/g, '""')}"`;
+
+        csvContent += `${name},${date},${time},${location},${type},${note}\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      const filterMap = { daily: '每日', weekly: '本週', '3months': '近三個月' };
+      const now = new Date();
+      const dateTag = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+      
+      link.setAttribute("href", url);
+      link.setAttribute("download", `打卡紀錄_${filterMap[currentFilter] || ''}_${dateTag}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function renderRecords() {
+      const recordList = document.getElementById('recordList');
+      const allRecords = getRecords();
+
+      recordList.innerHTML = '';
+
+      if (currentFilter === 'calc') {
+        recordList.style.display = 'none';
+
+        const workRecord = allRecords.find(r => r.type === '上班');
+        const offRecord = allRecords.find(r => r.type === '下班');
+
+        if (workRecord) {
+          document.getElementById('calcStartDate').value = workRecord.date;
+          document.getElementById('calcStartTime').value = workRecord.time;
+        }
+        if (offRecord) {
+          document.getElementById('calcEndDate').value = offRecord.date;
+          document.getElementById('calcEndTime').value = offRecord.time;
+        }
+
+        calculateTotalAmount();
+        return;
+      }
+
+      recordList.style.display = 'block';
+      const filteredRecords = filterRecords(allRecords);
+
+      if (filteredRecords.length === 0) {
+        recordList.innerHTML = '<li class="empty-msg">尚無符合條件的紀錄 / No records found</li>';
+        return;
+      }
+
+      filteredRecords.forEach((item) => {
+        const originalIndex = allRecords.findIndex(r => r === item);
+        const li = document.createElement('li');
+        li.className = 'record-item';
+        li.title = '點擊即可複製紀錄 / Click to copy';
+
+        li.onclick = (e) => {
+          if (e.target.classList.contains('btn-delete')) return;
+          copyRecordText(item);
+        };
+
+        const extraInfoStr = item.note ? `<br><span style="color:#7d6e63; font-size:0.78rem;">📝${item.note}</span>` : '';
+
+        li.innerHTML = `
+          <div class="record-info">
+            <div>
+              <strong>${item.name}</strong> 
+              <span class="tag tag-${item.type}">${item.type}</span>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">
+              📅 ${item.date} | ⏰ ${item.time} | 📍 ${item.location}${extraInfoStr}
+            </div>
+          </div>
+          <button class="btn-delete" title="刪除紀錄 / Delete" onclick="deleteRecord(${originalIndex})">×</button>
+        `;
+        recordList.appendChild(li);
+      });
+    }
+
+    async function copyRecordText(item) {
+      const dateParts = item.date.split('-');
+      const monthDay = `${parseInt(dateParts[1], 10)}/${parseInt(dateParts[2], 10)}`;
+      const noteStr = item.note ? `\n📝 ${item.note}` : '';
+      const textToCopy = `${item.name} ${monthDay} ${item.time} ${item.location} ${item.type}${noteStr}`;
+
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+        showToast('已複製紀錄至剪貼簿！ / Copied!');
+      } catch (err) {
+        const tempInput = document.createElement('textarea');
+        tempInput.value = textToCopy;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showToast('已複製紀錄至剪貼簿！ / Copied!');
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // 表單送出處置
+    document.getElementById('checkinForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = '打卡同步中... / Syncing...';
+
+      const name = document.getElementById('userName').value.trim();
+      const type = selectedType;
+      const dateStr = getTodayStr();
+      const hour = document.getElementById('hour').value;
+      const minute = document.getElementById('minute').value;
+      const timeStr = `${hour}:${minute}`;
+      const location = document.getElementById('location').value.trim();
+
+      let note = '';
+      if (type === '下班') {
+        note = document.getElementById('note').value.trim();
+      }
+
+      if (!name || !location) {
+        alert('請完整填寫必要欄位！ / Please fill in required fields');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '完成打卡 <span class="en">Submit Check-in</span>';
+        return;
+      }
+
+      const newRecord = { name, type, date: dateStr, time: timeStr, location, note };
+
+      // 傳送到 Google 試算表
+      fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(newRecord)
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log('Google Sheet 同步成功', data);
+      })
+      .catch(err => {
+        console.error('Google Sheet 同步失敗', err);
+      })
+      .finally(() => {
+        const records = getRecords();
+        records.unshift(newRecord);
+        saveRecords(records);
+
+        document.getElementById('location').value = '';
+        document.getElementById('note').value = '';
+        setNowTime();
+        
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '完成打卡 <span class="en">Submit Check-in</span>';
+        
+        switchTab('records');
+      });
+    });
+
+    function deleteRecord(index) {
+      const records = getRecords();
+      records.splice(index, 1);
+      saveRecords(records);
+      renderRecords();
+    }
+
+    window.onload = function() {
+      initDateDisplay();
+      initTimeOptions();
+      renderRecords();
+      calculateTotalAmount();
+    };
+  </script>
+</body>
+</html>
