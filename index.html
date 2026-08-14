@@ -421,25 +421,6 @@
       font-weight: 500;
     }
 
-    /* 刪除按鈕 ✕ 樣式 */
-    .btn-delete {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      font-weight: bold;
-      padding: 4px 8px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: all 0.2s ease;
-      margin-left: 8px;
-    }
-
-    .btn-delete:hover {
-      color: var(--tag-off-text);
-      background-color: var(--tag-off-bg);
-    }
-
     .tag {
       display: inline-block;
       padding: 2px 8px;
@@ -558,7 +539,6 @@
       opacity: 1;
     }
 
-    /* 手機版防重疊優化 */
     @media (max-width: 420px) {
       .container {
         padding: 20px 16px;
@@ -580,7 +560,6 @@
     <div class="header">
       <h1>DAILY CHECK-IN</h1>
       <p>打卡系統 <span style="font-size: 0.8rem; opacity: 0.8;">/ Attendance System</span></p>
-      <!-- 日期僅在「新增打卡」分頁顯示 -->
       <div id="todayDate" class="date-display"></div>
     </div>
 
@@ -635,7 +614,6 @@
           <input type="text" id="location" placeholder="OW、八度、飛龍" required>
         </div>
 
-        <!-- 下班限定填寫欄位 -->
         <div id="offWorkFields" style="display: none;">
           <div class="form-group">
             <label for="note">備註 <span class="en">Note</span></label>
@@ -643,7 +621,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-submit">
+        <button type="submit" id="btnSubmit" class="btn-submit">
           完成打卡
           <span class="en">Submit Check-in</span>
         </button>
@@ -652,7 +630,7 @@
 
     <!-- 分頁二：打卡紀錄與時數查詢 -->
     <div id="recordsTab" class="tab-content">
-      <div class="contact-notice">💡 若要修改請與管理員聯繫</div>
+      <div class="contact-notice">💡 若要修改或刪除紀錄請與管理員聯繫</div>
 
       <div class="filter-group">
         <button class="filter-btn active" onclick="setFilter('daily', this)">
@@ -673,12 +651,10 @@
         </button>
       </div>
 
-      <!-- 匯出按鈕 -->
       <button id="btnExport" class="btn-export" onclick="exportFilteredRecords()">
         📥 匯出當前紀錄 (Export CSV)
       </button>
 
-      <!-- 計算機面板 -->
       <div id="calcPanel" class="calc-panel" style="display: none;">
         <h3>🧮 計算機 <span class="en">/ Hours Calculator</span></h3>
         
@@ -716,7 +692,6 @@
           </div>
         </div>
 
-        <!-- 計算機最終結果 -->
         <div class="result-box">
           <label>
             計算結果 (<span id="calculatedHoursText">0</span> 小時/hrs)：<br>
@@ -727,7 +702,7 @@
       </div>
 
       <ul id="recordList" class="record-list">
-        <!-- 動態帶入紀錄 -->
+        <li class="empty-msg">資料同步載入中... / Loading...</li>
       </ul>
     </div>
 
@@ -745,7 +720,7 @@
         <div id="statusSelectGroup" class="form-group">
           <label for="statusSelect">選擇狀態模式 <span class="en">Select Mode</span></label>
           <select id="statusSelect" onchange="saveStatusSettings()">
-            <option value="🥳 只嗨 (High Only)">🥳 只嗨 (High Only)</option>
+            <option value="🥳 只嗨 (Only Hype)">🥳 只嗨 (Only Hype)</option>
             <option value="🍷 只酒 (Drinks Only)">🍷 只酒 (Drinks Only)</option>
             <option value="🎉 都可以 (Both)">🎉 都可以 (Both)</option>
           </select>
@@ -753,19 +728,51 @@
 
         <div class="status-preview">
           <div class="status-preview-title">當前設定顯示效果 / Current Preview</div>
-          <div id="statusPreviewVal" class="status-preview-val">🥳 只嗨 (High Only)</div>
+          <div id="statusPreviewVal" class="status-preview-val">🥳 只嗨 (Only Hype)</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 複製成功提示小氣泡 -->
   <div id="toast" class="toast">已複製打卡紀錄 / Copied to clipboard</div>
 
   <script>
+    // 🔗 您的 Apps Script 應用程式 API 網址
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwzoeVew-gzhO3-d56lqL5lAGtKc6sE-bFdVuE-7qAs0x86TNYTeV2N7PnCayQMo3Ha/exec';
+
     let selectedType = '上班';
     let currentFilter = 'daily';
     let isStatusOn = true;
+    let globalRecords = [];
+
+    function formatDate(rawVal) {
+      if (!rawVal) return '';
+      const str = String(rawVal).trim();
+      if (str.includes('T')) {
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        }
+      }
+      return str.split('T')[0].split(' ')[0];
+    }
+
+    function formatTime(rawVal) {
+      if (!rawVal) return '';
+      const str = String(rawVal).trim();
+      if (str.includes('T')) {
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          const hours = String(d.getHours()).padStart(2, '0');
+          const mins = String(d.getMinutes()).padStart(2, '0');
+          return `${hours}:${mins}`;
+        }
+      }
+      return str.length > 5 ? str.substring(0, 5) : str;
+    }
 
     function getTodayStr() {
       const now = new Date();
@@ -807,7 +814,7 @@
         tabs[1].classList.add('active');
         document.getElementById('recordsTab').classList.add('active');
         todayDateEl.style.display = 'none';
-        renderRecords();
+        fetchRemoteRecords();
       } else if (tabName === 'status') {
         tabs[2].classList.add('active');
         document.getElementById('statusTab').classList.add('active');
@@ -865,22 +872,29 @@
       }
     }
 
-    function getRecords() {
-      return JSON.parse(localStorage.getItem('checkin_records')) || [];
-    }
+    // 從 Google Apps Script 雲端撈取全部打卡紀錄
+    function fetchRemoteRecords() {
+      const recordList = document.getElementById('recordList');
+      recordList.innerHTML = '<li class="empty-msg">雲端資料同步中... / Fetching from GAS...</li>';
 
-    function saveRecords(records) {
-      localStorage.setItem('checkin_records', JSON.stringify(records));
-    }
-
-    function deleteRecord(index) {
-      if (confirm('確定要刪除這筆紀錄嗎？')) {
-        const records = getRecords();
-        records.splice(index, 1);
-        saveRecords(records);
-        renderRecords();
-        showToast('紀錄已刪除 / Record deleted');
-      }
+      fetch(GAS_URL)
+        .then(res => res.json())
+        .then(res => {
+          if (res.result === 'success') {
+            globalRecords = res.data.map(row => ({
+              name: String(row[0] || '').trim(),
+              date: formatDate(row[1]),
+              time: formatTime(row[2]),
+              location: String(row[3] || '').trim(),
+              type: String(row[4] || '').trim(),
+              note: String(row[5] || '').trim()
+            }));
+            renderRecords();
+          }
+        })
+        .catch(err => {
+          recordList.innerHTML = '<li class="empty-msg" style="color:var(--tag-off-text);">資料連線失敗，請檢查網路！ / Sync Failed</li>';
+        });
     }
 
     function toggleStatusSwitch(status) {
@@ -927,16 +941,7 @@
       if (config) {
         isStatusOn = config.isOn;
         if (config.value) {
-          let modeVal = config.value;
-          // 自動向後相容將舊設定文字轉換為新設定
-          if (modeVal.includes('High') || modeVal.includes('Hype')) {
-            modeVal = '🥳 只嗨 (High Only)';
-          } else if (modeVal.includes('Drinks')) {
-            modeVal = '🍷 只酒 (Drinks Only)';
-          } else if (modeVal.includes('Both') || modeVal.includes('都可以')) {
-            modeVal = '🎉 都可以 (Both)';
-          }
-          document.getElementById('statusSelect').value = modeVal;
+          document.getElementById('statusSelect').value = config.value;
         }
       }
       toggleStatusSwitch(isStatusOn);
@@ -966,8 +971,8 @@
       const now = new Date();
       const todayStr = getTodayStr();
 
-      return records.map((item, originalIndex) => ({ ...item, originalIndex })).filter(item => {
-        const recordDate = new Date(item.date);
+      return records.filter(item => {
+        const recordDate = new Date(item.date.replace(/-/g, '/'));
 
         if (currentFilter === 'daily') {
           return item.date === todayStr;
@@ -1027,8 +1032,7 @@
     }
 
     function exportFilteredRecords() {
-      const allRecords = getRecords();
-      const filteredRecords = filterRecords(allRecords);
+      const filteredRecords = filterRecords(globalRecords);
 
       if (filteredRecords.length === 0) {
         alert('目前無紀錄可供匯出！ / No records to export');
@@ -1070,15 +1074,12 @@
 
     function renderRecords() {
       const recordList = document.getElementById('recordList');
-      const allRecords = getRecords();
-
-      recordList.innerHTML = '';
 
       if (currentFilter === 'calc') {
         recordList.style.display = 'none';
 
-        const workRecord = allRecords.find(r => r.type === '上班');
-        const offRecord = allRecords.find(r => r.type === '下班');
+        const workRecord = globalRecords.find(r => r.type === '上班');
+        const offRecord = globalRecords.find(r => r.type === '下班');
 
         if (workRecord) {
           document.getElementById('calcStartDate').value = workRecord.date;
@@ -1094,14 +1095,15 @@
       }
 
       recordList.style.display = 'block';
-      const filteredRecords = filterRecords(allRecords);
+      const filteredRecords = filterRecords(globalRecords);
 
       if (filteredRecords.length === 0) {
         recordList.innerHTML = '<li class="empty-msg">尚無符合條件的紀錄 / No records found</li>';
         return;
       }
 
-      filteredRecords.forEach((item) => {
+      recordList.innerHTML = '';
+      filteredRecords.reverse().forEach((item) => {
         const li = document.createElement('li');
         li.className = 'record-item';
 
@@ -1117,7 +1119,6 @@
               📅 ${item.date} | ⏰ ${item.time} | 📍 ${item.location}${extraInfoStr}
             </div>
           </div>
-          <button type="button" class="btn-delete" title="刪除紀錄" onclick="deleteRecord(${item.originalIndex})">✕</button>
         `;
         recordList.appendChild(li);
       });
@@ -1153,6 +1154,7 @@
       }, 2000);
     }
 
+    // 提交打卡表單（發送 POST 請求至 GAS 後端）
     document.getElementById('checkinForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
@@ -1163,46 +1165,65 @@
       const minute = document.getElementById('minute').value;
       const timeStr = `${hour}:${minute}`;
       const location = document.getElementById('location').value.trim();
+      let note = '';
+      if (type === '下班') {
+        note = document.getElementById('note').value.trim();
+      }
 
       if (!name || !location) {
         alert('請完整填寫必要欄位！ / Please fill in required fields');
         return;
       }
 
-      const records = getRecords();
-      const userLastRecord = records.find(r => r.name === name);
+      const submitBtn = document.getElementById('btnSubmit');
+      submitBtn.disabled = true;
+      submitBtn.innerText = '打卡傳送中... / Submitting...';
 
-      if (type === '上班' && userLastRecord && userLastRecord.type === '上班') {
-        alert('您尚未打下班卡唷!');
-        return;
-      }
+      const statusVal = document.getElementById('statusSelect').value;
 
-      let note = '';
-      if (type === '下班') {
-        note = document.getElementById('note').value.trim();
-      }
-
-      const newRecord = { 
-        name, type, date: dateStr, time: timeStr, location, note 
+      const payload = {
+        name: name,
+        type: type,
+        date: dateStr,
+        time: timeStr,
+        location: location,
+        note: note,
+        statusIsOn: isStatusOn,
+        statusMode: statusVal
       };
 
-      records.unshift(newRecord);
-      saveRecords(records);
+      fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '完成打卡 <span class="en">Submit Check-in</span>';
 
-      alert('打卡完成！ / Check-in completed');
-
-      document.getElementById('location').value = '';
-      document.getElementById('note').value = '';
-      setNowTime();
-      
-      switchTab('records');
+        if (res.result === 'success') {
+          alert('打卡完成！資料已同步上傳後台 / Check-in completed');
+          document.getElementById('location').value = '';
+          document.getElementById('note').value = '';
+          setNowTime();
+          switchTab('records');
+        } else {
+          alert('打卡失敗：' + (res.message || '未知錯誤'));
+        }
+      })
+      .catch(err => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '完成打卡 <span class="en">Submit Check-in</span>';
+        alert('網路請求失敗，請確認 GAS 應用程式網址與權限！');
+      });
     });
 
     window.onload = function() {
       initDateDisplay();
       initTimeOptions();
       loadStatusSettings();
-      renderRecords();
+      fetchRemoteRecords();
       calculateTotalAmount();
     };
   </script>
