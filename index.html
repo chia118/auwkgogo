@@ -256,11 +256,6 @@
       background-color: var(--primary-hover);
     }
 
-    .btn-submit:disabled {
-      background-color: #b0a8a0;
-      cursor: not-allowed;
-    }
-
     /* 紀錄頁面時間篩選器 */
     .filter-group {
       display: flex;
@@ -555,7 +550,7 @@
           </div>
         </div>
 
-        <button type="submit" id="submitBtn" class="btn-submit">
+        <button type="submit" class="btn-submit">
           完成打卡
           <span class="en">Submit Check-in</span>
         </button>
@@ -646,9 +641,6 @@
   <div id="toast" class="toast">已複製打卡紀錄 / Copied to clipboard</div>
 
   <script>
-    // 🔗 你的最新 Google Apps Script Web App 網址
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwlYplY3dmZtnrwF2Fdr4og_GeDMQACA4GQdG8eoaC7c4QNjsJAuMoyj8VRBEDX6Rs/exec';
-
     let selectedType = '上班';
     let currentFilter = 'daily';
 
@@ -697,7 +689,7 @@
       }
     }
 
-    // 初始化 24小時制時間選單
+    // 初始化 24小時制時間選單 (HH / MM 標示)
     function initTimeOptions() {
       const hourSelect = document.getElementById('hour');
       const minuteSelect = document.getElementById('minute');
@@ -805,6 +797,12 @@
       });
     }
 
+    /**
+     * 工時進位換算邏輯：
+     * - 未滿 15 分鐘 (<15): 0h
+     * - 大於等於 15 分鐘且未滿 45 分鐘 (15~44): +0.5h
+     * - 大於等於 45 分鐘 (>=45): +1h
+     */
     function calculateCrossDayHours(startDateStr, startTimeStr, endDateStr, endTimeStr) {
       if (!startDateStr || !startTimeStr || !endDateStr || !endTimeStr) return 0;
 
@@ -827,6 +825,7 @@
       return fullHours + extraHours;
     }
 
+    // 即時計算最終金額 (時數 * 時薪 + 車資)
     function calculateTotalAmount() {
       const startDate = document.getElementById('calcStartDate').value;
       const startTime = document.getElementById('calcStartTime').value;
@@ -842,6 +841,7 @@
       document.getElementById('calcResult').innerText = `$${Math.round(total).toLocaleString()}`;
     }
 
+    // 匯出當前篩選紀錄為 CSV 檔案
     function exportFilteredRecords() {
       const allRecords = getRecords();
       const filteredRecords = filterRecords(allRecords);
@@ -851,24 +851,29 @@
         return;
       }
 
-      let csvContent = "\uFEFF姓名,日期,時間,地點,類別,備註\n";
+      let csvContent = "\uFEFF姓名,日期,類別,時間,地點,備註\n";
 
       filteredRecords.forEach(item => {
         const name = `"${(item.name || '').replace(/"/g, '""')}"`;
         const date = `"${(item.date || '').replace(/"/g, '""')}"`;
+        const type = `"${(item.type || '').replace(/"/g, '""')}"`;
         const time = `"${(item.time || '').replace(/"/g, '""')}"`;
         const location = `"${(item.location || '').replace(/"/g, '""')}"`;
-        const type = `"${(item.type || '').replace(/"/g, '""')}"`;
         const note = `"${(item.note || '').replace(/"/g, '""')}"`;
 
-        csvContent += `${name},${date},${time},${location},${type},${note}\n`;
+        csvContent += `${name},${date},${type},${time},${location},${note}\n`;
       });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
 
-      const filterMap = { daily: '每日', weekly: '本週', '3months': '近三個月' };
+      const filterMap = {
+        daily: '每日',
+        weekly: '本週',
+        '3months': '近三個月'
+      };
+
       const now = new Date();
       const dateTag = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
       
@@ -879,6 +884,7 @@
       document.body.removeChild(link);
     }
 
+    // 渲染打卡紀錄
     function renderRecords() {
       const recordList = document.getElementById('recordList');
       const allRecords = getRecords();
@@ -941,9 +947,11 @@
       });
     }
 
+    // 複製文字格式化
     async function copyRecordText(item) {
       const dateParts = item.date.split('-');
       const monthDay = `${parseInt(dateParts[1], 10)}/${parseInt(dateParts[2], 10)}`;
+      
       const noteStr = item.note ? `\n📝 ${item.note}` : '';
       const textToCopy = `${item.name} ${monthDay} ${item.time} ${item.location} ${item.type}${noteStr}`;
 
@@ -974,59 +982,49 @@
     document.getElementById('checkinForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const submitBtn = document.getElementById('submitBtn');
-      submitBtn.disabled = true;
-      submitBtn.innerText = '打卡同步中... / Syncing...';
-
       const name = document.getElementById('userName').value.trim();
       const type = selectedType;
-      const dateStr = getTodayStr();
+      const dateStr = getTodayStr(); // 自動抓取今天日期
       const hour = document.getElementById('hour').value;
       const minute = document.getElementById('minute').value;
       const timeStr = `${hour}:${minute}`;
       const location = document.getElementById('location').value.trim();
+
+      if (!name || !location) {
+        alert('請完整填寫必要欄位！ / Please fill in required fields');
+        return;
+      }
+
+      const records = getRecords();
+
+      // 檢查個人打卡狀態：找尋該姓名最後一筆打卡紀錄
+      const userLastRecord = records.find(r => r.name === name);
+
+      // 若欲打上班卡，且最後一筆狀態亦為上班，則阻止打卡
+      if (type === '上班' && userLastRecord && userLastRecord.type === '上班') {
+        alert('您尚未打下班卡唷!');
+        return;
+      }
 
       let note = '';
       if (type === '下班') {
         note = document.getElementById('note').value.trim();
       }
 
-      if (!name || !location) {
-        alert('請完整填寫必要欄位！ / Please fill in required fields');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '完成打卡 <span class="en">Submit Check-in</span>';
-        return;
-      }
+      const newRecord = { 
+        name, type, date: dateStr, time: timeStr, location, note 
+      };
 
-      const newRecord = { name, type, date: dateStr, time: timeStr, location, note };
+      records.unshift(newRecord);
+      saveRecords(records);
 
-      // 傳送到 Google 試算表
-      fetch(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(newRecord)
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log('Google Sheet 同步成功', data);
-      })
-      .catch(err => {
-        console.error('Google Sheet 同步失敗', err);
-      })
-      .finally(() => {
-        const records = getRecords();
-        records.unshift(newRecord);
-        saveRecords(records);
+      alert('打卡完成！ / Check-in completed');
 
-        document.getElementById('location').value = '';
-        document.getElementById('note').value = '';
-        setNowTime();
-        
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '完成打卡 <span class="en">Submit Check-in</span>';
-        
-        switchTab('records');
-      });
+      document.getElementById('location').value = '';
+      document.getElementById('note').value = '';
+      setNowTime();
+      
+      switchTab('records');
     });
 
     function deleteRecord(index) {
