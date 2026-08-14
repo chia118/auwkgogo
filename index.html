@@ -745,7 +745,7 @@
         <div id="statusSelectGroup" class="form-group">
           <label for="statusSelect">選擇狀態模式 <span class="en">Select Mode</span></label>
           <select id="statusSelect" onchange="saveStatusSettings()">
-            <option value="🥳 只嗨 (Only Hype)">🥳 只嗨 (Only Hype)</option>
+            <option value="🥳 只嗨 (Only High)">🥳 只嗨 (Only High)</option>
             <option value="🍷 只酒 (Only Drinks)">🍷 只酒 (Only Drinks)</option>
             <option value="🎉 都可以 (Both OK)">🎉 都可以 (Both OK)</option>
           </select>
@@ -753,7 +753,7 @@
 
         <div class="status-preview">
           <div class="status-preview-title">當前設定顯示效果 / Current Preview</div>
-          <div id="statusPreviewVal" class="status-preview-val">🥳 只嗨 (Only Hype)</div>
+          <div id="statusPreviewVal" class="status-preview-val">🥳 只嗨 (Only High)</div>
         </div>
       </div>
     </div>
@@ -928,7 +928,12 @@
       if (config) {
         isStatusOn = config.isOn;
         if (config.value) {
-          document.getElementById('statusSelect').value = config.value;
+          // 若舊值為 Only Hype 則自動轉為 Only High
+          let modeVal = config.value;
+          if (modeVal.includes('Hype')) {
+            modeVal = '🥳 只嗨 (Only High)';
+          }
+          document.getElementById('statusSelect').value = modeVal;
         }
       }
       toggleStatusSwitch(isStatusOn);
