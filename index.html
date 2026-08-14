@@ -3,205 +3,316 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>管理者後端 | 人員動態與紀錄管理</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>Daily Check-in | 打卡系統</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --primary: #7d6e63;
-      --primary-hover: #63564d;
-      --bg: #f7f5f0;
+      --bg-color: #f7f5f0;
       --card-bg: #ffffff;
-      --border: #eae5df;
-      --text: #4a403a;
-      --muted: #9e938a;
+      --primary-color: #7d6e63;
+      --primary-hover: #63564d;
+      --text-main: #4a403a;
+      --text-muted: #9e938a;
+      --border-color: #eae5df;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+      --radius: 16px;
+      --tag-work-bg: #e8f3ec;
+      --tag-work-text: #3d7a5a;
+      --tag-off-bg: #fbeee9;
+      --tag-off-text: #b56247;
     }
 
-    * { box-sizing: border-box; word-break: break-word; }
-    body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; margin: 0; }
-    .container { max-width: 1000px; margin: 0 auto; background: var(--card-bg); padding: 24px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid var(--border); }
-    
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 16px; margin-bottom: 20px; }
-    h1 { font-size: 1.3rem; color: var(--primary); margin: 0; }
-    .btn-refresh { padding: 8px 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; }
-    .btn-refresh:hover { background-color: var(--primary-hover); }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Noto Sans TC', sans-serif; word-break: break-word; }
 
-    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); overflow-x: auto; }
-    .tab-btn { padding: 10px 16px; background: none; border: none; color: var(--muted); font-size: 0.95rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
-    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 460px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 28px;
+      border: 1px solid var(--border-color);
+    }
+
+    .header { text-align: center; margin-bottom: 20px; }
+    .header h1 { font-size: 1.5rem; font-weight: 500; color: var(--primary-color); margin-bottom: 4px; }
+    .header p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+    .header .date-display { font-size: 0.9rem; font-weight: 500; color: var(--primary-color); margin-top: 4px; }
+
+    .nav-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
+    .tab-btn {
+      flex: 1; padding: 12px 0; background: none; border: none; color: var(--text-muted);
+      font-size: 0.85rem; font-weight: 500; cursor: pointer; position: relative; transition: color 0.2s;
+    }
+    .tab-btn span.en { display: block; font-size: 0.7rem; font-weight: 400; opacity: 0.8; }
+    .tab-btn.active { color: var(--primary-color); }
+    .tab-btn.active::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background-color: var(--primary-color);
+    }
+
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .filter-panel { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; background: #faf9f7; padding: 12px; border-radius: 8px; border: 1px solid var(--border); align-items: center; }
-    select, input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; outline: none; background: #fff; font-size: 0.9rem; }
-    .input-money { width: 75px; text-align: right; padding: 4px 6px; }
+    .form-group { margin-bottom: 16px; min-width: 0; }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; min-width: 0; }
 
-    .table-wrapper { width: 100%; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 600px; }
-    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
-    th { background-color: #faf9f7; color: var(--primary); font-weight: 600; }
-    
-    .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.78rem; font-weight: 500; }
-    .tag-上班 { background-color: #e8f3ec; color: #3d7a5a; }
-    .tag-下班 { background-color: #fbeee9; color: #b56247; }
-    
-    .status-badge { display: inline-flex; align-items: center; gap: 6px; color: #2d6a4f; font-weight: 600; }
-    .status-dot { width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
-    
-    @keyframes pulse {
-      0% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.2); }
-      100% { opacity: 1; transform: scale(1); }
+    label { display: block; font-size: 0.85rem; color: var(--primary-color); margin-bottom: 6px; font-weight: 500; }
+    label .en { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; margin-left: 4px; }
+
+    input, select {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px;
+      background-color: #faf9f7; color: var(--text-main); font-size: 0.95rem; outline: none; transition: all 0.2s;
+    }
+    input:focus, select:focus { border-color: var(--primary-color); background-color: #ffffff; }
+
+    .time-select-group { display: flex; gap: 8px; }
+    .time-select-group select { flex: 1; min-width: 0; }
+
+    .type-toggle-group { display: flex; gap: 10px; }
+    .type-btn {
+      flex: 1; padding: 10px 8px; border: 1px solid var(--border-color); background-color: #faf9f7;
+      color: var(--text-muted); border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; text-align: center;
+    }
+    .type-btn .en { display: block; font-size: 0.75rem; font-weight: 400; }
+    .type-btn.active[data-type="上班"] { background-color: var(--tag-work-bg); color: var(--tag-work-text); border-color: var(--tag-work-text); }
+    .type-btn.active[data-type="下班"] { background-color: var(--tag-off-bg); color: var(--tag-off-text); border-color: var(--tag-off-text); }
+
+    .btn-submit {
+      width: 100%; padding: 12px; background-color: var(--primary-color); color: #ffffff; border: none;
+      border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; margin-top: 10px; transition: background 0.2s;
+    }
+    .btn-submit .en { display: block; font-size: 0.8rem; opacity: 0.85; }
+    .btn-submit:hover { background-color: var(--primary-hover); }
+    .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; }
+
+    .contact-notice { background-color: #f2efe9; color: var(--primary-color); font-size: 0.8rem; text-align: center; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border-color); }
+
+    .filter-group { display: flex; gap: 4px; margin-bottom: 16px; }
+    .filter-btn {
+      flex: 1; padding: 6px 2px; background-color: #faf9f7; border: 1px solid var(--border-color);
+      border-radius: 6px; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; text-align: center;
+    }
+    .filter-btn .en { display: block; font-size: 0.68rem; opacity: 0.85; }
+    .filter-btn.active { background-color: var(--primary-color); color: #ffffff; border-color: var(--primary-color); }
+
+    .btn-export {
+      width: 100%; padding: 10px; background-color: #faf9f7; border: 1px dashed var(--primary-color);
+      color: var(--primary-color); border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; margin-bottom: 16px; display: flex; justify-content: center; gap: 6px;
     }
 
-    .mode-badge { display: inline-block; padding: 4px 10px; background-color: #f2efe9; border: 1px solid var(--border); border-radius: 20px; font-size: 0.82rem; font-weight: 500; color: var(--primary); }
+    .calc-panel { background-color: #f5f2ec; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .calc-panel h3 { font-size: 0.95rem; color: var(--primary-color); margin-bottom: 12px; font-weight: 600; }
+    .calc-panel input { padding: 8px 6px; font-size: 0.8rem; background-color: #ffffff; }
+    .rule-tip { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+    .result-box { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .result-box strong { font-size: 1.35rem; color: #3d7a5a; }
 
-    .btn-action { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 500; }
-    .btn-delete { background-color: #fbeee9; color: #b56247; padding: 4px 8px; font-size: 0.8rem; }
-    .btn-delete:hover { background-color: #f7d2c4; }
-    .btn-add { background-color: var(--primary); color: white; }
-    .btn-add:hover { background-color: var(--primary-hover); }
-    .loading { text-align: center; color: var(--muted); padding: 24px 0; }
+    .record-list { list-style: none; max-height: 280px; overflow-y: auto; }
+    .record-item {
+      padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px;
+      background-color: #faf9f7; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    }
+    .record-info { font-size: 0.85rem; line-height: 1.5; flex-grow: 1; }
+    .record-info strong { color: var(--primary-color); font-weight: 500; }
 
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: white; padding: 24px; border-radius: 12px; width: 90%; max-width: 400px; }
-    .modal-header { font-weight: 600; margin-bottom: 16px; color: var(--primary); }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 0.8rem; margin-bottom: 4px; color: var(--muted); }
-    .form-group input, .form-group select { width: 100%; box-sizing: border-box; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .btn-delete { background: none; border: none; color: var(--text-muted); font-size: 1.1rem; font-weight: bold; padding: 4px 8px; cursor: pointer; border-radius: 4px; margin-left: 8px; }
+    .btn-delete:hover { color: var(--tag-off-text); background-color: var(--tag-off-bg); }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 500; margin-left: 6px; }
+    .tag-上班 { background-color: var(--tag-work-bg); color: var(--tag-work-text); }
+    .tag-下班 { background-color: var(--tag-off-bg); color: var(--tag-off-text); }
+    .empty-msg { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px 0; }
+
+    .status-panel { background-color: #faf9f7; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+    .status-toggle-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--border-color); }
+    .switch-btn-group { display: flex; gap: 6px; }
+    .sw-btn { padding: 8px 16px; border: 1px solid var(--border-color); background-color: #ffffff; color: var(--text-muted); border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .sw-btn.active-on { background-color: #e8f3ec; color: #3d7a5a; border-color: #3d7a5a; }
+    .sw-btn.active-off { background-color: #fbeee9; color: #b56247; border-color: #b56247; }
+    .status-preview { margin-top: 20px; padding: 16px; background: #ffffff; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; }
+    .status-preview-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+    .status-preview-val { font-size: 1.1rem; font-weight: 600; color: var(--primary-color); }
+
+    .toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background-color: rgba(74, 64, 58, 0.9);
+      color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1000;
+    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
 
   <div class="container">
     <div class="header">
-      <h1>🛡️ 全員動態與後端管理控制台</h1>
-      <button class="btn-refresh" onclick="loadAllData()">🔄 刷新資料</button>
+      <h1>DAILY CHECK-IN</h1>
+      <p>打卡系統 <span style="font-size: 0.8rem; opacity: 0.8;">/ Attendance System</span></p>
+      <div id="todayDate" class="date-display"></div>
     </div>
 
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('statusOnTab')">📱 人員狀態監控</button>
-      <button class="tab-btn" onclick="switchTab('historyTab')">📋 個人打卡紀錄</button>
-      <button class="tab-btn" onclick="switchTab('salaryTab')">💰 薪資計算</button>
+      <button class="tab-btn active" onclick="switchTab('checkin')">新增打卡<span class="en">New Check-in</span></button>
+      <button class="tab-btn" onclick="switchTab('records')">打卡紀錄<span class="en">Records</span></button>
+      <button class="tab-btn" onclick="switchTab('status')">目前狀態<span class="en">Status</span></button>
     </div>
 
-    <!-- 分頁一：人員狀態監控（僅顯示 ON 的人員） -->
-    <div id="statusOnTab" class="tab-content active">
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>姓名</th>
-              <th>狀態</th>
-              <th>最後打卡時間</th>
-              <th>上班地點</th>
-              <th>選擇模式</th>
-            </tr>
-          </thead>
-          <tbody id="statusOnTableBody">
-            <tr><td colspan="5" class="loading">載入中...</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- 分頁一：新增打卡 -->
+    <div id="checkinTab" class="tab-content active">
+      <form id="checkinForm">
+        <div class="form-group">
+          <label for="userName">姓名 <span class="en">Name</span> *</label>
+          <input type="text" id="userName" placeholder="請輸入姓名" required oninput="checkUserWorkingStatus()">
+        </div>
+
+        <div class="form-group">
+          <label>打卡類別 <span class="en">Category</span> *</label>
+          <div class="type-toggle-group">
+            <button type="button" class="type-btn active" data-type="上班" onclick="selectType('上班')">上班<span class="en">Check-in</span></button>
+            <button type="button" class="type-btn" data-type="下班" onclick="selectType('下班')">下班<span class="en">Check-out</span></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>時間 <span class="en">Time</span> *</label>
+          <div class="time-select-group">
+            <select id="hour"></select>
+            <select id="minute"></select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="location">地點 <span class="en">Location</span> *</label>
+          <input type="text" id="location" placeholder="OW、八度、飛龍" required>
+        </div>
+
+        <div id="offWorkFields" style="display: none;">
+          <div class="form-group">
+            <label for="note">備註 <span class="en">Note</span></label>
+            <input type="text" id="note" placeholder="自收、客人算xx小、未收車資">
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn-submit">
+          完成打卡
+          <span class="en">Submit Check-in</span>
+        </button>
+      </form>
     </div>
 
-    <!-- 分頁二：個人打卡紀錄 -->
-    <div id="historyTab" class="tab-content">
-      <div class="filter-panel">
-        <input type="text" id="nameSearchInput" placeholder="🔍 請輸入姓名或關鍵字" oninput="renderHistory()">
-        <select id="rangeFilter" onchange="renderHistory()">
-          <option value="daily">當天 (Daily)</option>
-          <option value="weekly">本週 (Weekly)</option>
-          <option value="3months" selected>近三個月 (3 Months)</option>
-        </select>
-        <button class="btn-action btn-add" style="margin-left: auto;" onclick="openAddModal()">＋ 管理者補打卡</button>
+    <!-- 分頁二：打卡紀錄 -->
+    <div id="recordsTab" class="tab-content">
+      <div class="contact-notice">💡 若要修改請與管理員聯繫</div>
+
+      <div class="filter-group">
+        <button class="filter-btn active" onclick="setFilter('daily', this)">每日<span class="en">Daily</span></button>
+        <button class="filter-btn" onclick="setFilter('weekly', this)">本週<span class="en">Weekly</span></button>
+        <button class="filter-btn" onclick="setFilter('3months', this)">近三個月<span class="en">3 Months</span></button>
+        <button class="filter-btn" onclick="setFilter('calc', this)">時數查詢<span class="en">Calculator</span></button>
       </div>
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>姓名</th>
-              <th>日期</th>
-              <th>時間</th>
-              <th>地點</th>
-              <th>狀態</th>
-              <th>備註 (下班同步)</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody">
-            <tr><td colspan="7" class="loading">資料載入中...</td></tr>
-          </tbody>
-        </table>
+      <button id="btnExport" class="btn-export" onclick="exportFilteredRecords()">📥 匯出當前紀錄 (Export CSV)</button>
+
+      <div id="calcPanel" class="calc-panel" style="display: none;">
+        <h3>🧮 計算機 <span class="en">/ Hours Calculator</span></h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>上班日期</label>
+            <input type="date" id="calcStartDate" onchange="calculateTotalAmount()">
+          </div>
+          <div class="form-group">
+            <label>上班時間</label>
+            <input type="time" id="calcStartTime" value="23:00" onchange="calculateTotalAmount()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>下班日期</label>
+            <input type="date" id="calcEndDate" onchange="calculateTotalAmount()">
+          </div>
+          <div class="form-group">
+            <label>下班時間</label>
+            <input type="time" id="calcEndTime" value="02:00" onchange="calculateTotalAmount()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>時薪 ($)</label>
+            <input type="number" id="calcRate" value="140" oninput="calculateTotalAmount()">
+            <div class="rule-tip">>=15m = +0.5h, >=45m = +1h</div>
+          </div>
+          <div class="form-group">
+            <label>車資 ($)</label>
+            <input type="number" id="calcFare" value="0" oninput="calculateTotalAmount()">
+          </div>
+        </div>
+        <div class="result-box">
+          <label>計算結果 (<span id="calculatedHoursText">0</span> 小時)：</label>
+          <strong id="calcResult">$0</strong>
+        </div>
       </div>
+
+      <ul id="recordList" class="record-list"></ul>
     </div>
 
-    <!-- 分頁三：薪資計算 -->
-    <div id="salaryTab" class="tab-content">
-      <div class="filter-panel">
-        <input type="text" id="salaryNameInput" placeholder="🔍 請輸入姓名或關鍵字">
-        <span style="font-size:0.85rem; color:var(--muted);">開始：</span>
-        <input type="date" id="salaryStartDate">
-        <span style="font-size:0.85rem; color:var(--muted);">結束：</span>
-        <input type="date" id="salaryEndDate">
-        <button class="btn-action btn-add" onclick="calculateSalary()">🧮 計算薪資班表</button>
-      </div>
+    <!-- 分頁三：目前狀態 -->
+    <div id="statusTab" class="tab-content">
+      <div class="status-panel">
+        <div class="status-toggle-box">
+          <label>狀態開關 <span class="en">Status Switch</span></label>
+          <div class="switch-btn-group">
+            <button type="button" id="swOnBtn" class="sw-btn active-on" onclick="toggleStatusSwitch(true)">ON</button>
+            <button type="button" id="swOffBtn" class="sw-btn" onclick="toggleStatusSwitch(false)">OFF</button>
+          </div>
+        </div>
 
-      <div id="salaryResultArea" style="display: none;" class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>姓名</th>
-              <th>日期</th>
-              <th>上班時間</th>
-              <th>下班時間</th>
-              <th>地點</th>
-              <th>自收 ($)</th>
-              <th>車資 ($)</th>
-              <th>時數</th>
-              <th>下班備註同步</th>
-            </tr>
-          </thead>
-          <tbody id="salaryTableBody"></tbody>
-        </table>
-      </div>
+        <div id="statusSelectGroup" class="form-group">
+          <label for="statusSelect">選擇狀態模式 <span class="en">Select Mode</span></label>
+          <select id="statusSelect" onchange="saveStatusSettings()">
+            <option value="🥳 只嗨 (High Only)">🥳 只嗨 (High Only)</option>
+            <option value="🍷 只酒 (Drinks Only)">🍷 只酒 (Drinks Only)</option>
+            <option value="🎉 都可以 (Both)">🎉 都可以 (Both)</option>
+          </select>
+        </div>
 
-      <div id="salaryEmptyTip" class="loading">
-        請輸入姓名與選擇日期範圍後點擊「計算薪資班表」
+        <div class="status-preview">
+          <div class="status-preview-title">當前設定顯示效果 / Current Preview</div>
+          <div id="statusPreviewVal" class="status-preview-val">🥳 只嗨 (High Only)</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- 管理者補打卡 Modal -->
-  <div id="addModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">管理者手動新增/補打卡</div>
-      <div class="form-group"><label>姓名</label><input type="text" id="modalName" placeholder="請輸入姓名"></div>
-      <div class="form-group"><label>類別</label>
-        <select id="modalType"><option value="上班">上班</option><option value="下班">下班</option></select>
-      </div>
-      <div class="form-group"><label>日期</label><input type="date" id="modalDate"></div>
-      <div class="form-group"><label>時間</label><input type="time" id="modalTime" value="09:00"></div>
-      <div class="form-group"><label>地點</label><input type="text" id="modalLocation" placeholder="例：OW、八度"></div>
-      <div class="form-group"><label>備註</label><input type="text" id="modalNote" placeholder="選填（下班備註）"></div>
-      <div class="modal-actions">
-        <button class="btn-action" onclick="closeAddModal()">取消</button>
-        <button class="btn-action btn-add" onclick="submitAddRecord()">新增打卡</button>
-      </div>
-    </div>
-  </div>
+  <div id="toast" class="toast">已複製打卡紀錄</div>
 
   <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwzlYP6BXTkf0daiSRP3E6TnsmYyHZzmEHGQliBkII8pu2hA-mYrOIi2wBSZMBPLVKB3g/exec';
-    let rawData = [];
+
+    let selectedType = '上班';
+    let currentFilter = 'daily';
+    let isStatusOn = true;
+    let cloudRecords = [];
 
     function formatDate(rawVal) {
       if (!rawVal) return '';
       const str = String(rawVal).trim();
       if (str.includes('T')) {
         const d = new Date(str);
-        if (!isNaN(d.getTime())) return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        if (!isNaN(d.getTime())) {
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
       }
       return str.split('T')[0].split(' ')[0];
     }
@@ -211,17 +322,11 @@
       const str = String(rawVal).trim();
       if (str.includes('T')) {
         const d = new Date(str);
-        if (!isNaN(d.getTime())) return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        if (!isNaN(d.getTime())) {
+          return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        }
       }
       return str.length > 5 ? str.substring(0, 5) : str;
-    }
-
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      const idx = { 'statusOnTab': 0, 'historyTab': 1, 'salaryTab': 2 }[tabId];
-      document.querySelectorAll('.tab-btn')[idx].classList.add('active');
-      document.getElementById(tabId).classList.add('active');
     }
 
     function getTodayStr() {
@@ -229,12 +334,88 @@
       return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
 
-    function loadAllData() {
+    function initDateDisplay() {
+      const now = new Date();
+      document.getElementById('todayDate').innerText = now.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+      document.getElementById('calcStartDate').value = getTodayStr();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+      document.getElementById('calcEndDate').value = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      const todayDateEl = document.getElementById('todayDate');
+
+      if (tabName === 'checkin') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('checkinTab').classList.add('active');
+        todayDateEl.style.display = 'block';
+      } else if (tabName === 'records') {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('recordsTab').classList.add('active');
+        todayDateEl.style.display = 'none';
+        fetchCloudData();
+      } else if (tabName === 'status') {
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
+        document.getElementById('statusTab').classList.add('active');
+        todayDateEl.style.display = 'none';
+      }
+    }
+
+    function initTimeOptions() {
+      const hSel = document.getElementById('hour'), mSel = document.getElementById('minute');
+      hSel.innerHTML = ''; mSel.innerHTML = '';
+      for (let i = 0; i < 24; i++) hSel.innerHTML += `<option value="${String(i).padStart(2, '0')}">${String(i).padStart(2, '0')} 時</option>`;
+      for (let i = 0; i < 60; i++) mSel.innerHTML += `<option value="${String(i).padStart(2, '0')}">${String(i).padStart(2, '0')} 分</option>`;
+      setNowTime();
+    }
+
+    function setNowTime() {
+      const now = new Date();
+      document.getElementById('hour').value = String(now.getHours()).padStart(2, '0');
+      document.getElementById('minute').value = String(now.getMinutes()).padStart(2, '0');
+    }
+
+    function selectType(type) {
+      selectedType = type;
+      document.querySelectorAll('.type-btn').forEach(btn => {
+        if (btn.getAttribute('data-type') === type) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      document.getElementById('offWorkFields').style.display = (type === '下班') ? 'block' : 'none';
+      if (type !== '下班') document.getElementById('note').value = '';
+    }
+
+    // 檢查防呆機制：若已打上班卡未打下班卡，禁止再次上班
+    function checkUserWorkingStatus() {
+      const name = document.getElementById('userName').value.trim();
+      const submitBtn = document.getElementById('submitBtn');
+      if (!name) return;
+
+      const userRecords = cloudRecords.filter(r => r.name.toLowerCase() === name.toLowerCase());
+      if (userRecords.length > 0) {
+        // 依據 rowIndex 排序找到最新一筆
+        userRecords.sort((a, b) => b.rowIndex - a.rowIndex);
+        const lastRecord = userRecords[0];
+
+        if (lastRecord.type === '上班' && selectedType === '上班') {
+          submitBtn.disabled = true;
+          submitBtn.innerText = '已有進行中上班打卡 (不可重複)';
+          return;
+        }
+      }
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
+    }
+
+    function fetchCloudData() {
       fetch(GAS_URL)
         .then(res => res.json())
         .then(res => {
           if (res.result === 'success') {
-            rawData = res.data.map((row, idx) => ({
+            cloudRecords = res.data.map((row, idx) => ({
               rowIndex: idx + 2,
               name: String(row[0] || '').trim(),
               date: formatDate(row[1]),
@@ -242,207 +423,210 @@
               location: String(row[3] || '').trim(),
               type: String(row[4] || '').trim(),
               note: String(row[5] || '').trim(),
-              statusIsOn: row[6] !== undefined ? (row[6] === true || row[6] === 'TRUE' || row[6] === 'true') : true,
-              statusMode: String(row[7] || '🥳 只嗨 (High Only)').trim()
+              statusIsOn: row[6] !== undefined ? row[6] : true,
+              statusMode: String(row[7] || '').trim()
             }));
-            renderStatusOnUsers();
-            renderHistory();
+            renderRecords();
+            checkUserWorkingStatus();
           }
-        });
-    }
-
-    function renderStatusOnUsers() {
-      const tbody = document.getElementById('statusOnTableBody');
-      const userMap = {};
-
-      // 找出每個人的最新紀錄以判斷狀態
-      rawData.forEach(r => {
-        if (!r.name) return;
-        userMap[r.name] = r; // 因為依序讀取，後面的紀錄較新
-      });
-
-      const activeUsers = Object.values(userMap).filter(info => info.statusIsOn === true);
-
-      if (activeUsers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading">目前沒有開啓 ON 狀態的人員</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = '';
-      activeUsers.forEach(info => {
-        const tr = document.createElement('tr');
-        let statusBadge = (info.type === '上班') 
-          ? `<span class="status-badge"><span class="status-dot"></span> 上班中</span>` 
-          : `<span class="status-badge" style="color:#7d6e63;"><span class="status-dot" style="background:#7d6e63;"></span> 在線 ON</span>`;
-        
-        let locationDisplay = (info.type === '上班' && info.location) ? `📍 ${info.location}` : '-';
-
-        tr.innerHTML = `
-          <td><strong>${info.name}</strong></td>
-          <td>${statusBadge}</td>
-          <td>${info.time || '-'}</td>
-          <td>${locationDisplay}</td>
-          <td><span class="mode-badge">${info.statusMode}</span></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderHistory() {
-      const tbody = document.getElementById('historyTableBody');
-      const keyword = document.getElementById('nameSearchInput').value.trim().toLowerCase();
-      const range = document.getElementById('rangeFilter').value;
-      const todayStr = getTodayStr(), now = new Date();
-
-      let filtered = rawData.filter(r => {
-        if (keyword && !r.name.toLowerCase().includes(keyword)) return false;
-        const rDate = new Date(r.date.replace(/-/g, '/'));
-        if (range === 'daily') return r.date === todayStr;
-        if (range === 'weekly') { const w = new Date(); w.setDate(now.getDate() - 7); return rDate >= w && rDate <= now; }
-        if (range === '3months') { const m = new Date(); m.setDate(now.getDate() - 90); return rDate >= m && rDate <= now; }
-        return true;
-      });
-
-      const displayList = [...filtered].reverse();
-      if (displayList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="loading">查無符合條件的打卡紀錄</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = '';
-      displayList.forEach(item => {
-        const tr = document.createElement('tr');
-        // 需求：個人打卡紀錄備註同步「下班卡」的備註（若該筆為上班卡，其對應下班備註需從配對抓取，此處直接顯示該行備註若有，或保持空白）
-        const noteDisplay = item.note || '';
-        tr.innerHTML = `
-          <td><strong>${item.name}</strong></td>
-          <td>${item.date}</td>
-          <td>${item.time}</td>
-          <td>📍 ${item.location}</td>
-          <td><span class="tag tag-${item.type}">${item.type}</span></td>
-          <td>${noteDisplay}</td>
-          <td><button class="btn-action btn-delete" onclick="deleteRecord(${item.rowIndex})">🗑️ 刪除</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function calculateSalary() {
-      const keyword = document.getElementById('salaryNameInput').value.trim().toLowerCase();
-      const sDate = document.getElementById('salaryStartDate').value;
-      const eDate = document.getElementById('salaryEndDate').value;
-      const tbody = document.getElementById('salaryTableBody');
-
-      if (!keyword || !sDate || !eDate) {
-        alert('請完整輸入姓名關鍵字與日期區間！'); return;
-      }
-
-      let filtered = rawData.filter(r => r.name.toLowerCase().includes(keyword) && r.date >= sDate && r.date <= eDate);
-      const groupMap = {};
-      filtered.forEach(r => {
-        const k = `${r.name}_${r.date}`;
-        if (!groupMap[k]) groupMap[k] = [];
-        groupMap[k].push(r);
-      });
-
-      const shiftList = [];
-      Object.keys(groupMap).forEach(k => {
-        let recs = groupMap[k];
-        recs.sort((a, b) => a.time.localeCompare(b.time));
-        let currentOn = null;
-
-        recs.forEach(r => {
-          if (r.type === '上班') currentOn = r;
-          else if (r.type === '下班') {
-            if (currentOn) {
-              const hours = calcHours(currentOn.date, currentOn.time, r.date, r.time);
-              // 需求：薪資計算的備註同步「下班卡」時的那個備註
-              const offNote = r.note || '';
-              shiftList.push({
-                name: currentOn.name, date: currentOn.date,
-                startTime: currentOn.time, endTime: r.time,
-                location: currentOn.location || r.location || '-',
-                selfCollect: parseSelfCollect(offNote), fare: 0, hours,
-                note: offNote // 同步下班備註
-              });
-              currentOn = null;
-            }
-          }
-        });
-      });
-
-      if (shiftList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="loading">無對應的完整班表紀錄</td></tr>';
-      } else {
-        tbody.innerHTML = '';
-        shiftList.forEach(s => {
-          tbody.innerHTML += `
-            <tr>
-              <td><strong>${s.name}</strong></td>
-              <td>${s.date}</td>
-              <td>${s.startTime}</td>
-              <td>${s.endTime}</td>
-              <td>📍 ${s.location}</td>
-              <td><input type="number" class="input-money" value="${s.selfCollect}"></td>
-              <td><input type="number" class="input-money" value="${s.fare}"></td>
-              <td><strong>${s.hours}</strong> hr</td>
-              <td><strong>${s.note}</strong></td>
-            </tr>
-          `;
-        });
-      }
-      document.getElementById('salaryEmptyTip').style.display = 'none';
-      document.getElementById('salaryResultArea').style.display = 'block';
-    }
-
-    function calcHours(d1, t1, d2, t2) {
-      try {
-        const start = new Date(`${d1.replace(/-/g, '/')} ${t1}`);
-        const end = new Date(`${d2.replace(/-/g, '/')} ${t2}`);
-        let diff = end - start;
-        if (diff < 0) diff += 24 * 3600 * 1000;
-        return (diff / (1000 * 60 * 60)).toFixed(1);
-      } catch (e) { return 0; }
-    }
-
-    function parseSelfCollect(note) {
-      if (!note) return 0;
-      const match = note.match(/(?:自收|現金)\s*[:：]?\s*(\d+)/);
-      return match ? parseInt(match[1], 10) : 0;
+        })
+        .catch(() => {});
     }
 
     function deleteRecord(rowIndex) {
-      if (!confirm(`確定要刪除第 ${rowIndex} 列紀錄嗎？`)) return;
-      fetch(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'delete', rowIndex })
-      }).then(res => res.json()).then(() => loadAllData());
+      if (confirm('確定要刪除這筆紀錄嗎？')) {
+        fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'delete', rowIndex: rowIndex })
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.result === 'success') {
+            showToast('紀錄已刪除');
+            fetchCloudData();
+          }
+        });
+      }
     }
 
-    function openAddModal() { document.getElementById('modalDate').value = getTodayStr(); document.getElementById('addModal').style.display = 'flex'; }
-    function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
-    function submitAddRecord() {
+    function toggleStatusSwitch(status) {
+      isStatusOn = status;
+      document.getElementById('swOnBtn').className = status ? 'sw-btn active-on' : 'sw-btn';
+      document.getElementById('swOffBtn').className = status ? 'sw-btn' : 'sw-btn active-off';
+      document.getElementById('statusSelectGroup').style.opacity = status ? '1' : '0.5';
+      document.getElementById('statusSelectGroup').style.pointerEvents = status ? 'auto' : 'none';
+      saveStatusSettings();
+    }
+
+    function saveStatusSettings() {
+      const val = document.getElementById('statusSelect').value;
+      const previewEl = document.getElementById('statusPreviewVal');
+      previewEl.innerText = isStatusOn ? val : '🚫 已關閉狀態顯示 (OFF)';
+      previewEl.style.color = isStatusOn ? 'var(--primary-color)' : 'var(--text-muted)';
+
+      localStorage.setItem('user_status_config', JSON.stringify({ isOn: isStatusOn, value: val }));
+      const name = document.getElementById('userName').value.trim();
+      if (name) {
+        fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            name, type: selectedType, date: getTodayStr(),
+            time: `${document.getElementById('hour').value}:${document.getElementById('minute').value}`,
+            location: document.getElementById('location').value.trim() || '未定',
+            note: document.getElementById('note').value.trim(),
+            statusIsOn: isStatusOn, statusMode: val
+          })
+        });
+      }
+    }
+
+    function loadStatusSettings() {
+      const config = JSON.parse(localStorage.getItem('user_status_config'));
+      if (config) {
+        isStatusOn = config.isOn;
+        if (config.value) document.getElementById('statusSelect').value = config.value;
+      }
+      toggleStatusSwitch(isStatusOn);
+    }
+
+    function setFilter(filterType, btnElement) {
+      currentFilter = filterType;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+      document.getElementById('calcPanel').style.display = (filterType === 'calc') ? 'block' : 'none';
+      document.getElementById('btnExport').style.display = (filterType === 'calc') ? 'none' : 'flex';
+      renderRecords();
+    }
+
+    function filterRecords(records) {
+      const now = new Date(), todayStr = getTodayStr();
+      return records.filter(item => {
+        const rDate = new Date(item.date.replace(/-/g, '/'));
+        if (currentFilter === 'daily') return item.date === todayStr;
+        if (currentFilter === 'weekly') {
+          const weekAgo = new Date(); weekAgo.setDate(now.getDate() - 7);
+          return rDate >= weekAgo && rDate <= now;
+        }
+        if (currentFilter === '3months') {
+          const mAgo = new Date(); mAgo.setDate(now.getDate() - 90);
+          return rDate >= mAgo && rDate <= now;
+        }
+        return true;
+      });
+    }
+
+    function calculateCrossDayHours(sDate, sTime, eDate, eTime) {
+      const start = new Date(`${sDate.replace(/-/g, '/')} ${sTime}:00`);
+      const end = new Date(`${eDate.replace(/-/g, '/')} ${eTime}:00`);
+      let mins = Math.floor((end - start) / (1000 * 60));
+      if (isNaN(mins) || mins <= 0) return 0;
+      const full = Math.floor(mins / 60), rem = mins % 60;
+      return full + (rem >= 45 ? 1.0 : (rem >= 15 ? 0.5 : 0));
+    }
+
+    function calculateTotalAmount() {
+      const hours = calculateCrossDayHours(
+        document.getElementById('calcStartDate').value, document.getElementById('calcStartTime').value,
+        document.getElementById('calcEndDate').value, document.getElementById('calcEndTime').value
+      );
+      const rate = parseFloat(document.getElementById('calcRate').value) || 0;
+      const fare = parseFloat(document.getElementById('calcFare').value) || 0;
+      document.getElementById('calculatedHoursText').innerText = hours;
+      document.getElementById('calcResult').innerText = `$${Math.round((hours * rate) + fare).toLocaleString()}`;
+    }
+
+    function exportFilteredRecords() {
+      const filtered = filterRecords(cloudRecords);
+      if (filtered.length === 0) { alert('目前無紀錄可供匯出！'); return; }
+      let csv = "\uFEFF姓名,日期,類別,時間,地點,備註\n";
+      filtered.forEach(i => {
+        csv += `"${i.name}","${i.date}","${i.type}","${i.time}","${i.location}","${i.note}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `打卡紀錄_${getTodayStr()}.csv`;
+      link.click();
+    }
+
+    function renderRecords() {
+      const list = document.getElementById('recordList');
+      list.innerHTML = '';
+      if (currentFilter === 'calc') {
+        list.style.display = 'none';
+        const w = cloudRecords.find(r => r.type === '上班'), o = cloudRecords.find(r => r.type === '下班');
+        if (w) { document.getElementById('calcStartDate').value = w.date; document.getElementById('calcStartTime').value = w.time; }
+        if (o) { document.getElementById('calcEndDate').value = o.date; document.getElementById('calcEndTime').value = o.time; }
+        calculateTotalAmount();
+        return;
+      }
+      list.style.display = 'block';
+      const filtered = filterRecords(cloudRecords).reverse();
+      if (filtered.length === 0) {
+        list.innerHTML = '<li class="empty-msg">尚無符合條件的紀錄</li>';
+        return;
+      }
+      filtered.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'record-item';
+        // 需求：備註欄位若無備註無須顯示
+        const noteStr = item.note ? `<br><span style="color:#7d6e63; font-size:0.78rem;">📝 ${item.note}</span>` : '';
+        li.innerHTML = `
+          <div class="record-info">
+            <div><strong>${item.name}</strong> <span class="tag tag-${item.type}">${item.type}</span></div>
+            <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">📅 ${item.date} | ⏰ ${item.time} | 📍 ${item.location}${noteStr}</div>
+          </div>
+          <button type="button" class="btn-delete" onclick="deleteRecord(${item.rowIndex})">✕</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    document.getElementById('checkinForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('userName').value.trim();
+      const location = document.getElementById('location').value.trim();
+      const note = document.getElementById('note').value.trim();
+      const timeStr = `${document.getElementById('hour').value}:${document.getElementById('minute').value}`;
+
       const payload = {
-        name: document.getElementById('modalName').value.trim(),
-        type: document.getElementById('modalType').value,
-        date: document.getElementById('modalDate').value,
-        time: document.getElementById('modalTime').value,
-        location: document.getElementById('modalLocation').value.trim(),
-        note: document.getElementById('modalNote').value.trim()
+        name, type: selectedType, date: getTodayStr(), time: timeStr,
+        location, note, statusIsOn: isStatusOn, statusMode: document.getElementById('statusSelect').value
       };
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true; btn.innerText = '打卡中...';
+
       fetch(GAS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(payload)
-      }).then(() => { closeAddModal(); loadAllData(); });
-    }
+      })
+      .then(res => res.json())
+      .then(res => {
+        btn.disabled = false;
+        btn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
+        if (res.result === 'success') {
+          alert('打卡完成！');
+          document.getElementById('location').value = '';
+          document.getElementById('note').value = '';
+          setNowTime();
+          switchTab('records');
+        } else {
+          alert('打卡失敗：' + res.message);
+        }
+      });
+    });
 
-    window.onload = () => {
-      document.getElementById('salaryStartDate').value = getTodayStr();
-      document.getElementById('salaryEndDate').value = getTodayStr();
-      loadAllData();
-    };
+    window.onload = () => { initDateDisplay(); initTimeOptions(); loadStatusSettings(); fetchCloudData(); };
   </script>
 </body>
 </html>
