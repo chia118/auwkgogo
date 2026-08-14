@@ -124,12 +124,14 @@
     .record-list { list-style: none; max-height: 280px; overflow-y: auto; }
     .record-item {
       padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px;
-      background-color: #faf9f7; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+      background-color: #faf9f7; display: flex; justify-content: space-between; align-items: center;
     }
     .record-info { font-size: 0.85rem; line-height: 1.5; flex-grow: 1; }
     .record-info strong { color: var(--primary-color); font-weight: 500; }
 
-    .btn-delete { background: none; border: none; color: var(--text-muted); font-size: 1.1rem; font-weight: bold; padding: 4px 8px; cursor: pointer; border-radius: 4px; margin-left: 8px; }
+    .action-btns { display: flex; gap: 4px; align-items: center; }
+    .btn-action-icon { background: none; border: none; font-size: 0.9rem; padding: 4px 6px; cursor: pointer; border-radius: 4px; }
+    .btn-edit:hover { background-color: #e2e8f0; color: #2563eb; }
     .btn-delete:hover { color: var(--tag-off-text); background-color: var(--tag-off-bg); }
 
     .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 500; margin-left: 6px; }
@@ -214,7 +216,7 @@
 
     <!-- 分頁二：打卡紀錄 -->
     <div id="recordsTab" class="tab-content">
-      <div class="contact-notice">💡 若要修改請與管理員聯繫</div>
+      <div class="contact-notice">💡 點擊備註旁的 ✏️ 即可直接修改編輯備註</div>
 
       <div class="filter-group">
         <button class="filter-btn active" onclick="setFilter('daily', this)">每日<span class="en">Daily</span></button>
@@ -295,7 +297,7 @@
     </div>
   </div>
 
-  <div id="toast" class="toast">已複製打卡紀錄</div>
+  <div id="toast" class="toast">操作成功</div>
 
   <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwzlYP6BXTkf0daiSRP3E6TnsmYyHZzmEHGQliBkII8pu2hA-mYrOIi2wBSZMBPLVKB3g/exec';
@@ -386,9 +388,10 @@
       });
       document.getElementById('offWorkFields').style.display = (type === '下班') ? 'block' : 'none';
       if (type !== '下班') document.getElementById('note').value = '';
+      checkUserWorkingStatus();
     }
 
-    // 檢查防呆機制：若已打上班卡未打下班卡，禁止再次上班
+    // 防呆檢查：若已打上班卡尚未打下班卡，跳出提示並鎖定上班打卡
     function checkUserWorkingStatus() {
       const name = document.getElementById('userName').value.trim();
       const submitBtn = document.getElementById('submitBtn');
@@ -396,13 +399,13 @@
 
       const userRecords = cloudRecords.filter(r => r.name.toLowerCase() === name.toLowerCase());
       if (userRecords.length > 0) {
-        // 依據 rowIndex 排序找到最新一筆
         userRecords.sort((a, b) => b.rowIndex - a.rowIndex);
         const lastRecord = userRecords[0];
 
+        // 如果最新一筆是上班，且目前選的也是上班
         if (lastRecord.type === '上班' && selectedType === '上班') {
           submitBtn.disabled = true;
-          submitBtn.innerText = '已有進行中上班打卡 (不可重複)';
+          submitBtn.innerText = '尚未打下班卡 (已鎖定)';
           return;
         }
       }
@@ -448,6 +451,40 @@
           }
         });
       }
+    }
+
+    function editNote(rowIndex, currentNote) {
+      const newNote = prompt("請輸入要修改的備註內容：", currentNote || "");
+      if (newNote === null) return; // 取消
+
+      const target = cloudRecords.find(r => r.rowIndex === rowIndex);
+      if (!target) return;
+
+      const payload = {
+        action: 'updateNote',
+        rowIndex: rowIndex,
+        name: target.name,
+        type: target.type,
+        date: target.date,
+        time: target.time,
+        location: target.location,
+        note: newNote.trim()
+      };
+
+      fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.result === 'success') {
+          showToast('備註已更新');
+          fetchCloudData();
+        } else {
+          alert('更新失敗');
+        }
+      });
     }
 
     function toggleStatusSwitch(status) {
@@ -571,14 +608,19 @@
       filtered.forEach(item => {
         const li = document.createElement('li');
         li.className = 'record-item';
-        // 需求：備註欄位若無備註無須顯示
+        
+        // 備註若無則不顯示，若有則顯示並支援編輯
         const noteStr = item.note ? `<br><span style="color:#7d6e63; font-size:0.78rem;">📝 ${item.note}</span>` : '';
+        
         li.innerHTML = `
           <div class="record-info">
             <div><strong>${item.name}</strong> <span class="tag tag-${item.type}">${item.type}</span></div>
             <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">📅 ${item.date} | ⏰ ${item.time} | 📍 ${item.location}${noteStr}</div>
           </div>
-          <button type="button" class="btn-delete" onclick="deleteRecord(${item.rowIndex})">✕</button>
+          <div class="action-btns">
+            <button type="button" class="btn-action-icon btn-edit" onclick="editNote(${item.rowIndex}, '${item.note}')" title="編輯備註">✏️</button>
+            <button type="button" class="btn-action-icon btn-delete" onclick="deleteRecord(${item.rowIndex})" title="刪除">✕</button>
+          </div>
         `;
         list.appendChild(li);
       });
@@ -596,6 +638,16 @@
       const location = document.getElementById('location').value.trim();
       const note = document.getElementById('note').value.trim();
       const timeStr = `${document.getElementById('hour').value}:${document.getElementById('minute').value}`;
+
+      // 嚴格防呆：若已打上班卡尚未打下班卡，禁止再次上班
+      const userRecords = cloudRecords.filter(r => r.name.toLowerCase() === name.toLowerCase());
+      if (userRecords.length > 0) {
+        userRecords.sort((a, b) => b.rowIndex - a.rowIndex);
+        if (userRecords[0].type === '上班' && selectedType === '上班') {
+          alert('您尚未打下班卡唷！');
+          return;
+        }
+      }
 
       const payload = {
         name, type: selectedType, date: getTodayStr(), time: timeStr,
