@@ -80,6 +80,7 @@
       font-weight: 500;
       color: var(--primary-color);
       letter-spacing: 0.5px;
+      margin-top: 4px;
     }
 
     /* 主分頁頁籤 */
@@ -256,6 +257,18 @@
       background-color: var(--primary-hover);
     }
 
+    /* 管理員聯繫提示 */
+    .contact-notice {
+      background-color: #f2efe9;
+      color: var(--primary-color);
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border-color);
+    }
+
     /* 紀錄頁面時間篩選器 */
     .filter-group {
       display: flex;
@@ -427,21 +440,6 @@
       color: var(--tag-off-text);
     }
 
-    .btn-delete {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 1.2rem;
-      padding: 4px 8px;
-      line-height: 1;
-      transition: color 0.2s ease;
-    }
-
-    .btn-delete:hover {
-      color: #d9534f;
-    }
-
     .empty-msg {
       text-align: center;
       color: var(--text-muted);
@@ -492,6 +490,7 @@
     <div class="header">
       <h1>DAILY CHECK-IN</h1>
       <p>打卡系統 <span style="font-size: 0.8rem; opacity: 0.8;">/ Attendance System</span></p>
+      <!-- 日期僅在「新增打卡」分頁顯示 -->
       <div id="todayDate" class="date-display"></div>
     </div>
 
@@ -559,6 +558,9 @@
 
     <!-- 分頁二：打卡紀錄與時數查詢 -->
     <div id="recordsTab" class="tab-content">
+      <!-- 修改聯繫提示文字 -->
+      <div class="contact-notice">💡 若要修改請與管理員聯繫</div>
+
       <div class="filter-group">
         <button class="filter-btn active" onclick="setFilter('daily', this)">
           每日
@@ -662,7 +664,6 @@
       const todayStr = getTodayStr();
       document.getElementById('calcStartDate').value = todayStr;
 
-      // 預設跨日範例下班日期帶入明天
       const tomorrow = new Date(now);
       tomorrow.setDate(now.getDate() + 1);
       const tYear = tomorrow.getFullYear();
@@ -671,10 +672,11 @@
       document.getElementById('calcEndDate').value = `${tYear}-${tMonth}-${tDay}`;
     }
 
-    // 主分頁切換
+    // 主分頁切換（同時控制頂部日期的顯示與隱藏）
     function switchTab(tabName) {
       const tabs = document.querySelectorAll('.tab-btn');
       const contents = document.querySelectorAll('.tab-content');
+      const todayDateEl = document.getElementById('todayDate');
 
       tabs.forEach(tab => tab.classList.remove('active'));
       contents.forEach(content => content.classList.remove('active'));
@@ -682,9 +684,11 @@
       if (tabName === 'checkin') {
         tabs[0].classList.add('active');
         document.getElementById('checkinTab').classList.add('active');
+        todayDateEl.style.display = 'block'; // 在「新增打卡」分頁時顯示頂部日期
       } else {
         tabs[1].classList.add('active');
         document.getElementById('recordsTab').classList.add('active');
+        todayDateEl.style.display = 'none'; // 切換至「打卡紀錄」分頁時隱藏頂部日期
         renderRecords();
       }
     }
@@ -919,13 +923,11 @@
       }
 
       filteredRecords.forEach((item) => {
-        const originalIndex = allRecords.findIndex(r => r === item);
         const li = document.createElement('li');
         li.className = 'record-item';
         li.title = '點擊即可複製紀錄 / Click to copy';
 
-        li.onclick = (e) => {
-          if (e.target.classList.contains('btn-delete')) return;
+        li.onclick = () => {
           copyRecordText(item);
         };
 
@@ -941,7 +943,6 @@
               📅 ${item.date} | ⏰ ${item.time} | 📍 ${item.location}${extraInfoStr}
             </div>
           </div>
-          <button class="btn-delete" title="刪除紀錄 / Delete" onclick="deleteRecord(${originalIndex})">×</button>
         `;
         recordList.appendChild(li);
       });
@@ -1026,13 +1027,6 @@
       
       switchTab('records');
     });
-
-    function deleteRecord(index) {
-      const records = getRecords();
-      records.splice(index, 1);
-      saveRecords(records);
-      renderRecords();
-    }
 
     window.onload = function() {
       initDateDisplay();
