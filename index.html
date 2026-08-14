@@ -745,15 +745,15 @@
         <div id="statusSelectGroup" class="form-group">
           <label for="statusSelect">選擇狀態模式 <span class="en">Select Mode</span></label>
           <select id="statusSelect" onchange="saveStatusSettings()">
-            <option value="🥳 只嗨 (Only High)">🥳 只嗨 (Only High)</option>
-            <option value="🍷 只酒 (Only Drinks)">🍷 只酒 (Only Drinks)</option>
-            <option value="🎉 都可以 (Both OK)">🎉 都可以 (Both OK)</option>
+            <option value="🥳 只嗨 (High Only)">🥳 只嗨 (High Only)</option>
+            <option value="🍷 只酒 (Drinks Only)">🍷 只酒 (Drinks Only)</option>
+            <option value="🎉 都可以 (Both)">🎉 都可以 (Both)</option>
           </select>
         </div>
 
         <div class="status-preview">
           <div class="status-preview-title">當前設定顯示效果 / Current Preview</div>
-          <div id="statusPreviewVal" class="status-preview-val">🥳 只嗨 (Only High)</div>
+          <div id="statusPreviewVal" class="status-preview-val">🥳 只嗨 (High Only)</div>
         </div>
       </div>
     </div>
@@ -873,7 +873,6 @@
       localStorage.setItem('checkin_records', JSON.stringify(records));
     }
 
-    // 刪除指定索引的打卡紀錄
     function deleteRecord(index) {
       if (confirm('確定要刪除這筆紀錄嗎？')) {
         const records = getRecords();
@@ -928,10 +927,14 @@
       if (config) {
         isStatusOn = config.isOn;
         if (config.value) {
-          // 若舊值為 Only Hype 則自動轉為 Only High
           let modeVal = config.value;
-          if (modeVal.includes('Hype')) {
-            modeVal = '🥳 只嗨 (Only High)';
+          // 自動向後相容將舊設定文字轉換為新設定
+          if (modeVal.includes('High') || modeVal.includes('Hype')) {
+            modeVal = '🥳 只嗨 (High Only)';
+          } else if (modeVal.includes('Drinks')) {
+            modeVal = '🍷 只酒 (Drinks Only)';
+          } else if (modeVal.includes('Both') || modeVal.includes('都可以')) {
+            modeVal = '🎉 都可以 (Both)';
           }
           document.getElementById('statusSelect').value = modeVal;
         }
