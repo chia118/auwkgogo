@@ -96,7 +96,7 @@
       background: none;
       border: none;
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-weight: 500;
       cursor: pointer;
       position: relative;
@@ -106,7 +106,7 @@
 
     .tab-btn span.en {
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 400;
       opacity: 0.8;
     }
@@ -421,6 +421,25 @@
       font-weight: 500;
     }
 
+    /* 刪除按鈕 ✕ 樣式 */
+    .btn-delete {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      margin-left: 8px;
+    }
+
+    .btn-delete:hover {
+      color: var(--tag-off-text);
+      background-color: var(--tag-off-bg);
+    }
+
     .tag {
       display: inline-block;
       padding: 2px 8px;
@@ -445,6 +464,77 @@
       color: var(--text-muted);
       font-size: 0.85rem;
       padding: 24px 0;
+    }
+
+    /* 「目前狀態」分頁專用樣式 */
+    .status-panel {
+      background-color: #faf9f7;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .status-toggle-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .status-toggle-box label {
+      margin-bottom: 0;
+      font-size: 1rem;
+    }
+
+    .switch-btn-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .sw-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border-color);
+      background-color: #ffffff;
+      color: var(--text-muted);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sw-btn.active-on {
+      background-color: #e8f3ec;
+      color: #3d7a5a;
+      border-color: #3d7a5a;
+    }
+
+    .sw-btn.active-off {
+      background-color: #fbeee9;
+      color: #b56247;
+      border-color: #b56247;
+    }
+
+    .status-preview {
+      margin-top: 20px;
+      padding: 16px;
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .status-preview-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .status-preview-val {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary-color);
     }
 
     /* 複製成功提示文字 Popup */
@@ -504,6 +594,10 @@
         打卡紀錄
         <span class="en">Records</span>
       </button>
+      <button class="tab-btn" onclick="switchTab('status')">
+        目前狀態
+        <span class="en">Status</span>
+      </button>
     </div>
 
     <!-- 分頁一：打卡表單 -->
@@ -541,7 +635,7 @@
           <input type="text" id="location" placeholder="OW、八度、飛龍" required>
         </div>
 
-        <!-- 下班限定填寫欄位 (僅保留備註) -->
+        <!-- 下班限定填寫欄位 -->
         <div id="offWorkFields" style="display: none;">
           <div class="form-group">
             <label for="note">備註 <span class="en">Note</span></label>
@@ -558,7 +652,6 @@
 
     <!-- 分頁二：打卡紀錄與時數查詢 -->
     <div id="recordsTab" class="tab-content">
-      <!-- 修改聯繫提示文字 -->
       <div class="contact-notice">💡 若要修改請與管理員聯繫</div>
 
       <div class="filter-group">
@@ -585,7 +678,7 @@
         📥 匯出當前紀錄 (Export CSV)
       </button>
 
-      <!-- 計算機面板 (點擊「時數查詢」時展開) -->
+      <!-- 計算機面板 -->
       <div id="calcPanel" class="calc-panel" style="display: none;">
         <h3>🧮 計算機 <span class="en">/ Hours Calculator</span></h3>
         
@@ -637,6 +730,33 @@
         <!-- 動態帶入紀錄 -->
       </ul>
     </div>
+
+    <!-- 分頁三：目前狀態 -->
+    <div id="statusTab" class="tab-content">
+      <div class="status-panel">
+        <div class="status-toggle-box">
+          <label>狀態開關 <span class="en">Status Switch</span></label>
+          <div class="switch-btn-group">
+            <button type="button" id="swOnBtn" class="sw-btn active-on" onclick="toggleStatusSwitch(true)">ON</button>
+            <button type="button" id="swOffBtn" class="sw-btn" onclick="toggleStatusSwitch(false)">OFF</button>
+          </div>
+        </div>
+
+        <div id="statusSelectGroup" class="form-group">
+          <label for="statusSelect">選擇狀態模式 <span class="en">Select Mode</span></label>
+          <select id="statusSelect" onchange="saveStatusSettings()">
+            <option value="🥳 只嗨 (Only Hype)">🥳 只嗨 (Only Hype)</option>
+            <option value="🍷 只酒 (Only Drinks)">🍷 只酒 (Only Drinks)</option>
+            <option value="🎉 都可以 (Both OK)">🎉 都可以 (Both OK)</option>
+          </select>
+        </div>
+
+        <div class="status-preview">
+          <div class="status-preview-title">當前設定顯示效果 / Current Preview</div>
+          <div id="statusPreviewVal" class="status-preview-val">🥳 只嗨 (Only Hype)</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- 複製成功提示小氣泡 -->
@@ -645,8 +765,8 @@
   <script>
     let selectedType = '上班';
     let currentFilter = 'daily';
+    let isStatusOn = true;
 
-    // 取得今天 YYYY-MM-DD 字串格式
     function getTodayStr() {
       const now = new Date();
       const year = now.getFullYear();
@@ -655,7 +775,6 @@
       return `${year}-${month}-${day}`;
     }
 
-    // 初始化日期顯示
     function initDateDisplay() {
       const now = new Date();
       const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
@@ -672,7 +791,6 @@
       document.getElementById('calcEndDate').value = `${tYear}-${tMonth}-${tDay}`;
     }
 
-    // 主分頁切換（同時控制頂部日期的顯示與隱藏）
     function switchTab(tabName) {
       const tabs = document.querySelectorAll('.tab-btn');
       const contents = document.querySelectorAll('.tab-content');
@@ -684,16 +802,19 @@
       if (tabName === 'checkin') {
         tabs[0].classList.add('active');
         document.getElementById('checkinTab').classList.add('active');
-        todayDateEl.style.display = 'block'; // 在「新增打卡」分頁時顯示頂部日期
-      } else {
+        todayDateEl.style.display = 'block';
+      } else if (tabName === 'records') {
         tabs[1].classList.add('active');
         document.getElementById('recordsTab').classList.add('active');
-        todayDateEl.style.display = 'none'; // 切換至「打卡紀錄」分頁時隱藏頂部日期
+        todayDateEl.style.display = 'none';
         renderRecords();
+      } else if (tabName === 'status') {
+        tabs[2].classList.add('active');
+        document.getElementById('statusTab').classList.add('active');
+        todayDateEl.style.display = 'none';
       }
     }
 
-    // 初始化 24小時制時間選單 (HH / MM 標示)
     function initTimeOptions() {
       const hourSelect = document.getElementById('hour');
       const minuteSelect = document.getElementById('minute');
@@ -723,7 +844,6 @@
       document.getElementById('minute').value = minutes < 10 ? '0' + minutes : '' + minutes;
     }
 
-    // 切換上班/下班類別
     function selectType(type) {
       selectedType = type;
       const buttons = document.querySelectorAll('.type-btn');
@@ -753,7 +873,67 @@
       localStorage.setItem('checkin_records', JSON.stringify(records));
     }
 
-    // 切換紀錄篩選器
+    // 刪除指定索引的打卡紀錄
+    function deleteRecord(index) {
+      if (confirm('確定要刪除這筆紀錄嗎？')) {
+        const records = getRecords();
+        records.splice(index, 1);
+        saveRecords(records);
+        renderRecords();
+        showToast('紀錄已刪除 / Record deleted');
+      }
+    }
+
+    function toggleStatusSwitch(status) {
+      isStatusOn = status;
+      const swOnBtn = document.getElementById('swOnBtn');
+      const swOffBtn = document.getElementById('swOffBtn');
+      const selectGroup = document.getElementById('statusSelectGroup');
+
+      if (isStatusOn) {
+        swOnBtn.className = 'sw-btn active-on';
+        swOffBtn.className = 'sw-btn';
+        selectGroup.style.opacity = '1';
+        selectGroup.style.pointerEvents = 'auto';
+      } else {
+        swOnBtn.className = 'sw-btn';
+        swOffBtn.className = 'sw-btn active-off';
+        selectGroup.style.opacity = '0.5';
+        selectGroup.style.pointerEvents = 'none';
+      }
+
+      saveStatusSettings();
+    }
+
+    function saveStatusSettings() {
+      const val = document.getElementById('statusSelect').value;
+      const previewEl = document.getElementById('statusPreviewVal');
+
+      if (isStatusOn) {
+        previewEl.innerText = val;
+        previewEl.style.color = 'var(--primary-color)';
+      } else {
+        previewEl.innerText = '🚫 已關閉狀態顯示 (OFF)';
+        previewEl.style.color = 'var(--text-muted)';
+      }
+
+      localStorage.setItem('user_status_config', JSON.stringify({
+        isOn: isStatusOn,
+        value: val
+      }));
+    }
+
+    function loadStatusSettings() {
+      const config = JSON.parse(localStorage.getItem('user_status_config'));
+      if (config) {
+        isStatusOn = config.isOn;
+        if (config.value) {
+          document.getElementById('statusSelect').value = config.value;
+        }
+      }
+      toggleStatusSwitch(isStatusOn);
+    }
+
     function setFilter(filterType, btnElement) {
       currentFilter = filterType;
       const filterBtns = document.querySelectorAll('.filter-btn');
@@ -778,7 +958,7 @@
       const now = new Date();
       const todayStr = getTodayStr();
 
-      return records.filter(item => {
+      return records.map((item, originalIndex) => ({ ...item, originalIndex })).filter(item => {
         const recordDate = new Date(item.date);
 
         if (currentFilter === 'daily') {
@@ -801,12 +981,6 @@
       });
     }
 
-    /**
-     * 工時進位換算邏輯：
-     * - 未滿 15 分鐘 (<15): 0h
-     * - 大於等於 15 分鐘且未滿 45 分鐘 (15~44): +0.5h
-     * - 大於等於 45 分鐘 (>=45): +1h
-     */
     function calculateCrossDayHours(startDateStr, startTimeStr, endDateStr, endTimeStr) {
       if (!startDateStr || !startTimeStr || !endDateStr || !endTimeStr) return 0;
 
@@ -829,7 +1003,6 @@
       return fullHours + extraHours;
     }
 
-    // 即時計算最終金額 (時數 * 時薪 + 車資)
     function calculateTotalAmount() {
       const startDate = document.getElementById('calcStartDate').value;
       const startTime = document.getElementById('calcStartTime').value;
@@ -845,7 +1018,6 @@
       document.getElementById('calcResult').innerText = `$${Math.round(total).toLocaleString()}`;
     }
 
-    // 匯出當前篩選紀錄為 CSV 檔案
     function exportFilteredRecords() {
       const allRecords = getRecords();
       const filteredRecords = filterRecords(allRecords);
@@ -888,7 +1060,6 @@
       document.body.removeChild(link);
     }
 
-    // 渲染打卡紀錄
     function renderRecords() {
       const recordList = document.getElementById('recordList');
       const allRecords = getRecords();
@@ -925,16 +1096,11 @@
       filteredRecords.forEach((item) => {
         const li = document.createElement('li');
         li.className = 'record-item';
-        li.title = '點擊即可複製紀錄 / Click to copy';
-
-        li.onclick = () => {
-          copyRecordText(item);
-        };
 
         const extraInfoStr = item.note ? `<br><span style="color:#7d6e63; font-size:0.78rem;">📝${item.note}</span>` : '';
 
         li.innerHTML = `
-          <div class="record-info">
+          <div class="record-info" onclick="copyRecordTextByObj(${JSON.stringify(item).replace(/"/g, '&quot;')})" title="點擊即可複製紀錄 / Click to copy">
             <div>
               <strong>${item.name}</strong> 
               <span class="tag tag-${item.type}">${item.type}</span>
@@ -943,13 +1109,13 @@
               📅 ${item.date} | ⏰ ${item.time} | 📍 ${item.location}${extraInfoStr}
             </div>
           </div>
+          <button type="button" class="btn-delete" title="刪除紀錄" onclick="deleteRecord(${item.originalIndex})">✕</button>
         `;
         recordList.appendChild(li);
       });
     }
 
-    // 複製文字格式化
-    async function copyRecordText(item) {
+    async function copyRecordTextByObj(item) {
       const dateParts = item.date.split('-');
       const monthDay = `${parseInt(dateParts[1], 10)}/${parseInt(dateParts[2], 10)}`;
       
@@ -979,13 +1145,12 @@
       }, 2000);
     }
 
-    // 表單送出處置
     document.getElementById('checkinForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
       const name = document.getElementById('userName').value.trim();
       const type = selectedType;
-      const dateStr = getTodayStr(); // 自動抓取今天日期
+      const dateStr = getTodayStr();
       const hour = document.getElementById('hour').value;
       const minute = document.getElementById('minute').value;
       const timeStr = `${hour}:${minute}`;
@@ -997,11 +1162,8 @@
       }
 
       const records = getRecords();
-
-      // 檢查個人打卡狀態：找尋該姓名最後一筆打卡紀錄
       const userLastRecord = records.find(r => r.name === name);
 
-      // 若欲打上班卡，且最後一筆狀態亦為上班，則阻止打卡
       if (type === '上班' && userLastRecord && userLastRecord.type === '上班') {
         alert('您尚未打下班卡唷!');
         return;
@@ -1031,6 +1193,7 @@
     window.onload = function() {
       initDateDisplay();
       initTimeOptions();
+      loadStatusSettings();
       renderRecords();
       calculateTotalAmount();
     };
