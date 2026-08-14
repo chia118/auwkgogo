@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daily Check-in | 打卡系統</title>
-  <!-- Google Fonts: Noto Sans TC & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    /* CSS Rest & Minimal Style Definition */
     :root {
       --bg-color: #f7f5f0;
       --card-bg: #ffffff;
@@ -21,20 +19,13 @@
       --border-color: #eae5df;
       --shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
       --radius: 16px;
-
-      /* 類別色彩定義 */
       --tag-work-bg: #e8f3ec;
       --tag-work-text: #3d7a5a;
       --tag-off-bg: #fbeee9;
       --tag-off-text: #b56247;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', 'Noto Sans TC', sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Noto Sans TC', sans-serif; word-break: break-word; }
 
     body {
       background-color: var(--bg-color);
@@ -56,527 +47,111 @@
       border: 1px solid var(--border-color);
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+    .header { text-align: center; margin-bottom: 20px; }
+    .header h1 { font-size: 1.5rem; font-weight: 500; color: var(--primary-color); margin-bottom: 4px; }
+    .header p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+    .header .date-display { font-size: 0.9rem; font-weight: 500; color: var(--primary-color); margin-top: 4px; }
 
-    .header h1 {
-      font-size: 1.5rem;
-      font-weight: 500;
-      letter-spacing: 1px;
-      color: var(--primary-color);
-      margin-bottom: 4px;
-    }
-
-    .header p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .header .date-display {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--primary-color);
-      letter-spacing: 0.5px;
-      margin-top: 4px;
-    }
-
-    /* 主分頁頁籤 */
-    .nav-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border-color);
-      margin-bottom: 24px;
-    }
-
+    .nav-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
     .tab-btn {
-      flex: 1;
-      padding: 12px 0;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      position: relative;
-      transition: color 0.2s ease;
-      line-height: 1.3;
+      flex: 1; padding: 12px 0; background: none; border: none; color: var(--text-muted);
+      font-size: 0.85rem; font-weight: 500; cursor: pointer; position: relative; transition: color 0.2s;
     }
-
-    .tab-btn span.en {
-      display: block;
-      font-size: 0.7rem;
-      font-weight: 400;
-      opacity: 0.8;
-    }
-
-    .tab-btn.active {
-      color: var(--primary-color);
-    }
-
+    .tab-btn span.en { display: block; font-size: 0.7rem; font-weight: 400; opacity: 0.8; }
+    .tab-btn.active { color: var(--primary-color); }
     .tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background-color: var(--primary-color);
+      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background-color: var(--primary-color);
     }
 
-    /* 分頁區塊顯示/隱藏 */
-    .tab-content {
-      display: none;
-    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-    .tab-content.active {
-      display: block;
-    }
+    .form-group { margin-bottom: 16px; min-width: 0; }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; min-width: 0; }
 
-    .form-group {
-      margin-bottom: 16px;
-      min-width: 0;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .form-row .form-group {
-      flex: 1;
-      min-width: 0;
-    }
-
-    label {
-      display: block;
-      font-size: 0.85rem;
-      color: var(--primary-color);
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-
-    label .en {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 400;
-      margin-left: 4px;
-    }
+    label { display: block; font-size: 0.85rem; color: var(--primary-color); margin-bottom: 6px; font-weight: 500; }
+    label .en { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; margin-left: 4px; }
 
     input, select {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background-color: #faf9f7;
-      color: var(--text-main);
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.2s ease;
-      box-sizing: border-box;
+      width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px;
+      background-color: #faf9f7; color: var(--text-main); font-size: 0.95rem; outline: none; transition: all 0.2s;
     }
+    input:focus, select:focus { border-color: var(--primary-color); background-color: #ffffff; }
 
-    input:focus, select:focus {
-      border-color: var(--primary-color);
-      background-color: #ffffff;
-    }
+    .time-select-group { display: flex; gap: 8px; }
+    .time-select-group select { flex: 1; min-width: 0; }
 
-    .time-select-group {
-      display: flex;
-      gap: 8px;
-    }
-
-    .time-select-group select {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .type-toggle-group {
-      display: flex;
-      gap: 10px;
-    }
-
+    .type-toggle-group { display: flex; gap: 10px; }
     .type-btn {
-      flex: 1;
-      padding: 10px 8px;
-      border: 1px solid var(--border-color);
-      background-color: #faf9f7;
-      color: var(--text-muted);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: center;
-      line-height: 1.3;
+      flex: 1; padding: 10px 8px; border: 1px solid var(--border-color); background-color: #faf9f7;
+      color: var(--text-muted); border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; text-align: center;
     }
-
-    .type-btn .en {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 400;
-    }
-
-    .type-btn.active[data-type="上班"] {
-      background-color: var(--tag-work-bg);
-      color: var(--tag-work-text);
-      border-color: var(--tag-work-text);
-    }
-
-    .type-btn.active[data-type="下班"] {
-      background-color: var(--tag-off-bg);
-      color: var(--tag-off-text);
-      border-color: var(--tag-off-text);
-    }
+    .type-btn .en { display: block; font-size: 0.75rem; font-weight: 400; }
+    .type-btn.active[data-type="上班"] { background-color: var(--tag-work-bg); color: var(--tag-work-text); border-color: var(--tag-work-text); }
+    .type-btn.active[data-type="下班"] { background-color: var(--tag-off-bg); color: var(--tag-off-text); border-color: var(--tag-off-text); }
 
     .btn-submit {
-      width: 100%;
-      padding: 12px;
-      background-color: var(--primary-color);
-      color: #ffffff;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background-color 0.2s ease;
-      line-height: 1.3;
+      width: 100%; padding: 12px; background-color: var(--primary-color); color: #ffffff; border: none;
+      border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; margin-top: 10px; transition: background 0.2s;
     }
+    .btn-submit .en { display: block; font-size: 0.8rem; opacity: 0.85; }
+    .btn-submit:hover { background-color: var(--primary-hover); }
+    .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; }
 
-    .btn-submit .en {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 400;
-      opacity: 0.85;
-    }
+    .contact-notice { background-color: #f2efe9; color: var(--primary-color); font-size: 0.8rem; text-align: center; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border-color); }
 
-    .btn-submit:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .btn-submit:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
-    /* 管理員聯繫提示 */
-    .contact-notice {
-      background-color: #f2efe9;
-      color: var(--primary-color);
-      font-size: 0.8rem;
-      text-align: center;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border-color);
-    }
-
-    /* 紀錄頁面時間篩選器 */
-    .filter-group {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 16px;
-    }
-
+    .filter-group { display: flex; gap: 4px; margin-bottom: 16px; }
     .filter-btn {
-      flex: 1;
-      padding: 6px 2px;
-      background-color: #faf9f7;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: center;
-      line-height: 1.2;
+      flex: 1; padding: 6px 2px; background-color: #faf9f7; border: 1px solid var(--border-color);
+      border-radius: 6px; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; text-align: center;
     }
+    .filter-btn .en { display: block; font-size: 0.68rem; opacity: 0.85; }
+    .filter-btn.active { background-color: var(--primary-color); color: #ffffff; border-color: var(--primary-color); }
 
-    .filter-btn .en {
-      display: block;
-      font-size: 0.68rem;
-      opacity: 0.85;
-    }
-
-    .filter-btn.active {
-      background-color: var(--primary-color);
-      color: #ffffff;
-      border-color: var(--primary-color);
-    }
-
-    /* 匯出按鈕 */
     .btn-export {
-      width: 100%;
-      padding: 10px;
-      background-color: #faf9f7;
-      border: 1px dashed var(--primary-color);
-      color: var(--primary-color);
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      margin-bottom: 16px;
-      transition: all 0.2s ease;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
+      width: 100%; padding: 10px; background-color: #faf9f7; border: 1px dashed var(--primary-color);
+      color: var(--primary-color); border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; margin-bottom: 16px; display: flex; justify-content: center; gap: 6px;
     }
 
-    .btn-export:hover {
-      background-color: #f2efe9;
-    }
+    .calc-panel { background-color: #f5f2ec; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .calc-panel h3 { font-size: 0.95rem; color: var(--primary-color); margin-bottom: 12px; font-weight: 600; }
+    .calc-panel input { padding: 8px 6px; font-size: 0.8rem; background-color: #ffffff; }
+    .rule-tip { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+    .result-box { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .result-box strong { font-size: 1.35rem; color: #3d7a5a; }
 
-    /* 計算機面板 */
-    .calc-panel {
-      background-color: #f5f2ec;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .calc-panel h3 {
-      font-size: 0.95rem;
-      color: var(--primary-color);
-      margin-bottom: 12px;
-      font-weight: 600;
-    }
-
-    .calc-panel h3 .en {
-      font-size: 0.8rem;
-      font-weight: 400;
-      color: var(--text-muted);
-      margin-left: 4px;
-    }
-
-    .calc-panel input {
-      padding: 8px 6px;
-      font-size: 0.8rem;
-      background-color: #ffffff;
-    }
-
-    .rule-tip {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-      line-height: 1.2;
-    }
-
-    .result-box {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .result-box label {
-      margin-bottom: 0;
-      font-size: 0.85rem;
-      line-height: 1.3;
-    }
-
-    .result-box strong {
-      font-size: 1.35rem;
-      color: #3d7a5a;
-    }
-
-    .record-list {
-      list-style: none;
-      max-height: 280px;
-      overflow-y: auto;
-    }
-
+    .record-list { list-style: none; max-height: 280px; overflow-y: auto; }
     .record-item {
-      padding: 12px 14px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      margin-bottom: 10px;
-      background-color: #faf9f7;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      user-select: none;
+      padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px;
+      background-color: #faf9f7; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
     }
+    .record-info { font-size: 0.85rem; line-height: 1.5; flex-grow: 1; }
+    .record-info strong { color: var(--primary-color); font-weight: 500; }
 
-    .record-item:hover {
-      background-color: #f2efe9;
-      border-color: #dcd4cc;
-    }
+    .btn-delete { background: none; border: none; color: var(--text-muted); font-size: 1.1rem; font-weight: bold; padding: 4px 8px; cursor: pointer; border-radius: 4px; margin-left: 8px; }
+    .btn-delete:hover { color: var(--tag-off-text); background-color: var(--tag-off-bg); }
 
-    .record-item:active {
-      transform: scale(0.99);
-    }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 500; margin-left: 6px; }
+    .tag-上班 { background-color: var(--tag-work-bg); color: var(--tag-work-text); }
+    .tag-下班 { background-color: var(--tag-off-bg); color: var(--tag-off-text); }
+    .empty-msg { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px 0; }
 
-    .record-info {
-      font-size: 0.85rem;
-      line-height: 1.5;
-      flex-grow: 1;
-    }
+    .status-panel { background-color: #faf9f7; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+    .status-toggle-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--border-color); }
+    .switch-btn-group { display: flex; gap: 6px; }
+    .sw-btn { padding: 8px 16px; border: 1px solid var(--border-color); background-color: #ffffff; color: var(--text-muted); border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .sw-btn.active-on { background-color: #e8f3ec; color: #3d7a5a; border-color: #3d7a5a; }
+    .sw-btn.active-off { background-color: #fbeee9; color: #b56247; border-color: #b56247; }
+    .status-preview { margin-top: 20px; padding: 16px; background: #ffffff; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; }
+    .status-preview-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+    .status-preview-val { font-size: 1.1rem; font-weight: 600; color: var(--primary-color); }
 
-    .record-info strong {
-      color: var(--primary-color);
-      font-weight: 500;
-    }
-
-    /* 刪除按鈕 ✕ 樣式 */
-    .btn-delete {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      font-weight: bold;
-      padding: 4px 8px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: all 0.2s ease;
-      margin-left: 8px;
-    }
-
-    .btn-delete:hover {
-      color: var(--tag-off-text);
-      background-color: var(--tag-off-bg);
-    }
-
-    .tag {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      margin-left: 6px;
-    }
-
-    .tag-上班 {
-      background-color: var(--tag-work-bg);
-      color: var(--tag-work-text);
-    }
-
-    .tag-下班 {
-      background-color: var(--tag-off-bg);
-      color: var(--tag-off-text);
-    }
-
-    .empty-msg {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      padding: 24px 0;
-    }
-
-    /* 「目前狀態」分頁專用樣式 */
-    .status-panel {
-      background-color: #faf9f7;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 20px;
-    }
-
-    .status-toggle-box {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px dashed var(--border-color);
-    }
-
-    .status-toggle-box label {
-      margin-bottom: 0;
-      font-size: 1rem;
-    }
-
-    .switch-btn-group {
-      display: flex;
-      gap: 6px;
-    }
-
-    .sw-btn {
-      padding: 8px 16px;
-      border: 1px solid var(--border-color);
-      background-color: #ffffff;
-      color: var(--text-muted);
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .sw-btn.active-on {
-      background-color: #e8f3ec;
-      color: #3d7a5a;
-      border-color: #3d7a5a;
-    }
-
-    .sw-btn.active-off {
-      background-color: #fbeee9;
-      color: #b56247;
-      border-color: #b56247;
-    }
-
-    .status-preview {
-      margin-top: 20px;
-      padding: 16px;
-      background: #ffffff;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      text-align: center;
-    }
-
-    .status-preview-title {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .status-preview-val {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-
-    /* 複製成功提示文字 Popup */
     .toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(74, 64, 58, 0.9);
-      color: #ffffff;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-      z-index: 1000;
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background-color: rgba(74, 64, 58, 0.9);
+      color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1000;
     }
-
-    .toast.show {
-      opacity: 1;
-    }
-
-    /* 手機版防重疊優化 */
-    @media (max-width: 420px) {
-      .container {
-        padding: 20px 16px;
-      }
-      .calc-panel .form-row {
-        flex-direction: column;
-        gap: 0;
-      }
-      .calc-panel input {
-        font-size: 0.85rem;
-        padding: 8px 10px;
-      }
-    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
@@ -585,45 +160,28 @@
     <div class="header">
       <h1>DAILY CHECK-IN</h1>
       <p>打卡系統 <span style="font-size: 0.8rem; opacity: 0.8;">/ Attendance System</span></p>
-      <!-- 日期僅在「新增打卡」分頁顯示 -->
       <div id="todayDate" class="date-display"></div>
     </div>
 
-    <!-- 主頁籤導覽 -->
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('checkin')">
-        新增打卡
-        <span class="en">New Check-in</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('records')">
-        打卡紀錄
-        <span class="en">Records</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('status')">
-        目前狀態
-        <span class="en">Status</span>
-      </button>
+      <button class="tab-btn active" onclick="switchTab('checkin')">新增打卡<span class="en">New Check-in</span></button>
+      <button class="tab-btn" onclick="switchTab('records')">打卡紀錄<span class="en">Records</span></button>
+      <button class="tab-btn" onclick="switchTab('status')">目前狀態<span class="en">Status</span></button>
     </div>
 
-    <!-- 分頁一：打卡表單 -->
+    <!-- 分頁一：新增打卡 -->
     <div id="checkinTab" class="tab-content active">
       <form id="checkinForm">
         <div class="form-group">
           <label for="userName">姓名 <span class="en">Name</span> *</label>
-          <input type="text" id="userName" placeholder="請輸入姓名" required>
+          <input type="text" id="userName" placeholder="請輸入姓名" required oninput="checkUserWorkingStatus()">
         </div>
 
         <div class="form-group">
           <label>打卡類別 <span class="en">Category</span> *</label>
           <div class="type-toggle-group">
-            <button type="button" class="type-btn active" data-type="上班" onclick="selectType('上班')">
-              上班
-              <span class="en">Check-in</span>
-            </button>
-            <button type="button" class="type-btn" data-type="下班" onclick="selectType('下班')">
-              下班
-              <span class="en">Check-out</span>
-            </button>
+            <button type="button" class="type-btn active" data-type="上班" onclick="selectType('上班')">上班<span class="en">Check-in</span></button>
+            <button type="button" class="type-btn" data-type="下班" onclick="selectType('下班')">下班<span class="en">Check-out</span></button>
           </div>
         </div>
 
@@ -640,7 +198,6 @@
           <input type="text" id="location" placeholder="OW、八度、飛龍" required>
         </div>
 
-        <!-- 下班限定填寫欄位 -->
         <div id="offWorkFields" style="display: none;">
           <div class="form-group">
             <label for="note">備註 <span class="en">Note</span></label>
@@ -655,85 +212,59 @@
       </form>
     </div>
 
-    <!-- 分頁二：打卡紀錄與時數查詢 -->
+    <!-- 分頁二：打卡紀錄 -->
     <div id="recordsTab" class="tab-content">
       <div class="contact-notice">💡 若要修改請與管理員聯繫</div>
 
       <div class="filter-group">
-        <button class="filter-btn active" onclick="setFilter('daily', this)">
-          每日
-          <span class="en">Daily</span>
-        </button>
-        <button class="filter-btn" onclick="setFilter('weekly', this)">
-          本週
-          <span class="en">Weekly</span>
-        </button>
-        <button class="filter-btn" onclick="setFilter('3months', this)">
-          近三個月
-          <span class="en">3 Months</span>
-        </button>
-        <button class="filter-btn" onclick="setFilter('calc', this)">
-          時數查詢
-          <span class="en">Calculator</span>
-        </button>
+        <button class="filter-btn active" onclick="setFilter('daily', this)">每日<span class="en">Daily</span></button>
+        <button class="filter-btn" onclick="setFilter('weekly', this)">本週<span class="en">Weekly</span></button>
+        <button class="filter-btn" onclick="setFilter('3months', this)">近三個月<span class="en">3 Months</span></button>
+        <button class="filter-btn" onclick="setFilter('calc', this)">時數查詢<span class="en">Calculator</span></button>
       </div>
 
-      <!-- 匯出按鈕 -->
-      <button id="btnExport" class="btn-export" onclick="exportFilteredRecords()">
-        📥 匯出當前紀錄 (Export CSV)
-      </button>
+      <button id="btnExport" class="btn-export" onclick="exportFilteredRecords()">📥 匯出當前紀錄 (Export CSV)</button>
 
-      <!-- 計算機面板 -->
       <div id="calcPanel" class="calc-panel" style="display: none;">
         <h3>🧮 計算機 <span class="en">/ Hours Calculator</span></h3>
-        
         <div class="form-row">
           <div class="form-group">
-            <label for="calcStartDate">上班日期 <span class="en">Start Date</span></label>
+            <label>上班日期</label>
             <input type="date" id="calcStartDate" onchange="calculateTotalAmount()">
           </div>
           <div class="form-group">
-            <label for="calcStartTime">上班時間 <span class="en">Start Time</span></label>
+            <label>上班時間</label>
             <input type="time" id="calcStartTime" value="23:00" onchange="calculateTotalAmount()">
           </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
-            <label for="calcEndDate">下班日期 <span class="en">End Date</span></label>
+            <label>下班日期</label>
             <input type="date" id="calcEndDate" onchange="calculateTotalAmount()">
           </div>
           <div class="form-group">
-            <label for="calcEndTime">下班時間 <span class="en">End Time</span></label>
+            <label>下班時間</label>
             <input type="time" id="calcEndTime" value="02:00" onchange="calculateTotalAmount()">
           </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
-            <label for="calcRate">時薪 ($) <span class="en">Hourly Rate</span></label>
+            <label>時薪 ($)</label>
             <input type="number" id="calcRate" value="140" oninput="calculateTotalAmount()">
             <div class="rule-tip">>=15m = +0.5h, >=45m = +1h</div>
           </div>
           <div class="form-group">
-            <label for="calcFare">車資 ($) <span class="en">Fare</span></label>
+            <label>車資 ($)</label>
             <input type="number" id="calcFare" value="0" oninput="calculateTotalAmount()">
           </div>
         </div>
-
-        <!-- 計算機最終結果 -->
         <div class="result-box">
-          <label>
-            計算結果 (<span id="calculatedHoursText">0</span> 小時/hrs)：<br>
-            <span style="color: var(--text-muted); font-size: 0.75rem;">(時數/Hours × 時薪/Rate + 車資/Fare)</span>
-          </label>
+          <label>計算結果 (<span id="calculatedHoursText">0</span> 小時)：</label>
           <strong id="calcResult">$0</strong>
         </div>
       </div>
 
-      <ul id="recordList" class="record-list">
-        <!-- 動態帶入紀錄 -->
-      </ul>
+      <ul id="recordList" class="record-list"></ul>
     </div>
 
     <!-- 分頁三：目前狀態 -->
@@ -764,8 +295,7 @@
     </div>
   </div>
 
-  <!-- 複製成功提示小氣泡 -->
-  <div id="toast" class="toast">已複製打卡紀錄 / Copied to clipboard</div>
+  <div id="toast" class="toast">已複製打卡紀錄</div>
 
   <script>
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbwzlYP6BXTkf0daiSRP3E6TnsmYyHZzmEHGQliBkII8pu2hA-mYrOIi2wBSZMBPLVKB3g/exec';
@@ -781,10 +311,7 @@
       if (str.includes('T')) {
         const d = new Date(str);
         if (!isNaN(d.getTime())) {
-          const year = d.getFullYear();
-          const month = String(d.getMonth() + 1).padStart(2, '0');
-          const day = String(d.getDate()).padStart(2, '0');
-          return `${year}-${month}-${day}`;
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
       }
       return str.split('T')[0].split(' ')[0];
@@ -796,9 +323,7 @@
       if (str.includes('T')) {
         const d = new Date(str);
         if (!isNaN(d.getTime())) {
-          const hours = String(d.getHours()).padStart(2, '0');
-          const mins = String(d.getMinutes()).padStart(2, '0');
-          return `${hours}:${mins}`;
+          return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         }
       }
       return str.length > 5 ? str.substring(0, 5) : str;
@@ -806,106 +331,86 @@
 
     function getTodayStr() {
       const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
 
     function initDateDisplay() {
       const now = new Date();
-      const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-      document.getElementById('todayDate').innerText = now.toLocaleDateString('zh-TW', options);
-
-      const todayStr = getTodayStr();
-      document.getElementById('calcStartDate').value = todayStr;
-
+      document.getElementById('todayDate').innerText = now.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+      document.getElementById('calcStartDate').value = getTodayStr();
       const tomorrow = new Date(now);
       tomorrow.setDate(now.getDate() + 1);
-      const tYear = tomorrow.getFullYear();
-      const tMonth = String(tomorrow.getMonth() + 1).padStart(2, '0');
-      const tDay = String(tomorrow.getDate()).padStart(2, '0');
-      document.getElementById('calcEndDate').value = `${tYear}-${tMonth}-${tDay}`;
+      document.getElementById('calcEndDate').value = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
     }
 
     function switchTab(tabName) {
-      const tabs = document.querySelectorAll('.tab-btn');
-      const contents = document.querySelectorAll('.tab-content');
+      document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       const todayDateEl = document.getElementById('todayDate');
 
-      tabs.forEach(tab => tab.classList.remove('active'));
-      contents.forEach(content => content.classList.remove('active'));
-
       if (tabName === 'checkin') {
-        tabs[0].classList.add('active');
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
         document.getElementById('checkinTab').classList.add('active');
         todayDateEl.style.display = 'block';
       } else if (tabName === 'records') {
-        tabs[1].classList.add('active');
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
         document.getElementById('recordsTab').classList.add('active');
         todayDateEl.style.display = 'none';
         fetchCloudData();
       } else if (tabName === 'status') {
-        tabs[2].classList.add('active');
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
         document.getElementById('statusTab').classList.add('active');
         todayDateEl.style.display = 'none';
       }
     }
 
     function initTimeOptions() {
-      const hourSelect = document.getElementById('hour');
-      const minuteSelect = document.getElementById('minute');
-
-      hourSelect.innerHTML = '';
-      minuteSelect.innerHTML = '';
-
-      for (let i = 0; i < 24; i++) {
-        const val = i < 10 ? '0' + i : '' + i;
-        hourSelect.innerHTML += `<option value="${val}">${val} 時 (HH)</option>`;
-      }
-
-      for (let i = 0; i < 60; i++) {
-        const val = i < 10 ? '0' + i : '' + i;
-        minuteSelect.innerHTML += `<option value="${val}">${val} 分 (MM)</option>`;
-      }
-
+      const hSel = document.getElementById('hour'), mSel = document.getElementById('minute');
+      hSel.innerHTML = ''; mSel.innerHTML = '';
+      for (let i = 0; i < 24; i++) hSel.innerHTML += `<option value="${String(i).padStart(2, '0')}">${String(i).padStart(2, '0')} 時</option>`;
+      for (let i = 0; i < 60; i++) mSel.innerHTML += `<option value="${String(i).padStart(2, '0')}">${String(i).padStart(2, '0')} 分</option>`;
       setNowTime();
     }
 
     function setNowTime() {
       const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-
-      document.getElementById('hour').value = hours < 10 ? '0' + hours : '' + hours;
-      document.getElementById('minute').value = minutes < 10 ? '0' + minutes : '' + minutes;
+      document.getElementById('hour').value = String(now.getHours()).padStart(2, '0');
+      document.getElementById('minute').value = String(now.getMinutes()).padStart(2, '0');
     }
 
     function selectType(type) {
       selectedType = type;
-      const buttons = document.querySelectorAll('.type-btn');
-      buttons.forEach(btn => {
-        if (btn.getAttribute('data-type') === type) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
+      document.querySelectorAll('.type-btn').forEach(btn => {
+        if (btn.getAttribute('data-type') === type) btn.classList.add('active');
+        else btn.classList.remove('active');
       });
+      document.getElementById('offWorkFields').style.display = (type === '下班') ? 'block' : 'none';
+      if (type !== '下班') document.getElementById('note').value = '';
+    }
 
-      const offWorkFields = document.getElementById('offWorkFields');
+    // 檢查防呆機制：若已打上班卡未打下班卡，禁止再次上班
+    function checkUserWorkingStatus() {
+      const name = document.getElementById('userName').value.trim();
+      const submitBtn = document.getElementById('submitBtn');
+      if (!name) return;
 
-      if (type === '下班') {
-        offWorkFields.style.display = 'block';
-      } else {
-        offWorkFields.style.display = 'none';
-        document.getElementById('note').value = '';
+      const userRecords = cloudRecords.filter(r => r.name.toLowerCase() === name.toLowerCase());
+      if (userRecords.length > 0) {
+        // 依據 rowIndex 排序找到最新一筆
+        userRecords.sort((a, b) => b.rowIndex - a.rowIndex);
+        const lastRecord = userRecords[0];
+
+        if (lastRecord.type === '上班' && selectedType === '上班') {
+          submitBtn.disabled = true;
+          submitBtn.innerText = '已有進行中上班打卡 (不可重複)';
+          return;
+        }
       }
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
     }
 
     function fetchCloudData() {
-      const recordList = document.getElementById('recordList');
-      recordList.innerHTML = '<li class="empty-msg">資料同步中... / Syncing...</li>';
-
       fetch(GAS_URL)
         .then(res => res.json())
         .then(res => {
@@ -922,15 +427,14 @@
               statusMode: String(row[7] || '').trim()
             }));
             renderRecords();
+            checkUserWorkingStatus();
           }
         })
-        .catch(err => {
-          recordList.innerHTML = '<li class="empty-msg">雲端連線失敗 / Connection error</li>';
-        });
+        .catch(() => {});
     }
 
     function deleteRecord(rowIndex) {
-      if (confirm('確定要刪除這筆紀錄嗎？此動作將同步從 Google 試算表中移除。')) {
+      if (confirm('確定要刪除這筆紀錄嗎？')) {
         fetch(GAS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -939,72 +443,41 @@
         .then(res => res.json())
         .then(res => {
           if (res.result === 'success') {
-            showToast('紀錄已刪除 / Record deleted');
+            showToast('紀錄已刪除');
             fetchCloudData();
-          } else {
-            alert('刪除失敗：' + res.message);
           }
-        })
-        .catch(() => alert('發送刪除請求失敗！'));
+        });
       }
     }
 
     function toggleStatusSwitch(status) {
       isStatusOn = status;
-      const swOnBtn = document.getElementById('swOnBtn');
-      const swOffBtn = document.getElementById('swOffBtn');
-      const selectGroup = document.getElementById('statusSelectGroup');
-
-      if (isStatusOn) {
-        swOnBtn.className = 'sw-btn active-on';
-        swOffBtn.className = 'sw-btn';
-        selectGroup.style.opacity = '1';
-        selectGroup.style.pointerEvents = 'auto';
-      } else {
-        swOnBtn.className = 'sw-btn';
-        swOffBtn.className = 'sw-btn active-off';
-        selectGroup.style.opacity = '0.5';
-        selectGroup.style.pointerEvents = 'none';
-      }
-
+      document.getElementById('swOnBtn').className = status ? 'sw-btn active-on' : 'sw-btn';
+      document.getElementById('swOffBtn').className = status ? 'sw-btn' : 'sw-btn active-off';
+      document.getElementById('statusSelectGroup').style.opacity = status ? '1' : '0.5';
+      document.getElementById('statusSelectGroup').style.pointerEvents = status ? 'auto' : 'none';
       saveStatusSettings();
     }
 
     function saveStatusSettings() {
       const val = document.getElementById('statusSelect').value;
       const previewEl = document.getElementById('statusPreviewVal');
+      previewEl.innerText = isStatusOn ? val : '🚫 已關閉狀態顯示 (OFF)';
+      previewEl.style.color = isStatusOn ? 'var(--primary-color)' : 'var(--text-muted)';
+
+      localStorage.setItem('user_status_config', JSON.stringify({ isOn: isStatusOn, value: val }));
       const name = document.getElementById('userName').value.trim();
-
-      if (isStatusOn) {
-        previewEl.innerText = val;
-        previewEl.style.color = 'var(--primary-color)';
-      } else {
-        previewEl.innerText = '🚫 已關閉狀態顯示 (OFF)';
-        previewEl.style.color = 'var(--text-muted)';
-      }
-
-      localStorage.setItem('user_status_config', JSON.stringify({
-        isOn: isStatusOn,
-        value: val
-      }));
-
-      // 如果有填姓名，同步向雲端更新狀態
       if (name) {
-        const payload = {
-          name: name,
-          type: selectedType,
-          date: getTodayStr(),
-          time: `${document.getElementById('hour').value}:${document.getElementById('minute').value}`,
-          location: document.getElementById('location').value.trim() || '未定',
-          note: document.getElementById('note').value.trim(),
-          statusIsOn: isStatusOn,
-          statusMode: val
-        };
-
         fetch(GAS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            name, type: selectedType, date: getTodayStr(),
+            time: `${document.getElementById('hour').value}:${document.getElementById('minute').value}`,
+            location: document.getElementById('location').value.trim() || '未定',
+            note: document.getElementById('note').value.trim(),
+            statusIsOn: isStatusOn, statusMode: val
+          })
         });
       }
     }
@@ -1013,266 +486,124 @@
       const config = JSON.parse(localStorage.getItem('user_status_config'));
       if (config) {
         isStatusOn = config.isOn;
-        if (config.value) {
-          let modeVal = config.value;
-          if (modeVal.includes('High') || modeVal.includes('Hype')) {
-            modeVal = '🥳 只嗨 (High Only)';
-          } else if (modeVal.includes('Drinks')) {
-            modeVal = '🍷 只酒 (Drinks Only)';
-          } else if (modeVal.includes('Both') || modeVal.includes('都可以')) {
-            modeVal = '🎉 都可以 (Both)';
-          }
-          document.getElementById('statusSelect').value = modeVal;
-        }
+        if (config.value) document.getElementById('statusSelect').value = config.value;
       }
       toggleStatusSwitch(isStatusOn);
     }
 
     function setFilter(filterType, btnElement) {
       currentFilter = filterType;
-      const filterBtns = document.querySelectorAll('.filter-btn');
-      filterBtns.forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btnElement.classList.add('active');
-
-      const calcPanel = document.getElementById('calcPanel');
-      const btnExport = document.getElementById('btnExport');
-
-      if (filterType === 'calc') {
-        calcPanel.style.display = 'block';
-        btnExport.style.display = 'none';
-      } else {
-        calcPanel.style.display = 'none';
-        btnExport.style.display = 'flex';
-      }
-
+      document.getElementById('calcPanel').style.display = (filterType === 'calc') ? 'block' : 'none';
+      document.getElementById('btnExport').style.display = (filterType === 'calc') ? 'none' : 'flex';
       renderRecords();
     }
 
     function filterRecords(records) {
-      const now = new Date();
-      const todayStr = getTodayStr();
-
+      const now = new Date(), todayStr = getTodayStr();
       return records.filter(item => {
-        const recordDate = new Date(item.date.replace(/-/g, '/'));
-
-        if (currentFilter === 'daily') {
-          return item.date === todayStr;
-        }
-
+        const rDate = new Date(item.date.replace(/-/g, '/'));
+        if (currentFilter === 'daily') return item.date === todayStr;
         if (currentFilter === 'weekly') {
-          const oneWeekAgo = new Date();
-          oneWeekAgo.setDate(now.getDate() - 7);
-          return recordDate >= oneWeekAgo && recordDate <= now;
+          const weekAgo = new Date(); weekAgo.setDate(now.getDate() - 7);
+          return rDate >= weekAgo && rDate <= now;
         }
-
         if (currentFilter === '3months') {
-          const threeMonthsAgo = new Date();
-          threeMonthsAgo.setDate(now.getDate() - 90);
-          return recordDate >= threeMonthsAgo && recordDate <= now;
+          const mAgo = new Date(); mAgo.setDate(now.getDate() - 90);
+          return rDate >= mAgo && rDate <= now;
         }
-
         return true;
       });
     }
 
-    function calculateCrossDayHours(startDateStr, startTimeStr, endDateStr, endTimeStr) {
-      if (!startDateStr || !startTimeStr || !endDateStr || !endTimeStr) return 0;
-
-      const startDateTime = new Date(`${startDateStr.replace(/-/g, '/')} ${startTimeStr}:00`);
-      const endDateTime = new Date(`${endDateStr.replace(/-/g, '/')} ${endTimeStr}:00`);
-
-      let diffMinutes = Math.floor((endDateTime - startDateTime) / (1000 * 60));
-      if (isNaN(diffMinutes) || diffMinutes <= 0) return 0;
-
-      const fullHours = Math.floor(diffMinutes / 60);
-      const remainingMinutes = diffMinutes % 60;
-
-      let extraHours = 0;
-      if (remainingMinutes >= 45) {
-        extraHours = 1.0;
-      } else if (remainingMinutes >= 15) {
-        extraHours = 0.5;
-      }
-
-      return fullHours + extraHours;
+    function calculateCrossDayHours(sDate, sTime, eDate, eTime) {
+      const start = new Date(`${sDate.replace(/-/g, '/')} ${sTime}:00`);
+      const end = new Date(`${eDate.replace(/-/g, '/')} ${eTime}:00`);
+      let mins = Math.floor((end - start) / (1000 * 60));
+      if (isNaN(mins) || mins <= 0) return 0;
+      const full = Math.floor(mins / 60), rem = mins % 60;
+      return full + (rem >= 45 ? 1.0 : (rem >= 15 ? 0.5 : 0));
     }
 
     function calculateTotalAmount() {
-      const startDate = document.getElementById('calcStartDate').value;
-      const startTime = document.getElementById('calcStartTime').value;
-      const endDate = document.getElementById('calcEndDate').value;
-      const endTime = document.getElementById('calcEndTime').value;
+      const hours = calculateCrossDayHours(
+        document.getElementById('calcStartDate').value, document.getElementById('calcStartTime').value,
+        document.getElementById('calcEndDate').value, document.getElementById('calcEndTime').value
+      );
       const rate = parseFloat(document.getElementById('calcRate').value) || 0;
       const fare = parseFloat(document.getElementById('calcFare').value) || 0;
-
-      const hours = calculateCrossDayHours(startDate, startTime, endDate, endTime);
-      const total = (hours * rate) + fare;
-
       document.getElementById('calculatedHoursText').innerText = hours;
-      document.getElementById('calcResult').innerText = `$${Math.round(total).toLocaleString()}`;
+      document.getElementById('calcResult').innerText = `$${Math.round((hours * rate) + fare).toLocaleString()}`;
     }
 
     function exportFilteredRecords() {
-      const filteredRecords = filterRecords(cloudRecords);
-
-      if (filteredRecords.length === 0) {
-        alert('目前無紀錄可供匯出！ / No records to export');
-        return;
-      }
-
-      let csvContent = "\uFEFF姓名,日期,類別,時間,地點,備註\n";
-
-      filteredRecords.forEach(item => {
-        const name = `"${(item.name || '').replace(/"/g, '""')}"`;
-        const date = `"${(item.date || '').replace(/"/g, '""')}"`;
-        const type = `"${(item.type || '').replace(/"/g, '""')}"`;
-        const time = `"${(item.time || '').replace(/"/g, '""')}"`;
-        const location = `"${(item.location || '').replace(/"/g, '""')}"`;
-        const note = `"${(item.note || '').replace(/"/g, '""')}"`;
-
-        csvContent += `${name},${date},${type},${time},${location},${note}\n`;
+      const filtered = filterRecords(cloudRecords);
+      if (filtered.length === 0) { alert('目前無紀錄可供匯出！'); return; }
+      let csv = "\uFEFF姓名,日期,類別,時間,地點,備註\n";
+      filtered.forEach(i => {
+        csv += `"${i.name}","${i.date}","${i.type}","${i.time}","${i.location}","${i.note}"\n`;
       });
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a");
-
-      const filterMap = {
-        daily: '每日',
-        weekly: '本週',
-        '3months': '近三個月'
-      };
-
-      const now = new Date();
-      const dateTag = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-      
-      link.setAttribute("href", url);
-      link.setAttribute("download", `打卡紀錄_${filterMap[currentFilter] || ''}_${dateTag}.csv`);
-      document.body.appendChild(link);
+      link.href = URL.createObjectURL(blob);
+      link.download = `打卡紀錄_${getTodayStr()}.csv`;
       link.click();
-      document.body.removeChild(link);
     }
 
     function renderRecords() {
-      const recordList = document.getElementById('recordList');
-      recordList.innerHTML = '';
-
+      const list = document.getElementById('recordList');
+      list.innerHTML = '';
       if (currentFilter === 'calc') {
-        recordList.style.display = 'none';
-
-        const workRecord = cloudRecords.find(r => r.type === '上班');
-        const offRecord = cloudRecords.find(r => r.type === '下班');
-
-        if (workRecord) {
-          document.getElementById('calcStartDate').value = workRecord.date;
-          document.getElementById('calcStartTime').value = workRecord.time;
-        }
-        if (offRecord) {
-          document.getElementById('calcEndDate').value = offRecord.date;
-          document.getElementById('calcEndTime').value = offRecord.time;
-        }
-
+        list.style.display = 'none';
+        const w = cloudRecords.find(r => r.type === '上班'), o = cloudRecords.find(r => r.type === '下班');
+        if (w) { document.getElementById('calcStartDate').value = w.date; document.getElementById('calcStartTime').value = w.time; }
+        if (o) { document.getElementById('calcEndDate').value = o.date; document.getElementById('calcEndTime').value = o.time; }
         calculateTotalAmount();
         return;
       }
-
-      recordList.style.display = 'block';
-      const filteredRecords = filterRecords(cloudRecords).reverse();
-
-      if (filteredRecords.length === 0) {
-        recordList.innerHTML = '<li class="empty-msg">尚無符合條件的紀錄 / No records found</li>';
+      list.style.display = 'block';
+      const filtered = filterRecords(cloudRecords).reverse();
+      if (filtered.length === 0) {
+        list.innerHTML = '<li class="empty-msg">尚無符合條件的紀錄</li>';
         return;
       }
-
-      filteredRecords.forEach((item) => {
+      filtered.forEach(item => {
         const li = document.createElement('li');
         li.className = 'record-item';
-
-        const extraInfoStr = item.note ? `<br><span style="color:#7d6e63; font-size:0.78rem;">📝${item.note}</span>` : '';
-
+        // 需求：備註欄位若無備註無須顯示
+        const noteStr = item.note ? `<br><span style="color:#7d6e63; font-size:0.78rem;">📝 ${item.note}</span>` : '';
         li.innerHTML = `
-          <div class="record-info" onclick="copyRecordTextByObj(${JSON.stringify(item).replace(/"/g, '&quot;')})" title="點擊即可複製紀錄 / Click to copy">
-            <div>
-              <strong>${item.name}</strong> 
-              <span class="tag tag-${item.type}">${item.type}</span>
-            </div>
-            <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">
-              📅 ${item.date} | ⏰ ${item.time} | 📍 ${item.location}${extraInfoStr}
-            </div>
+          <div class="record-info">
+            <div><strong>${item.name}</strong> <span class="tag tag-${item.type}">${item.type}</span></div>
+            <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">📅 ${item.date} | ⏰ ${item.time} | 📍 ${item.location}${noteStr}</div>
           </div>
-          <button type="button" class="btn-delete" title="刪除紀錄" onclick="deleteRecord(${item.rowIndex})">✕</button>
+          <button type="button" class="btn-delete" onclick="deleteRecord(${item.rowIndex})">✕</button>
         `;
-        recordList.appendChild(li);
+        list.appendChild(li);
       });
     }
 
-    async function copyRecordTextByObj(item) {
-      const dateParts = item.date.split('-');
-      const monthDay = `${parseInt(dateParts[1], 10)}/${parseInt(dateParts[2], 10)}`;
-      
-      const noteStr = item.note ? `\n📝 ${item.note}` : '';
-      const textToCopy = `${item.name} ${monthDay} ${item.time} ${item.location} ${item.type}${noteStr}`;
-
-      try {
-        await navigator.clipboard.writeText(textToCopy);
-        showToast('已複製紀錄至剪貼簿！ / Copied!');
-      } catch (err) {
-        const tempInput = document.createElement('textarea');
-        tempInput.value = textToCopy;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        showToast('已複製紀錄至剪貼簿！ / Copied!');
-      }
-    }
-
     function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.innerText = msg;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2000);
+      const t = document.getElementById('toast');
+      t.innerText = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
     }
 
     document.getElementById('checkinForm').addEventListener('submit', function(e) {
       e.preventDefault();
-
-      const submitBtn = document.getElementById('submitBtn');
       const name = document.getElementById('userName').value.trim();
-      const type = selectedType;
-      const dateStr = getTodayStr();
-      const hour = document.getElementById('hour').value;
-      const minute = document.getElementById('minute').value;
-      const timeStr = `${hour}:${minute}`;
       const location = document.getElementById('location').value.trim();
-
-      if (!name || !location) {
-        alert('請完整填寫必要欄位！ / Please fill in required fields');
-        return;
-      }
-
-      let note = '';
-      if (type === '下班') {
-        note = document.getElementById('note').value.trim();
-      }
-
-      const statusVal = document.getElementById('statusSelect').value;
+      const note = document.getElementById('note').value.trim();
+      const timeStr = `${document.getElementById('hour').value}:${document.getElementById('minute').value}`;
 
       const payload = {
-        name: name,
-        type: type,
-        date: dateStr,
-        time: timeStr,
-        location: location,
-        note: note,
-        statusIsOn: isStatusOn,
-        statusMode: statusVal
+        name, type: selectedType, date: getTodayStr(), time: timeStr,
+        location, note, statusIsOn: isStatusOn, statusMode: document.getElementById('statusSelect').value
       };
 
-      submitBtn.disabled = true;
-      submitBtn.innerText = '打卡中... / Submitting...';
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true; btn.innerText = '打卡中...';
 
       fetch(GAS_URL, {
         method: 'POST',
@@ -1281,11 +612,10 @@
       })
       .then(res => res.json())
       .then(res => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
-
+        btn.disabled = false;
+        btn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
         if (res.result === 'success') {
-          alert('打卡完成並已同步試算表！ / Check-in completed');
+          alert('打卡完成！');
           document.getElementById('location').value = '';
           document.getElementById('note').value = '';
           setNowTime();
@@ -1293,20 +623,10 @@
         } else {
           alert('打卡失敗：' + res.message);
         }
-      })
-      .catch(err => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
-        alert('發送打卡失敗，請檢查連線狀態！');
       });
     });
 
-    window.onload = function() {
-      initDateDisplay();
-      initTimeOptions();
-      loadStatusSettings();
-      fetchCloudData();
-    };
+    window.onload = () => { initDateDisplay(); initTimeOptions(); loadStatusSettings(); fetchCloudData(); };
   </script>
 </body>
 </html>
