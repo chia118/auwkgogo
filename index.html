@@ -23,6 +23,8 @@
       --tag-work-text: #3d7a5a;
       --tag-off-bg: #fbeee9;
       --tag-off-text: #b56247;
+      --tag-book-bg: #eee8ff;
+      --tag-book-text: #6650a4;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Noto Sans TC', sans-serif; word-break: break-word; }
@@ -50,7 +52,6 @@
     .header { text-align: center; margin-bottom: 20px; }
     .header h1 { font-size: 1.5rem; font-weight: 500; color: var(--primary-color); margin-bottom: 4px; }
     .header p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
-    .header .date-display { font-size: 0.9rem; font-weight: 500; color: var(--primary-color); margin-top: 4px; }
 
     .nav-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
     .tab-btn {
@@ -78,9 +79,25 @@
       background-color: #faf9f7; color: var(--text-main); font-size: 0.95rem; outline: none; transition: all 0.2s;
     }
     input:focus, select:focus { border-color: var(--primary-color); background-color: #ffffff; }
+    select:disabled, input:disabled { background-color: #f0ede6; cursor: not-allowed; opacity: 0.8; }
 
-    .time-select-group { display: flex; gap: 8px; }
-    .time-select-group select { flex: 1; min-width: 0; }
+    .current-datetime-display {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 4px 0 2px;
+      text-align: left;
+    }
+    .current-date-display {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+    .current-time-display {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
 
     .type-toggle-group { display: flex; gap: 10px; }
     .type-btn {
@@ -97,7 +114,7 @@
     }
     .btn-submit .en { display: block; font-size: 0.8rem; opacity: 0.85; }
     .btn-submit:hover { background-color: var(--primary-hover); }
-    .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; }
+    .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.7; }
 
     .contact-notice { background-color: #f2efe9; color: var(--primary-color); font-size: 0.8rem; text-align: center; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border-color); }
 
@@ -108,11 +125,6 @@
     }
     .filter-btn .en { display: block; font-size: 0.68rem; opacity: 0.85; }
     .filter-btn.active { background-color: var(--primary-color); color: #ffffff; border-color: var(--primary-color); }
-
-    .btn-export {
-      width: 100%; padding: 10px; background-color: #faf9f7; border: 1px dashed var(--primary-color);
-      color: var(--primary-color); border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; margin-bottom: 16px; display: flex; justify-content: center; gap: 6px;
-    }
 
     .calc-panel { background-color: #f5f2ec; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
     .calc-panel h3 { font-size: 0.95rem; color: var(--primary-color); margin-bottom: 12px; font-weight: 600; }
@@ -130,9 +142,8 @@
     .record-info strong { color: var(--primary-color); font-weight: 500; }
 
     .action-btns { display: flex; gap: 4px; align-items: center; }
-    .btn-action-icon { background: none; border: none; font-size: 0.9rem; padding: 4px 6px; cursor: pointer; border-radius: 4px; }
-    .btn-edit:hover { background-color: #e2e8f0; color: #2563eb; }
-    .btn-delete:hover { color: var(--tag-off-text); background-color: var(--tag-off-bg); }
+    .btn-action-icon { background: none; border: 1px solid var(--border-color); background-color: #ffffff; font-size: 0.8rem; padding: 4px 8px; cursor: pointer; border-radius: 6px; color: var(--primary-color); font-weight: 500; }
+    .btn-action-icon:hover { background-color: var(--border-color); }
 
     .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 500; margin-left: 6px; }
     .tag-上班 { background-color: var(--tag-work-bg); color: var(--tag-work-text); }
@@ -140,21 +151,75 @@
     .empty-msg { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px 0; }
 
     .status-panel { background-color: #faf9f7; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
-    .status-toggle-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px dashed var(--border-color); }
+    .status-toggle-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px dashed var(--border-color); }
     .switch-btn-group { display: flex; gap: 6px; }
-    .sw-btn { padding: 8px 16px; border: 1px solid var(--border-color); background-color: #ffffff; color: var(--text-muted); border-radius: 8px; font-weight: 600; cursor: pointer; }
-    .sw-btn.active-on { background-color: #e8f3ec; color: #3d7a5a; border-color: #3d7a5a; }
-    .sw-btn.active-off { background-color: #fbeee9; color: #b56247; border-color: #b56247; }
-    .status-preview { margin-top: 20px; padding: 16px; background: #ffffff; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; }
-    .status-preview-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
-    .status-preview-val { font-size: 1.1rem; font-weight: 600; color: var(--primary-color); }
+    .sw-btn { padding: 8px 14px; border: 1px solid var(--border-color); background-color: #ffffff; color: var(--text-muted); border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+    .sw-btn.active-on { background-color: var(--tag-work-bg); color: var(--tag-work-text); border-color: var(--tag-work-text); }
+    .sw-btn.active-off { background-color: var(--tag-off-bg); color: var(--tag-off-text); border-color: var(--tag-off-text); }
+    .sw-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .toast {
       position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background-color: rgba(74, 64, 58, 0.9);
       color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1000;
     }
     .toast.show { opacity: 1; }
-  </style>
+  
+    /* 狀態模式顏色區分 */
+    #statusSelect option[value="只嗨 (High Only)"] {
+      color: #d97706;
+      font-weight: 600;
+    }
+    #statusSelect option[value="只酒 (Drinks Only)"] {
+      color: #2563eb;
+      font-weight: 600;
+    }
+    #statusSelect option[value="都可以 (Both)"] {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+
+    .status-high { color:#d97706 !important; font-weight:600; }
+    .status-drinks { color:#2563eb !important; font-weight:600; }
+    .status-both { color:#16a34a !important; font-weight:600; }
+
+
+    /* 狀態模式顏色區分 */
+    #statusSelect option[value="只嗨 (High Only)"] {
+      color: #d97706;
+      font-weight: 600;
+    }
+    #statusSelect option[value="只酒 (Drinks Only)"] {
+      color: #2563eb;
+      font-weight: 600;
+    }
+    #statusSelect option[value="都可以 (Both)"] {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+
+    /* 前台狀態模式：只有三種可自行選擇 */
+    .status-mode-high {
+      color: #d97706 !important;
+      font-weight: 600;
+      background-color: #fff7ed !important;
+      border-color: #f59e0b !important;
+    }
+    .status-mode-drinks {
+      color: #2563eb !important;
+      font-weight: 600;
+      background-color: #eff6ff !important;
+      border-color: #60a5fa !important;
+    }
+    .status-mode-both {
+      color: #16a34a !important;
+      font-weight: 600;
+      background-color: #f0fdf4 !important;
+      border-color: #4ade80 !important;
+    }
+
+</style>
 </head>
 <body>
 
@@ -162,21 +227,27 @@
     <div class="header">
       <h1>DAILY CHECK-IN</h1>
       <p>打卡系統 <span style="font-size: 0.8rem; opacity: 0.8;">/ Attendance System</span></p>
-      <div id="todayDate" class="date-display"></div>
     </div>
 
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('checkin')">新增打卡<span class="en">New Check-in</span></button>
-      <button class="tab-btn" onclick="switchTab('records')">打卡紀錄<span class="en">Records</span></button>
-      <button class="tab-btn" onclick="switchTab('status')">目前狀態<span class="en">Status</span></button>
+      <button type="button" class="tab-btn active" onclick="switchTab('checkin')">新增打卡<span class="en">New Check-in</span></button>
+      <button type="button" class="tab-btn" onclick="switchTab('records')">打卡紀錄<span class="en">Records</span></button>
+      <button type="button" class="tab-btn" onclick="switchTab('status')">狀態提交<span class="en">Status</span></button>
     </div>
 
-    <!-- 分頁一：新增打卡 -->
     <div id="checkinTab" class="tab-content active">
       <form id="checkinForm">
         <div class="form-group">
           <label for="userName">姓名 <span class="en">Name</span> *</label>
-          <input type="text" id="userName" placeholder="請輸入姓名" required oninput="checkUserWorkingStatus()">
+          <input type="text" id="userName" placeholder="請輸入姓名" required oninput="handleNameInput(this.value)">
+        </div>
+
+        <div class="form-group">
+          <label>目前時間 <span class="en">Current Time</span></label>
+          <div class="current-datetime-display">
+            <span class="current-date-display" id="currentDateDisplay"></span>
+            <span class="current-time-display" id="currentTimeDisplay">--:--</span>
+          </div>
         </div>
 
         <div class="form-group">
@@ -184,14 +255,6 @@
           <div class="type-toggle-group">
             <button type="button" class="type-btn active" data-type="上班" onclick="selectType('上班')">上班<span class="en">Check-in</span></button>
             <button type="button" class="type-btn" data-type="下班" onclick="selectType('下班')">下班<span class="en">Check-out</span></button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>時間 <span class="en">Time</span> *</label>
-          <div class="time-select-group">
-            <select id="hour"></select>
-            <select id="minute"></select>
           </div>
         </div>
 
@@ -214,18 +277,15 @@
       </form>
     </div>
 
-    <!-- 分頁二：打卡紀錄 -->
     <div id="recordsTab" class="tab-content">
-      <div class="contact-notice">💡 點擊備註旁的 ✏️ 即可直接修改編輯備註</div>
+      <div class="contact-notice">💡 若要修改請與管理者聯繫</div>
 
       <div class="filter-group">
         <button class="filter-btn active" onclick="setFilter('daily', this)">每日<span class="en">Daily</span></button>
         <button class="filter-btn" onclick="setFilter('weekly', this)">本週<span class="en">Weekly</span></button>
-        <button class="filter-btn" onclick="setFilter('3months', this)">近三個月<span class="en">3 Months</span></button>
+        <button class="filter-btn" onclick="setFilter('thisMonth', this)">本月<span class="en">This Month</span></button>
         <button class="filter-btn" onclick="setFilter('calc', this)">時數查詢<span class="en">Calculator</span></button>
       </div>
-
-      <button id="btnExport" class="btn-export" onclick="exportFilteredRecords()">📥 匯出當前紀錄 (Export CSV)</button>
 
       <div id="calcPanel" class="calc-panel" style="display: none;">
         <h3>🧮 計算機 <span class="en">/ Hours Calculator</span></h3>
@@ -269,30 +329,59 @@
       <ul id="recordList" class="record-list"></ul>
     </div>
 
-    <!-- 分頁三：目前狀態 -->
     <div id="statusTab" class="tab-content">
       <div class="status-panel">
+        <div class="form-group">
+          <label for="statusUserName">姓名 <span class="en">Name</span> *</label>
+          <input type="text" id="statusUserName" placeholder="請輸入姓名" oninput="handleNameInput(this.value)">
+        </div>
+
         <div class="status-toggle-box">
           <label>狀態開關 <span class="en">Status Switch</span></label>
-          <div class="switch-btn-group">
-            <button type="button" id="swOnBtn" class="sw-btn active-on" onclick="toggleStatusSwitch(true)">ON</button>
-            <button type="button" id="swOffBtn" class="sw-btn" onclick="toggleStatusSwitch(false)">OFF</button>
+          <div class="switch-btn-group" id="switchBtnGroup">
+            <button type="button" id="swOnBtn" class="sw-btn active-on" onclick="setManualStatusState('ON')">ON</button>
+            <button type="button" id="swOffBtn" class="sw-btn" onclick="setManualStatusState('OFF')">OFF</button>
           </div>
         </div>
 
         <div id="statusSelectGroup" class="form-group">
-          <label for="statusSelect">選擇狀態模式 <span class="en">Select Mode</span></label>
-          <select id="statusSelect" onchange="saveStatusSettings()">
+          <label for="statusSelect">狀態模式 <span class="en">Select Mode</span></label>
+          <select id="statusSelect" onchange="handleStatusSelectChange(this.value)">
+            <option value="" disabled selected>請選擇模式</option>
             <option value="🥳 只嗨 (High Only)">🥳 只嗨 (High Only)</option>
             <option value="🍷 只酒 (Drinks Only)">🍷 只酒 (Drinks Only)</option>
             <option value="🎉 都可以 (Both)">🎉 都可以 (Both)</option>
           </select>
         </div>
 
-        <div class="status-preview">
-          <div class="status-preview-title">當前設定顯示效果 / Current Preview</div>
-          <div id="statusPreviewVal" class="status-preview-val">🥳 只嗨 (High Only)</div>
-        </div>
+        <button type="button" id="statusSubmitBtn" class="btn-submit" style="margin-top: 16px;" onclick="submitStatusForm()">
+          確認送出狀態
+          <span class="en">Submit Status</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="noteEditModal" style="
+    display:none; position:fixed; inset:0; z-index:2000;
+    background:rgba(0,0,0,.28); align-items:center; justify-content:center;
+    padding:20px;">
+    <div style="
+      width:100%; max-width:360px; background:#fff; border:1px solid var(--border-color);
+      border-radius:12px; padding:20px; box-shadow:0 12px 30px rgba(0,0,0,.15);">
+      <div style="font-size:1rem; font-weight:600; color:var(--primary-color); margin-bottom:12px;">
+        ✏️ 編輯備註
+      </div>
+      <input type="text" id="editNoteInput" placeholder="請輸入備註"
+        style="width:100%; margin-bottom:14px;">
+      <div style="display:flex; gap:8px;">
+        <button type="button" id="cancelEditNoteBtn" class="btn-action-icon" style="flex:1;">
+          取消
+        </button>
+        <button type="button" id="saveEditNoteBtn" class="btn-submit" style="flex:1; margin-top:0;">
+          儲存
+        </button>
       </div>
     </div>
   </div>
@@ -300,12 +389,47 @@
   <div id="toast" class="toast">操作成功</div>
 
   <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwzlYP6BXTkf0daiSRP3E6TnsmYyHZzmEHGQliBkII8pu2hA-mYrOIi2wBSZMBPLVKB3g/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbz1jDseSY_0Y-50LxbnzFZMdwh3UVAiy1X-qkTZ6AuZZE9XypR2YHIZ2UAsJsL9ii9ULQ/exec';
 
     let selectedType = '上班';
     let currentFilter = 'daily';
-    let isStatusOn = true;
+    let currentStatusState = 'ON';
     let cloudRecords = [];
+    let autoOffTimer = null;
+
+    function initSavedUserName() {
+      const savedName = localStorage.getItem('checkin_username') || '';
+      if (savedName) {
+        document.getElementById('userName').value = savedName;
+        document.getElementById('statusUserName').value = savedName;
+      }
+    }
+
+    function handleNameInput(value) {
+      const trimmed = value.trim();
+      if (trimmed) {
+        localStorage.setItem('checkin_username', trimmed);
+      } else {
+        localStorage.removeItem('checkin_username');
+      }
+      
+      const userNameEl = document.getElementById('userName');
+      const statusUserNameEl = document.getElementById('statusUserName');
+      if (userNameEl.value !== trimmed) userNameEl.value = trimmed;
+      if (statusUserNameEl.value !== trimmed) statusUserNameEl.value = trimmed;
+
+      checkUserWorkingStatus();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
     function formatDate(rawVal) {
       if (!rawVal) return '';
@@ -336,9 +460,8 @@
       return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
 
-    function initDateDisplay() {
+    function initCalcDates() {
       const now = new Date();
-      document.getElementById('todayDate').innerText = now.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
       document.getElementById('calcStartDate').value = getTodayStr();
       const tomorrow = new Date(now);
       tomorrow.setDate(now.getDate() + 1);
@@ -348,36 +471,34 @@
     function switchTab(tabName) {
       document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      const todayDateEl = document.getElementById('todayDate');
 
       if (tabName === 'checkin') {
         document.querySelectorAll('.tab-btn')[0].classList.add('active');
         document.getElementById('checkinTab').classList.add('active');
-        todayDateEl.style.display = 'block';
       } else if (tabName === 'records') {
         document.querySelectorAll('.tab-btn')[1].classList.add('active');
         document.getElementById('recordsTab').classList.add('active');
-        todayDateEl.style.display = 'none';
         fetchCloudData();
       } else if (tabName === 'status') {
         document.querySelectorAll('.tab-btn')[2].classList.add('active');
         document.getElementById('statusTab').classList.add('active');
-        todayDateEl.style.display = 'none';
+        fetchCloudData();
       }
     }
 
-    function initTimeOptions() {
-      const hSel = document.getElementById('hour'), mSel = document.getElementById('minute');
-      hSel.innerHTML = ''; mSel.innerHTML = '';
-      for (let i = 0; i < 24; i++) hSel.innerHTML += `<option value="${String(i).padStart(2, '0')}">${String(i).padStart(2, '0')} 時</option>`;
-      for (let i = 0; i < 60; i++) mSel.innerHTML += `<option value="${String(i).padStart(2, '0')}">${String(i).padStart(2, '0')} 分</option>`;
-      setNowTime();
-    }
-
-    function setNowTime() {
+    function setCurrentTimeDisplay() {
       const now = new Date();
-      document.getElementById('hour').value = String(now.getHours()).padStart(2, '0');
-      document.getElementById('minute').value = String(now.getMinutes()).padStart(2, '0');
+      const dateEl = document.getElementById('currentDateDisplay');
+      const timeEl = document.getElementById('currentTimeDisplay');
+
+      if (dateEl) {
+        dateEl.textContent = now.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+      }
+      if (timeEl) {
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mi = String(now.getMinutes()).padStart(2, '0');
+        timeEl.textContent = `${hh}:${mi}`;
+      }
     }
 
     function selectType(type) {
@@ -391,30 +512,79 @@
       checkUserWorkingStatus();
     }
 
-    // 防呆檢查：若已打上班卡尚未打下班卡，跳出提示並鎖定上班打卡
     function checkUserWorkingStatus() {
       const name = document.getElementById('userName').value.trim();
       const submitBtn = document.getElementById('submitBtn');
-      if (!name) return;
+      const statusSelect = document.getElementById('statusSelect');
+      const swOnBtn = document.getElementById('swOnBtn');
+      const swOffBtn = document.getElementById('swOffBtn');
+      const statusSubmitBtn = document.getElementById('statusSubmitBtn');
+      
+      if (!name) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
+        if (statusSelect) statusSelect.disabled = false;
+        if (swOnBtn) swOnBtn.disabled = false;
+        if (swOffBtn) swOffBtn.disabled = false;
+        if (statusSubmitBtn) {
+          statusSubmitBtn.disabled = false;
+          statusSubmitBtn.innerHTML = '確認送出狀態<span class="en">Submit Status</span>';
+        }
+        updateSwitchButtonStyles();
+        return;
+      }
 
-      const userRecords = cloudRecords.filter(r => r.name.toLowerCase() === name.toLowerCase());
+      // 只使用「上班 / 下班」打卡紀錄判斷是否正在上班。
+      // 狀態提交紀錄(type === '狀態')不能影響上班/下班判斷。
+      const userRecords = cloudRecords.filter(r =>
+        r.name.toLowerCase() === name.toLowerCase() &&
+        (r.type === '上班' || r.type === '下班')
+      );
+
       if (userRecords.length > 0) {
         userRecords.sort((a, b) => b.rowIndex - a.rowIndex);
         const lastRecord = userRecords[0];
 
-        // 如果最新一筆是上班，且目前選的也是上班
-        if (lastRecord.type === '上班' && selectedType === '上班') {
-          submitBtn.disabled = true;
-          submitBtn.innerText = '尚未打下班卡 (已鎖定)';
+        const isWorking = lastRecord.type === '上班';
+
+        if (isWorking) {
+          if (selectedType === '上班') {
+            submitBtn.disabled = true;
+            submitBtn.innerText = '尚未打下班卡 (已鎖定)';
+          } else {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
+          }
+
+          if (statusSelect) {
+            showWorkingStatusLocked(); // 上班卡後顯示上班中並鎖定不可選其他
+          }
+          if (swOnBtn) swOnBtn.disabled = true;
+          if (swOffBtn) swOffBtn.disabled = true;
+          if (statusSubmitBtn) {
+            statusSubmitBtn.disabled = true;
+            statusSubmitBtn.innerText = '上班中已鎖定 (不可發送)';
+          }
+          currentStatusState = 'ON';
+          updateSwitchButtonStyles();
           return;
         }
       }
+
       submitBtn.disabled = false;
       submitBtn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
+      hideWorkingStatusLocked();
+      if (swOnBtn) swOnBtn.disabled = false;
+      if (swOffBtn) swOffBtn.disabled = false;
+      if (statusSubmitBtn) {
+        statusSubmitBtn.disabled = false;
+        statusSubmitBtn.innerHTML = '確認送出狀態<span class="en">Submit Status</span>';
+      }
+      updateSwitchButtonStyles();
     }
 
     function fetchCloudData() {
-      fetch(GAS_URL)
+      return fetch(GAS_URL)
         .then(res => res.json())
         .then(res => {
           if (res.result === 'success') {
@@ -425,8 +595,8 @@
               time: formatTime(row[2]),
               location: String(row[3] || '').trim(),
               type: String(row[4] || '').trim(),
-              note: String(row[5] || '').trim(),
-              statusIsOn: row[6] !== undefined ? row[6] : true,
+              note: ['TRUE', 'FALSE', 'true', 'false'].includes(String(row[5] || '').trim()) ? '' : String(row[5] || '').trim(),
+              statusIsOn: row[6] !== undefined ? (row[6] === true || row[6] === 'TRUE' || row[6] === 'true' || row[6] === 'ON' || row[6] === 'on' || row[6] === 1) : false,
               statusMode: String(row[7] || '').trim()
             }));
             renderRecords();
@@ -436,40 +606,213 @@
         .catch(() => {});
     }
 
-    function deleteRecord(rowIndex) {
-      if (confirm('確定要刪除這筆紀錄嗎？')) {
-        fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'delete', rowIndex: rowIndex })
-        })
-        .then(res => res.json())
-        .then(res => {
-          if (res.result === 'success') {
-            showToast('紀錄已刪除');
-            fetchCloudData();
-          }
-        });
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.id === 'statusSelect') {
+        updateStatusSelectColor();
+      }
+    });
+
+
+    function updateStatusSelectColor() {
+      const select = document.getElementById('statusSelect');
+      if (!select) return;
+
+      select.classList.remove(
+        'status-mode-high',
+        'status-mode-drinks',
+        'status-mode-both'
+      );
+
+      const value = select.value || '';
+      if (value.includes('只嗨') || value.includes('High Only')) {
+        select.classList.add('status-mode-high');
+      } else if (value.includes('只酒') || value.includes('Drinks Only')) {
+        select.classList.add('status-mode-drinks');
+      } else if (value.includes('都可以') || value.includes('Both')) {
+        select.classList.add('status-mode-both');
       }
     }
 
-    function editNote(rowIndex, currentNote) {
-      const newNote = prompt("請輸入要修改的備註內容：", currentNote || "");
-      if (newNote === null) return; // 取消
 
-      const target = cloudRecords.find(r => r.rowIndex === rowIndex);
-      if (!target) return;
+    function removePendingStatusOption() {
+      const select = document.getElementById('statusSelect');
+      if (!select) return;
+      Array.from(select.options).forEach(option => {
+        if ((option.value || '').includes('待確認') || (option.textContent || '').includes('待確認')) {
+          option.remove();
+        }
+      });
+    }
+
+    function showWorkingStatusLocked() {
+      const statusSelect = document.getElementById('statusSelect');
+      if (!statusSelect) return;
+
+      let workingOption = Array.from(statusSelect.options)
+        .find(opt => opt.value === '上班中Working');
+
+      if (!workingOption) {
+        workingOption = document.createElement('option');
+        workingOption.value = '上班中Working';
+        workingOption.textContent = '上班中Working';
+        workingOption.disabled = true;
+        statusSelect.insertBefore(workingOption, statusSelect.firstChild);
+      }
+
+      workingOption.disabled = true;
+      statusSelect.value = '上班中Working';
+      statusSelect.disabled = true;
+    }
+
+    function hideWorkingStatusLocked() {
+      const statusSelect = document.getElementById('statusSelect');
+      if (!statusSelect) return;
+
+      const workingOption = Array.from(statusSelect.options)
+        .find(opt => opt.value === '上班中Working');
+
+      if (workingOption) workingOption.remove();
+
+      statusSelect.disabled = false;
+      statusSelect.value = '';
+    }
+
+    function setManualStatusState(state) {
+      // 上班中Working期間禁止手動切換 ON/OFF。
+      if (document.getElementById('statusSelect').disabled) {
+        currentStatusState = 'ON';
+        document.getElementById('statusSelect').value = '上班中Working';
+        updateSwitchButtonStyles();
+        return;
+      }
+
+      currentStatusState = state;
+      if (state === 'OFF') {
+        document.getElementById('statusSelect').value = '';
+      }
+      updateSwitchButtonStyles();
+    }
+
+    function handleStatusSelectChange(val) {
+      // 上班中Working期間禁止選擇其他狀態。
+      if (document.getElementById('statusSelect').disabled) {
+        showWorkingStatusLocked();
+        currentStatusState = 'ON';
+        updateSwitchButtonStyles();
+        return;
+      }
+
+      if (val) {
+        currentStatusState = 'ON';
+        updateSwitchButtonStyles();
+      }
+    }
+
+    function updateSwitchButtonStyles() {
+      const onBtn = document.getElementById('swOnBtn');
+      const offBtn = document.getElementById('swOffBtn');
+      const selectGroup = document.getElementById('statusSelectGroup');
+      const statusSelect = document.getElementById('statusSelect');
+      const statusSubmitBtn = document.getElementById('statusSubmitBtn');
+
+      onBtn.className = 'sw-btn' + (currentStatusState === 'ON' ? ' active-on' : '');
+      offBtn.className = 'sw-btn' + (currentStatusState === 'OFF' ? ' active-off' : '');
+
+      if (statusSelect && statusSelect.disabled) {
+        selectGroup.style.opacity = '0.7';
+        selectGroup.style.pointerEvents = 'none';
+        onBtn.style.opacity = '0.6';
+        onBtn.style.pointerEvents = 'none';
+        offBtn.style.opacity = '0.6';
+        offBtn.style.pointerEvents = 'none';
+        if (statusSubmitBtn) {
+          statusSubmitBtn.disabled = true;
+          statusSubmitBtn.style.opacity = '0.6';
+          statusSubmitBtn.style.cursor = 'not-allowed';
+        }
+        return;
+      } else {
+        onBtn.style.opacity = '1';
+        onBtn.style.pointerEvents = 'auto';
+        offBtn.style.opacity = '1';
+        offBtn.style.pointerEvents = 'auto';
+        if (statusSubmitBtn && !statusSubmitBtn.innerText.includes('送出中')) {
+          statusSubmitBtn.disabled = false;
+          statusSubmitBtn.style.opacity = '1';
+          statusSubmitBtn.style.cursor = 'pointer';
+        }
+      }
+
+      if (currentStatusState === 'OFF') {
+        selectGroup.style.opacity = '0.5';
+        selectGroup.style.pointerEvents = 'none';
+      } else {
+        selectGroup.style.opacity = '1';
+        selectGroup.style.pointerEvents = 'auto';
+      }
+    }
+
+    function submitStatusForm() {
+      const name = document.getElementById('statusUserName').value.trim();
+      if (!name) {
+        alert('請先輸入姓名！');
+        document.getElementById('statusUserName').focus();
+        return;
+      }
+
+      // 送出前再次確認目前是否有尚未下班的上班卡。
+      // 即使使用者透過瀏覽器操作或舊頁面狀態，也不能在上班中送出其他狀態。
+      const attendanceRecords = cloudRecords.filter(r =>
+        r.name.toLowerCase() === name.toLowerCase() &&
+        (r.type === '上班' || r.type === '下班')
+      ).sort((a, b) => b.rowIndex - a.rowIndex);
+
+      if (attendanceRecords.length > 0 && attendanceRecords[0].type === '上班') {
+        const statusSelect = document.getElementById('statusSelect');
+        const statusSubmitBtn = document.getElementById('statusSubmitBtn');
+        const swOnBtn = document.getElementById('swOnBtn');
+        const swOffBtn = document.getElementById('swOffBtn');
+
+        showWorkingStatusLocked();
+        swOnBtn.disabled = true;
+        swOffBtn.disabled = true;
+        statusSubmitBtn.disabled = true;
+        statusSubmitBtn.innerText = '上班中已鎖定 (不可發送)';
+        currentStatusState = 'ON';
+        updateSwitchButtonStyles();
+
+        alert('目前為上班中 Working，請先打下班卡後才能提交其他狀態。');
+        return;
+      }
+
+      const statusIsOn = (currentStatusState === 'ON');
+      const statusMode = statusIsOn ? document.getElementById('statusSelect').value : 'OFF';
+
+      if (statusIsOn && !statusMode) {
+        alert('開啟 ON 時請選擇狀態模式！');
+        return;
+      }
+
+      clearPendingAutoOff();
+
+      const now = new Date();
+      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const todayStr = getTodayStr();
 
       const payload = {
-        action: 'updateNote',
-        rowIndex: rowIndex,
-        name: target.name,
-        type: target.type,
-        date: target.date,
-        time: target.time,
-        location: target.location,
-        note: newNote.trim()
+        name,
+        type: '狀態',
+        date: todayStr,
+        time: currentTime,
+        location: '',
+        note: '',
+        statusIsOn: statusIsOn,
+        statusMode: statusMode
       };
+
+      const submitBtn = document.getElementById('statusSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = '送出中...';
 
       fetch(GAS_URL, {
         method: 'POST',
@@ -479,53 +822,32 @@
       .then(res => res.json())
       .then(res => {
         if (res.result === 'success') {
-          showToast('備註已更新');
+          showToast('✅ 狀態送出成功！');
           fetchCloudData();
         } else {
-          alert('更新失敗');
+          alert('送出失敗：' + (res.message || '未知錯誤'));
+        }
+      })
+      .catch(() => {
+        alert('送出失敗，請檢查網路連線。');
+      })
+      .finally(() => {
+        // 若仍在上班中，維持鎖定；否則才恢復可操作。
+        const latestAttendance = cloudRecords
+          .filter(r =>
+            r.name.toLowerCase() === name.toLowerCase() &&
+            (r.type === '上班' || r.type === '下班')
+          )
+          .sort((a, b) => b.rowIndex - a.rowIndex)[0];
+
+        if (latestAttendance && latestAttendance.type === '上班') {
+          submitBtn.disabled = true;
+          submitBtn.innerText = '上班中已鎖定 (不可發送)';
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '確認送出狀態<span class="en">Submit Status</span>';
         }
       });
-    }
-
-    function toggleStatusSwitch(status) {
-      isStatusOn = status;
-      document.getElementById('swOnBtn').className = status ? 'sw-btn active-on' : 'sw-btn';
-      document.getElementById('swOffBtn').className = status ? 'sw-btn' : 'sw-btn active-off';
-      document.getElementById('statusSelectGroup').style.opacity = status ? '1' : '0.5';
-      document.getElementById('statusSelectGroup').style.pointerEvents = status ? 'auto' : 'none';
-      saveStatusSettings();
-    }
-
-    function saveStatusSettings() {
-      const val = document.getElementById('statusSelect').value;
-      const previewEl = document.getElementById('statusPreviewVal');
-      previewEl.innerText = isStatusOn ? val : '🚫 已關閉狀態顯示 (OFF)';
-      previewEl.style.color = isStatusOn ? 'var(--primary-color)' : 'var(--text-muted)';
-
-      localStorage.setItem('user_status_config', JSON.stringify({ isOn: isStatusOn, value: val }));
-      const name = document.getElementById('userName').value.trim();
-      if (name) {
-        fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            name, type: selectedType, date: getTodayStr(),
-            time: `${document.getElementById('hour').value}:${document.getElementById('minute').value}`,
-            location: document.getElementById('location').value.trim() || '未定',
-            note: document.getElementById('note').value.trim(),
-            statusIsOn: isStatusOn, statusMode: val
-          })
-        });
-      }
-    }
-
-    function loadStatusSettings() {
-      const config = JSON.parse(localStorage.getItem('user_status_config'));
-      if (config) {
-        isStatusOn = config.isOn;
-        if (config.value) document.getElementById('statusSelect').value = config.value;
-      }
-      toggleStatusSwitch(isStatusOn);
     }
 
     function setFilter(filterType, btnElement) {
@@ -533,22 +855,23 @@
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btnElement.classList.add('active');
       document.getElementById('calcPanel').style.display = (filterType === 'calc') ? 'block' : 'none';
-      document.getElementById('btnExport').style.display = (filterType === 'calc') ? 'none' : 'flex';
       renderRecords();
     }
 
     function filterRecords(records) {
       const now = new Date(), todayStr = getTodayStr();
       return records.filter(item => {
+        if (item.type === '狀態') return false;
         const rDate = new Date(item.date.replace(/-/g, '/'));
         if (currentFilter === 'daily') return item.date === todayStr;
         if (currentFilter === 'weekly') {
           const weekAgo = new Date(); weekAgo.setDate(now.getDate() - 7);
           return rDate >= weekAgo && rDate <= now;
         }
-        if (currentFilter === '3months') {
-          const mAgo = new Date(); mAgo.setDate(now.getDate() - 90);
-          return rDate >= mAgo && rDate <= now;
+        if (currentFilter === 'thisMonth') {
+          // 本月：只顯示「今年／當月份」的打卡紀錄
+          return rDate.getFullYear() === now.getFullYear() &&
+                 rDate.getMonth() === now.getMonth();
         }
         return true;
       });
@@ -574,20 +897,6 @@
       document.getElementById('calcResult').innerText = `$${Math.round((hours * rate) + fare).toLocaleString()}`;
     }
 
-    function exportFilteredRecords() {
-      const filtered = filterRecords(cloudRecords);
-      if (filtered.length === 0) { alert('目前無紀錄可供匯出！'); return; }
-      let csv = "\uFEFF姓名,日期,類別,時間,地點,備註\n";
-      filtered.forEach(i => {
-        csv += `"${i.name}","${i.date}","${i.type}","${i.time}","${i.location}","${i.note}"\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `打卡紀錄_${getTodayStr()}.csv`;
-      link.click();
-    }
-
     function renderRecords() {
       const list = document.getElementById('recordList');
       list.innerHTML = '';
@@ -599,32 +908,115 @@
         calculateTotalAmount();
         return;
       }
+
       list.style.display = 'block';
       const filtered = filterRecords(cloudRecords).reverse();
       if (filtered.length === 0) {
         list.innerHTML = '<li class="empty-msg">尚無符合條件的紀錄</li>';
         return;
       }
+
       filtered.forEach(item => {
         const li = document.createElement('li');
         li.className = 'record-item';
-        
-        // 備註若無則不顯示，若有則顯示並支援編輯
-        const noteStr = item.note ? `<br><span style="color:#7d6e63; font-size:0.78rem;">📝 ${item.note}</span>` : '';
-        
+
+        const safeNote = ['TRUE', 'FALSE', 'true', 'false'].includes(String(item.note).trim()) ? '' : String(item.note || '').trim();
+        const noteStr = safeNote
+          ? `<br><span style="color:#7d6e63; font-size:0.78rem;">📝 ${escapeHtml(safeNote)}</span>`
+          : '<br><span style="color:#9e938a; font-size:0.78rem;">📝 尚無備註</span>';
+
         li.innerHTML = `
           <div class="record-info">
-            <div><strong>${item.name}</strong> <span class="tag tag-${item.type}">${item.type}</span></div>
-            <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">📅 ${item.date} | ⏰ ${item.time} | 📍 ${item.location}${noteStr}</div>
+            <div><strong>${escapeHtml(item.name)}</strong> <span class="tag tag-${escapeHtml(item.type)}">${escapeHtml(item.type)}</span></div>
+            <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">
+              📅 ${escapeHtml(item.date)} | ⏰ ${escapeHtml(item.time)} | 📍 ${escapeHtml(item.location)}${noteStr}
+            </div>
           </div>
           <div class="action-btns">
-            <button type="button" class="btn-action-icon btn-edit" onclick="editNote(${item.rowIndex}, '${item.note}')" title="編輯備註">✏️</button>
-            <button type="button" class="btn-action-icon btn-delete" onclick="deleteRecord(${item.rowIndex})" title="刪除">✕</button>
+            <button type="button" class="btn-action-icon" onclick="editNote(${item.rowIndex}, ${JSON.stringify(safeNote)})" title="編輯備註">✏️</button>
           </div>
         `;
         list.appendChild(li);
       });
     }
+
+    let editingNoteRowIndex = null;
+
+    function editNote(rowIndex, currentNote) {
+      editingNoteRowIndex = rowIndex;
+
+      const modal = document.getElementById('noteEditModal');
+      const input = document.getElementById('editNoteInput');
+
+      input.value = currentNote || '';
+      modal.style.display = 'flex';
+
+      setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 50);
+    }
+
+    function closeEditNoteModal() {
+      editingNoteRowIndex = null;
+      document.getElementById('noteEditModal').style.display = 'none';
+    }
+
+    function saveEditedNote() {
+      if (editingNoteRowIndex === null) return;
+
+      const rowIndex = editingNoteRowIndex;
+      const newNote = document.getElementById('editNoteInput').value.trim();
+      const saveBtn = document.getElementById('saveEditNoteBtn');
+
+      saveBtn.disabled = true;
+      saveBtn.innerText = '儲存中...';
+
+      fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'updateNote',
+          rowIndex: rowIndex,
+          note: newNote
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.result === 'success') {
+          closeEditNoteModal();
+          showToast('備註已更新');
+          return fetchCloudData();
+        }
+
+        throw new Error(res.message || '未知錯誤');
+      })
+      .catch(err => {
+        alert('備註更新失敗：' + (err.message || '請確認網路連線或後台更新功能。'));
+      })
+      .finally(() => {
+        saveBtn.disabled = false;
+        saveBtn.innerText = '儲存';
+      });
+    }
+
+    document.getElementById('cancelEditNoteBtn').addEventListener('click', closeEditNoteModal);
+    document.getElementById('saveEditNoteBtn').addEventListener('click', saveEditedNote);
+
+    document.getElementById('noteEditModal').addEventListener('click', function(e) {
+      if (e.target === this) closeEditNoteModal();
+    });
+
+    document.getElementById('editNoteInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveEditedNote();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeEditNoteModal();
+      }
+    });
 
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -632,30 +1024,62 @@
       setTimeout(() => t.classList.remove('show'), 2000);
     }
 
-    document.getElementById('checkinForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const name = document.getElementById('userName').value.trim();
-      const location = document.getElementById('location').value.trim();
-      const note = document.getElementById('note').value.trim();
-      const timeStr = `${document.getElementById('hour').value}:${document.getElementById('minute').value}`;
-
-      // 嚴格防呆：若已打上班卡尚未打下班卡，禁止再次上班
-      const userRecords = cloudRecords.filter(r => r.name.toLowerCase() === name.toLowerCase());
-      if (userRecords.length > 0) {
-        userRecords.sort((a, b) => b.rowIndex - a.rowIndex);
-        if (userRecords[0].type === '上班' && selectedType === '上班') {
-          alert('您尚未打下班卡唷！');
-          return;
-        }
+    function clearPendingAutoOff() {
+      localStorage.removeItem('pending_off_timestamp');
+      localStorage.removeItem('pending_off_name');
+      if (autoOffTimer) {
+        clearTimeout(autoOffTimer);
+        autoOffTimer = null;
       }
+    }
+
+    function triggerAutoOffTimer(name) {
+      clearPendingAutoOff();
+      const delayMs = 40 * 60 * 1000;
+      const targetTime = Date.now() + delayMs;
+      localStorage.setItem('pending_off_name', name);
+      localStorage.setItem('pending_off_timestamp', targetTime.toString());
+
+      autoOffTimer = setTimeout(() => {
+        sendAutoOffStatus(name);
+      }, delayMs);
+    }
+
+    function checkPendingOffOnLoad() {
+      const targetTimeStr = localStorage.getItem('pending_off_timestamp');
+      const name = localStorage.getItem('pending_off_name');
+      if (!targetTimeStr || !name) return;
+
+      const targetTime = parseInt(targetTimeStr, 10);
+      const remaining = targetTime - Date.now();
+
+      if (remaining <= 0) {
+        sendAutoOffStatus(name);
+      } else {
+        if (autoOffTimer) clearTimeout(autoOffTimer);
+        autoOffTimer = setTimeout(() => {
+          sendAutoOffStatus(name);
+        }, remaining);
+      }
+    }
+
+    function sendAutoOffStatus(name) {
+      clearPendingAutoOff();
+
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const todayStr = getTodayStr();
 
       const payload = {
-        name, type: selectedType, date: getTodayStr(), time: timeStr,
-        location, note, statusIsOn: isStatusOn, statusMode: document.getElementById('statusSelect').value
+        name: name,
+        type: '狀態',
+        date: todayStr,
+        time: timeStr,
+        location: '',
+        note: '',
+        statusIsOn: false,
+        statusMode: 'OFF'
       };
-
-      const btn = document.getElementById('submitBtn');
-      btn.disabled = true; btn.innerText = '打卡中...';
 
       fetch(GAS_URL, {
         method: 'POST',
@@ -664,21 +1088,116 @@
       })
       .then(res => res.json())
       .then(res => {
-        btn.disabled = false;
-        btn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
         if (res.result === 'success') {
-          alert('打卡完成！');
-          document.getElementById('location').value = '';
-          document.getElementById('note').value = '';
-          setNowTime();
-          switchTab('records');
-        } else {
-          alert('打卡失敗：' + res.message);
+          showToast('⏳ 超過40分鐘，狀態已自動切換為 OFF');
+          fetchCloudData();
         }
+      })
+      .catch(() => {});
+    }
+
+    document.getElementById('checkinForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('userName').value.trim();
+      const location = document.getElementById('location').value.trim();
+      const note = selectedType === '下班' ? document.getElementById('note').value.trim() : '';
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      clearPendingAutoOff();
+
+      const computedStatusIsOn = true;
+      const computedStatusMode = selectedType === '上班' ? '上班中Working' : '⏳ 待確認 (Pending)';
+
+      const payload = {
+        name,
+        type: selectedType,
+        date: getTodayStr(),
+        time: timeStr,
+        location,
+        note,
+        statusIsOn: computedStatusIsOn,
+        statusMode: computedStatusMode
+      };
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = '送出中...';
+
+      fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.result === 'success') {
+          showToast('打卡成功！');
+          
+          if (selectedType === '上班') {
+            // 上班卡成功後，立即進入「上班中Working」鎖定狀態。
+            // 不等待雲端資料重新整理，避免使用者在短時間內再次操作。
+            const statusSelect = document.getElementById('statusSelect');
+            const statusSubmitBtn = document.getElementById('statusSubmitBtn');
+            const swOnBtn = document.getElementById('swOnBtn');
+            const swOffBtn = document.getElementById('swOffBtn');
+
+            showWorkingStatusLocked();
+            swOnBtn.disabled = true;
+            swOffBtn.disabled = true;
+            statusSubmitBtn.disabled = true;
+            statusSubmitBtn.innerText = '上班中已鎖定 (不可發送)';
+            currentStatusState = 'ON';
+            updateSwitchButtonStyles();
+
+            // 同步更新本地狀態，讓 checkUserWorkingStatus 在雲端資料回來前也維持鎖定。
+            cloudRecords.push({
+              rowIndex: Number.MAX_SAFE_INTEGER,
+              name: name,
+              date: getTodayStr(),
+              time: timeStr,
+              location: location,
+              type: '上班',
+              note: '',
+              statusIsOn: true,
+              statusMode: '上班中Working'
+            });
+          } else if (selectedType === '下班') {
+            triggerAutoOffTimer(name);
+          }
+
+          document.getElementById('checkinForm').reset();
+          const currentName = localStorage.getItem('checkin_username') || '';
+          if (currentName) {
+            document.getElementById('userName').value = currentName;
+            document.getElementById('statusUserName').value = currentName;
+          }
+          selectType('上班');
+          setCurrentTimeDisplay();
+          fetchCloudData();
+        } else {
+          alert('打卡失敗：' + (res.message || '未知錯誤'));
+        }
+      })
+      .catch(() => {
+        alert('打卡失敗，請檢查網路連線。');
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
+        checkUserWorkingStatus();
       });
     });
 
-    window.onload = () => { initDateDisplay(); initTimeOptions(); loadStatusSettings(); fetchCloudData(); };
+    removePendingStatusOption();
+    updateStatusSelectColor();
+    initSavedUserName();
+    initCalcDates();
+    setCurrentTimeDisplay();
+    updateSwitchButtonStyles();
+    checkPendingOffOnLoad();
+    fetchCloudData();
+    setInterval(setCurrentTimeDisplay, 1000);
   </script>
 </body>
 </html>
