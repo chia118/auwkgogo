@@ -178,26 +178,9 @@
       font-weight: 600;
     }
 
-
     .status-high { color:#d97706 !important; font-weight:600; }
     .status-drinks { color:#2563eb !important; font-weight:600; }
     .status-both { color:#16a34a !important; font-weight:600; }
-
-
-    /* 狀態模式顏色區分 */
-    #statusSelect option[value="只嗨 (High Only)"] {
-      color: #d97706;
-      font-weight: 600;
-    }
-    #statusSelect option[value="只酒 (Drinks Only)"] {
-      color: #2563eb;
-      font-weight: 600;
-    }
-    #statusSelect option[value="都可以 (Both)"] {
-      color: #16a34a;
-      font-weight: 600;
-    }
-
 
     /* 前台狀態模式：只有三種可自行選擇 */
     .status-mode-high {
@@ -218,8 +201,7 @@
       background-color: #f0fdf4 !important;
       border-color: #4ade80 !important;
     }
-
-</style>
+  </style>
 </head>
 <body>
 
@@ -265,7 +247,7 @@
 
         <div id="offWorkFields" style="display: none;">
           <div class="form-group">
-            <label for="note">備註 <span class="en">Note</span></label>
+            <label for="note">上下班備註 <span class="en">Attendance Note</span></label>
             <input type="text" id="note" placeholder="自收、客人算xx小、未收車資">
           </div>
         </div>
@@ -354,6 +336,11 @@
           </select>
         </div>
 
+        <div class="form-group">
+          <label for="statusNote">狀態提交備註 <span class="en">Status Note</span></label>
+          <input type="text" id="statusNote" placeholder="請輸入狀態提交備註">
+        </div>
+
         <button type="button" id="statusSubmitBtn" class="btn-submit" style="margin-top: 16px;" onclick="submitStatusForm()">
           確認送出狀態
           <span class="en">Submit Status</span>
@@ -361,7 +348,6 @@
       </div>
     </div>
   </div>
-
 
   <div id="noteEditModal" style="
     display:none; position:fixed; inset:0; z-index:2000;
@@ -389,13 +375,14 @@
   <div id="toast" class="toast">操作成功</div>
 
   <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbz1jDseSY_0Y-50LxbnzFZMdwh3UVAiy1X-qkTZ6AuZZE9XypR2YHIZ2UAsJsL9ii9ULQ/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwEJG79ivxM0CrOiRegiZl_qI4Pxf_9BJKxCKyyAYcDc9bq3A3joFrfSiL7ABpq25so/exec';
 
     let selectedType = '上班';
     let currentFilter = 'daily';
     let currentStatusState = 'ON';
     let cloudRecords = [];
     let autoOffTimer = null;
+    let bookedStatusLocked = false;
 
     function initSavedUserName() {
       const savedName = localStorage.getItem('checkin_username') || '';
@@ -418,7 +405,10 @@
       if (userNameEl.value !== trimmed) userNameEl.value = trimmed;
       if (statusUserNameEl.value !== trimmed) statusUserNameEl.value = trimmed;
 
-      checkUserWorkingStatus();
+      // 重新抓取最新後台狀態，避免後台剛改成「已預約」但前台仍使用舊資料。
+      fetchCloudData().finally(() => {
+        checkUserWorkingStatus();
+      });
     }
 
     function escapeHtml(str) {
@@ -512,6 +502,111 @@
       checkUserWorkingStatus();
     }
 
+    function isUserBooked(name) {
+      const trimmedName = String(name || '').trim().toLowerCase();
+      if (!trimmedName) { bookedStatusLocked = false; return false; }
+
+      const userStatusRecords = cloudRecords
+        .filter(r =>
+          String(r.name || '').trim().toLowerCase() === trimmedName &&
+          r.type === '狀態'
+        )
+        .sort((a, b) => b.rowIndex - a.rowIndex);
+
+      if (!userStatusRecords.length) { bookedStatusLocked = false; return false; }
+
+      const latestStatus = userStatusRecords[0];
+      const mode = String(latestStatus.statusMode || '').trim();
+
+      bookedStatusLocked = (
+        mode === '📅 已預約' ||
+        mode === '已預約' ||
+        mode === 'BOOK'
+      );
+
+      return bookedStatusLocked;
+    }
+
+    function getLatestStatusMode(name) {
+      const trimmedName = String(name || '').trim().toLowerCase();
+      if (!trimmedName) return '';
+
+      const records = cloudRecords
+        .filter(r =>
+          String(r.name || '').trim().toLowerCase() === trimmedName &&
+          r.type === '狀態'
+        )
+        .sort((a, b) => b.rowIndex - a.rowIndex);
+
+      if (!records.length) return '';
+      return String(records[0].statusMode || '').trim();
+    }
+
+    function isPendingAfterCheckout(name) {
+      const mode = getLatestStatusMode(name);
+      return (
+        mode === '🌙 剛下班待確認' ||
+        mode === '剛下班待確認' ||
+        mode === '⏳ 待確認 (Pending)' ||
+        mode === '待確認' ||
+        mode === 'Pending'
+      );
+    }
+
+    function isUserCurrentlyWorking(name) {
+      const trimmedName = String(name || '').trim().toLowerCase();
+      if (!trimmedName) return false;
+
+      const attendanceRecords = cloudRecords
+        .filter(r =>
+          String(r.name || '').trim().toLowerCase() === trimmedName &&
+          (r.type === '上班' || r.type === '下班')
+        )
+        .sort((a, b) => b.rowIndex - a.rowIndex);
+
+      return attendanceRecords.length > 0 && attendanceRecords[0].type === '上班';
+    }
+
+    function showBookedStatusLocked() {
+      // 「已預約」不再鎖定狀態提交。
+      // 只有「上班中」才會鎖定狀態不可發送。
+      const statusSelect = document.getElementById('statusSelect');
+      const statusSubmitBtn = document.getElementById('statusSubmitBtn');
+      const swOnBtn = document.getElementById('swOnBtn');
+      const swOffBtn = document.getElementById('swOffBtn');
+      const selectGroup = document.getElementById('statusSelectGroup');
+
+      if (statusSelect) {
+        statusSelect.disabled = false;
+        statusSelect.style.opacity = '1';
+        statusSelect.style.pointerEvents = 'auto';
+      }
+
+      if (swOnBtn) {
+        swOnBtn.disabled = false;
+        swOnBtn.style.opacity = '1';
+        swOnBtn.style.pointerEvents = 'auto';
+      }
+
+      if (swOffBtn) {
+        swOffBtn.disabled = false;
+        swOffBtn.style.opacity = '1';
+        swOffBtn.style.pointerEvents = 'auto';
+      }
+
+      if (statusSubmitBtn) {
+        statusSubmitBtn.disabled = false;
+        statusSubmitBtn.innerText = '確認送出狀態';
+        statusSubmitBtn.style.opacity = '1';
+        statusSubmitBtn.style.cursor = 'pointer';
+      }
+
+      if (selectGroup) {
+        selectGroup.style.opacity = '1';
+        selectGroup.style.pointerEvents = 'auto';
+      }
+    }
+
     function checkUserWorkingStatus() {
       const name = document.getElementById('userName').value.trim();
       const submitBtn = document.getElementById('submitBtn');
@@ -534,8 +629,6 @@
         return;
       }
 
-      // 只使用「上班 / 下班」打卡紀錄判斷是否正在上班。
-      // 狀態提交紀錄(type === '狀態')不能影響上班/下班判斷。
       const userRecords = cloudRecords.filter(r =>
         r.name.toLowerCase() === name.toLowerCase() &&
         (r.type === '上班' || r.type === '下班')
@@ -557,7 +650,7 @@
           }
 
           if (statusSelect) {
-            showWorkingStatusLocked(); // 上班卡後顯示上班中並鎖定不可選其他
+            showWorkingStatusLocked();
           }
           if (swOnBtn) swOnBtn.disabled = true;
           if (swOffBtn) swOffBtn.disabled = true;
@@ -569,6 +662,15 @@
           updateSwitchButtonStyles();
           return;
         }
+      }
+
+      // 「已預約」只鎖定狀態提交，不影響正常上下班打卡。
+      // 如果上一筆是下班，下一次仍可正常打上班卡。
+      if (isUserBooked(name)) {
+        showBookedStatusLocked();
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '完成打卡<span class="en">Submit Check-in</span>';
+        return;
       }
 
       submitBtn.disabled = false;
@@ -612,7 +714,6 @@
       }
     });
 
-
     function updateStatusSelectColor() {
       const select = document.getElementById('statusSelect');
       if (!select) return;
@@ -633,12 +734,11 @@
       }
     }
 
-
     function removePendingStatusOption() {
       const select = document.getElementById('statusSelect');
       if (!select) return;
       Array.from(select.options).forEach(option => {
-        if ((option.value || '').includes('待確認') || (option.textContent || '').includes('待確認')) {
+        if ((option.value || '').includes('⏳ 待確認') || (option.textContent || '').includes('⏳ 待確認')) {
           option.remove();
         }
       });
@@ -678,7 +778,7 @@
     }
 
     function setManualStatusState(state) {
-      // 上班中Working期間禁止手動切換 ON/OFF。
+      const name = document.getElementById('statusUserName').value.trim() || document.getElementById('userName').value.trim();
       if (document.getElementById('statusSelect').disabled) {
         currentStatusState = 'ON';
         document.getElementById('statusSelect').value = '上班中Working';
@@ -694,7 +794,6 @@
     }
 
     function handleStatusSelectChange(val) {
-      // 上班中Working期間禁止選擇其他狀態。
       if (document.getElementById('statusSelect').disabled) {
         showWorkingStatusLocked();
         currentStatusState = 'ON';
@@ -717,6 +816,10 @@
 
       onBtn.className = 'sw-btn' + (currentStatusState === 'ON' ? ' active-on' : '');
       offBtn.className = 'sw-btn' + (currentStatusState === 'OFF' ? ' active-off' : '');
+
+      const statusName =
+        document.getElementById('statusUserName').value.trim() ||
+        document.getElementById('userName').value.trim();
 
       if (statusSelect && statusSelect.disabled) {
         selectGroup.style.opacity = '0.7';
@@ -760,8 +863,8 @@
         return;
       }
 
-      // 送出前再次確認目前是否有尚未下班的上班卡。
-      // 即使使用者透過瀏覽器操作或舊頁面狀態，也不能在上班中送出其他狀態。
+      // 後台為「📅 已預約」時，禁止前台提交任何狀態，
+      // 包含 ON 與 OFF；只有打上班卡後才解除鎖定。
       const attendanceRecords = cloudRecords.filter(r =>
         r.name.toLowerCase() === name.toLowerCase() &&
         (r.type === '上班' || r.type === '下班')
@@ -798,6 +901,7 @@
       const now = new Date();
       const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       const todayStr = getTodayStr();
+      const note = document.getElementById('statusNote').value.trim();
 
       const payload = {
         name,
@@ -805,7 +909,7 @@
         date: todayStr,
         time: currentTime,
         location: '',
-        note: '',
+        note: note,
         statusIsOn: statusIsOn,
         statusMode: statusMode
       };
@@ -823,6 +927,8 @@
       .then(res => {
         if (res.result === 'success') {
           showToast('✅ 狀態送出成功！');
+          document.getElementById('statusNote').value = '';
+
           fetchCloudData();
         } else {
           alert('送出失敗：' + (res.message || '未知錯誤'));
@@ -832,7 +938,6 @@
         alert('送出失敗，請檢查網路連線。');
       })
       .finally(() => {
-        // 若仍在上班中，維持鎖定；否則才恢復可操作。
         const latestAttendance = cloudRecords
           .filter(r =>
             r.name.toLowerCase() === name.toLowerCase() &&
@@ -842,7 +947,7 @@
 
         if (latestAttendance && latestAttendance.type === '上班') {
           submitBtn.disabled = true;
-          submitBtn.innerText = '上班中已鎖定 (不可發送)';
+          submitBtn.innerText = '上班中上班中已鎖定 (不可發送)';
         } else {
           submitBtn.disabled = false;
           submitBtn.innerHTML = '確認送出狀態<span class="en">Submit Status</span>';
@@ -869,7 +974,6 @@
           return rDate >= weekAgo && rDate <= now;
         }
         if (currentFilter === 'thisMonth') {
-          // 本月：只顯示「今年／當月份」的打卡紀錄
           return rDate.getFullYear() === now.getFullYear() &&
                  rDate.getMonth() === now.getMonth();
         }
@@ -933,7 +1037,9 @@
             </div>
           </div>
           <div class="action-btns">
-            <button type="button" class="btn-action-icon" onclick="editNote(${item.rowIndex}, ${JSON.stringify(safeNote)})" title="編輯備註">✏️</button>
+            ${item.type === '下班'
+              ? `<button type="button" class="btn-action-icon record-edit-btn" data-row-index="${Number(item.rowIndex)}" data-note="${escapeHtml(safeNote)}" title="編輯備註">✏️</button>`
+              : ''}
           </div>
         `;
         list.appendChild(li);
@@ -942,11 +1048,33 @@
 
     let editingNoteRowIndex = null;
 
+    // 前台編輯按鈕：只允許下班卡，使用事件委派避免 inline onclick 在部分瀏覽器/本機 HTML 環境失效
+    document.getElementById('recordList').addEventListener('click', function(e) {
+      const btn = e.target.closest('.record-edit-btn');
+      if (!btn) return;
+
+      const rowIndex = Number(btn.dataset.rowIndex);
+      const currentNote = btn.dataset.note || '';
+
+      editNote(rowIndex, currentNote);
+    });
+
     function editNote(rowIndex, currentNote) {
-      editingNoteRowIndex = rowIndex;
+      const numericRowIndex = Number(rowIndex);
+      if (!Number.isInteger(numericRowIndex) || numericRowIndex < 2) {
+        alert('無法取得這筆打卡紀錄的資料列。請重新整理後再試一次。');
+        return;
+      }
+
+      editingNoteRowIndex = numericRowIndex;
 
       const modal = document.getElementById('noteEditModal');
       const input = document.getElementById('editNoteInput');
+
+      if (!modal || !input) {
+        alert('編輯視窗載入失敗，請重新整理頁面。');
+        return;
+      }
 
       input.value = currentNote || '';
       modal.style.display = 'flex';
@@ -977,7 +1105,7 @@
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'updateNote',
-          rowIndex: rowIndex,
+          rowIndex: Number(rowIndex),
           note: newNote
         })
       })
@@ -1100,6 +1228,13 @@
       e.preventDefault();
       const name = document.getElementById('userName').value.trim();
       const location = document.getElementById('location').value.trim();
+
+      // 上班中禁止再次打上班卡，必須先完成下班卡。
+      if (selectedType === '上班' && isUserCurrentlyWorking(name)) {
+        alert('您目前已在上班中，尚未打下班卡，無法再次打上班卡。');
+        checkUserWorkingStatus();
+        return;
+      }
       const note = selectedType === '下班' ? document.getElementById('note').value.trim() : '';
       const now = new Date();
       const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -1135,8 +1270,6 @@
           showToast('打卡成功！');
           
           if (selectedType === '上班') {
-            // 上班卡成功後，立即進入「上班中Working」鎖定狀態。
-            // 不等待雲端資料重新整理，避免使用者在短時間內再次操作。
             const statusSelect = document.getElementById('statusSelect');
             const statusSubmitBtn = document.getElementById('statusSubmitBtn');
             const swOnBtn = document.getElementById('swOnBtn');
@@ -1150,7 +1283,6 @@
             currentStatusState = 'ON';
             updateSwitchButtonStyles();
 
-            // 同步更新本地狀態，讓 checkUserWorkingStatus 在雲端資料回來前也維持鎖定。
             cloudRecords.push({
               rowIndex: Number.MAX_SAFE_INTEGER,
               name: name,
