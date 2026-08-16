@@ -1429,6 +1429,8 @@
       if (!record || !record.name || !record.rowIndex) return;
       localStorage.setItem(`active_off_status_${String(record.name).trim().toLowerCase()}`, JSON.stringify({
         rowIndex: Number(record.rowIndex),
+        date: String(record.date || '').trim(),
+        time: String(record.time || '').trim(),
         timestamp: getStatusTimestamp(record)
       }));
     }
@@ -1476,26 +1478,48 @@
       );
       const rememberedOff = getRememberedOffStatus(name);
 
-      // 有新的非 OFF 狀態提交時，清除舊的 OFF 標記。
+      // ★ OFF 的判斷以「提交時間」為準，不使用 rowIndex。
+      // Google Sheet 刪除一列後，後面的 rowIndex 會重新往前排列，
+      // 因此不能用 rowIndex 判斷 OFF 是否被刪除。
+      const rememberedOffTimestamp = rememberedOff
+        ? Number(rememberedOff.timestamp || 0)
+        : 0;
+      const latestStatusTimestamp = latestStatus
+        ? getStatusTimestamp(latestStatus)
+        : 0;
+
+      // 有新的非 OFF 狀態提交，而且提交時間晚於 OFF：
+      // 代表使用者已重新設定新狀態，解除 OFF 的無狀態鎖定。
       if (latestStatus && !latestIsOff && rememberedOff &&
-          Number(latestStatus.rowIndex || 0) > Number(rememberedOff.rowIndex || 0)) {
+          latestStatusTimestamp > rememberedOffTimestamp) {
         clearRememberedOffStatus(name);
       }
 
-      // 前台曾經收到 OFF，但後台在 1 小時內手動刪除該 OFF：
-      // 不回抓上一筆狀態，直接顯示無狀態。
-      if (rememberedOff && (!latestStatus ||
-          Number(latestStatus.rowIndex || 0) < Number(rememberedOff.rowIndex || 0))) {
-        clearRememberedOffStatus(name);
-        return null;
+      // ★ 前台曾經收到 OFF，但後台把這筆 OFF 手動刪除：
+      // 如果目前最新狀態已經不是原本那筆 OFF，且時間早於 OFF，
+      // 或雲端已經沒有任何狀態紀錄，直接顯示「目前尚無狀態紀錄」。
+      // 絕對不回抓上一筆狀態。
+      if (rememberedOff && !latestIsOff) {
+        const offWasDeleted =
+          !latestStatus ||
+          (
+            rememberedOffTimestamp > 0 &&
+            latestStatusTimestamp > 0 &&
+            latestStatusTimestamp < rememberedOffTimestamp
+          );
+
+        if (offWasDeleted) {
+          clearRememberedOffStatus(name);
+          return null;
+        }
       }
 
       // OFF 超過 1 小時後，前台直接視為無狀態。
+      // 不回抓上一筆狀態。
       if (latestIsOff) {
         rememberOffStatus(latestStatus);
         const offTimestamp = getStatusTimestamp(latestStatus);
         if (offTimestamp && (Date.now() - offTimestamp) >= 60 * 60 * 1000) {
-          clearRememberedOffStatus(name);
           return null;
         }
       }
