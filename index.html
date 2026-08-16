@@ -444,7 +444,24 @@
       line-height: 1.5;
     }
 
-    @media (max-width: 520px) {
+    
+        /* 計算機手機版：日期與時間欄位上下排列，避免重疊 */
+        .calculator-sidebar .form-row {
+          display: block;
+        }
+        .calculator-sidebar .form-row .form-group {
+          width: 100%;
+        }
+        .calculator-sidebar .calc-time-selects {
+          display: flex;
+          width: 100%;
+        }
+        .calculator-sidebar .calc-time-selects select {
+          min-width: 0;
+          width: 100%;
+        }
+
+@media (max-width: 520px) {
       .calculator-fab {
         padding: 10px 8px;
         min-width: 42px;
@@ -619,11 +636,11 @@
           <div class="form-group">
             <label>上班時間</label>
             <div class="calc-time-selects">
-              <select id="calcStartHour" aria-label="上班時間 小時" onchange="calculateTotalAmount()">
+              <select id="calcStartHour" aria-label="上班時間 小時" onchange="calculateTotalAmount()"><option value="" selected disabled>請選擇</option>
                 <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option>
               </select>
               <span class="calc-time-colon">:</span>
-              <select id="calcStartMinute" aria-label="上班時間 分鐘" onchange="calculateTotalAmount()">
+              <select id="calcStartMinute" aria-label="上班時間 分鐘" onchange="calculateTotalAmount()"><option value="" selected disabled>請選擇</option>
                 <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option>
               </select>
             </div>
@@ -637,11 +654,11 @@
           <div class="form-group">
             <label>下班時間</label>
             <div class="calc-time-selects">
-              <select id="calcEndHour" aria-label="下班時間 小時" onchange="calculateTotalAmount()">
+              <select id="calcEndHour" aria-label="下班時間 小時" onchange="calculateTotalAmount()"><option value="" selected disabled>請選擇</option>
                 <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option>
               </select>
               <span class="calc-time-colon">:</span>
-              <select id="calcEndMinute" aria-label="下班時間 分鐘" onchange="calculateTotalAmount()">
+              <select id="calcEndMinute" aria-label="下班時間 分鐘" onchange="calculateTotalAmount()"><option value="" selected disabled>請選擇</option>
                 <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option>
               </select>
             </div>
@@ -650,7 +667,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>時薪 ($)</label>
-            <input type="number" id="calcRate" value="140" oninput="calculateTotalAmount()">
+            <input type="number" id="calcRate" oninput="calculateTotalAmount()">
             <div class="rule-tip">>=15m = +0.5h<br>&gt;=45m = +1h</div>
           </div>
           <div class="form-group">
@@ -763,11 +780,19 @@
     }
 
     function initCalcDates() {
-      const now = new Date();
-      document.getElementById('calcStartDate').value = getTodayStr();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(now.getDate() + 1);
-      document.getElementById('calcEndDate').value = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+      // 日期、時間、金額全部保持空白／0，不自動帶入今天或其他數值。
+      document.getElementById('calcStartDate').value = '';
+      document.getElementById('calcEndDate').value = '';
+
+      document.getElementById('calcStartHour').value = '';
+      document.getElementById('calcStartMinute').value = '';
+      document.getElementById('calcEndHour').value = '';
+      document.getElementById('calcEndMinute').value = '';
+
+      document.getElementById('calcRate').value = '';
+      document.getElementById('calcFare').value = '0';
+      document.getElementById('calculatedHoursText').textContent = '0';
+      document.getElementById('calcResult').textContent = '$0';
     }
 
     function switchTab(tabName) {
@@ -1018,6 +1043,13 @@
               statusIsOn: row[6] !== undefined ? (row[6] === true || row[6] === 'TRUE' || row[6] === 'true' || row[6] === 'ON' || row[6] === 'on' || row[6] === 1) : false,
               statusMode: String(row[7] || '').trim()
             }));
+
+            // 記住目前雲端存在的 OFF，讓後台手動刪除後前台可以知道「OFF 被清除了」，
+            // 並顯示「目前尚無狀態紀錄」，而不是回抓上一筆狀態。
+            serverRecords.filter(r => {
+              const mode = normalizeStatusMode(r.statusMode);
+              return r.type === '狀態' && (mode === 'OFF' || String(r.statusIsOn).toLowerCase() === 'false');
+            }).forEach(r => rememberOffStatus(r));
 
             // 雲端已經收到的暫存紀錄就移除；尚未同步完成的則暫時保留。
             optimisticAttendanceRecords = optimisticAttendanceRecords.filter(opt =>
@@ -1379,6 +1411,41 @@
       return attendanceCandidates.length ? attendanceCandidates[0] : null;
     }
 
+    // OFF 狀態規則：
+    // 1. OFF 送出後最多有效 1 小時，超過 1 小時前台顯示「目前尚無狀態紀錄」。
+    // 2. 若後台在 1 小時內手動刪除 OFF，前台也顯示「目前尚無狀態紀錄」，不回抓上一筆狀態。
+    // 3. 若之後重新提交新的狀態，則以新的狀態為準。
+    function getStatusTimestamp(record) {
+      if (!record) return 0;
+      const date = String(record.date || '').trim();
+      const time = String(record.time || '').trim();
+      if (!date || !time) return 0;
+      const d = new Date(`${date}T${time}:00+08:00`);
+      const ts = d.getTime();
+      return Number.isFinite(ts) ? ts : 0;
+    }
+
+    function rememberOffStatus(record) {
+      if (!record || !record.name || !record.rowIndex) return;
+      localStorage.setItem(`active_off_status_${String(record.name).trim().toLowerCase()}`, JSON.stringify({
+        rowIndex: Number(record.rowIndex),
+        timestamp: getStatusTimestamp(record)
+      }));
+    }
+
+    function getRememberedOffStatus(name) {
+      try {
+        const raw = localStorage.getItem(`active_off_status_${String(name || '').trim().toLowerCase()}`);
+        return raw ? JSON.parse(raw) : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function clearRememberedOffStatus(name) {
+      localStorage.removeItem(`active_off_status_${String(name || '').trim().toLowerCase()}`);
+    }
+
     function resolveLatestStatusForUser(name) {
       const normalizedName = String(name || '').trim().toLowerCase();
 
@@ -1401,6 +1468,37 @@
 
       const latestAttendance = attendanceRecords[0] || null;
       const latestStatus = statusRecords[0] || null;
+
+      const latestStatusMode = normalizeStatusMode(latestStatus?.statusMode);
+      const latestIsOff = latestStatus && (
+        latestStatusMode === 'OFF' ||
+        String(latestStatus.statusIsOn).toLowerCase() === 'false'
+      );
+      const rememberedOff = getRememberedOffStatus(name);
+
+      // 有新的非 OFF 狀態提交時，清除舊的 OFF 標記。
+      if (latestStatus && !latestIsOff && rememberedOff &&
+          Number(latestStatus.rowIndex || 0) > Number(rememberedOff.rowIndex || 0)) {
+        clearRememberedOffStatus(name);
+      }
+
+      // 前台曾經收到 OFF，但後台在 1 小時內手動刪除該 OFF：
+      // 不回抓上一筆狀態，直接顯示無狀態。
+      if (rememberedOff && (!latestStatus ||
+          Number(latestStatus.rowIndex || 0) < Number(rememberedOff.rowIndex || 0))) {
+        clearRememberedOffStatus(name);
+        return null;
+      }
+
+      // OFF 超過 1 小時後，前台直接視為無狀態。
+      if (latestIsOff) {
+        rememberOffStatus(latestStatus);
+        const offTimestamp = getStatusTimestamp(latestStatus);
+        if (offTimestamp && (Date.now() - offTimestamp) >= 60 * 60 * 1000) {
+          clearRememberedOffStatus(name);
+          return null;
+        }
+      }
 
       // 最新一筆上下班紀錄是「上班」，且沒有更新的狀態提交：
       // 前台狀態直接顯示「上班中」。
@@ -1514,6 +1612,17 @@
       fetchCloudData().then(() => {
         if (latestStatusViewActive) renderLatestStatus();
       });
+
+      // 狀態頁開啟時每分鐘同步一次，讓 OFF 滿 1 小時後即時顯示「目前尚無狀態紀錄」。
+      if (window.__latestStatusRefreshTimer) {
+        clearInterval(window.__latestStatusRefreshTimer);
+      }
+      window.__latestStatusRefreshTimer = setInterval(() => {
+        if (!latestStatusViewActive) return;
+        fetchCloudData().then(() => {
+          if (latestStatusViewActive) renderLatestStatus();
+        });
+      }, 60 * 1000);
     }
 
     function renderLatestStatus() {
@@ -1612,8 +1721,9 @@
     }
 
     function getCalcTime(prefix) {
-      const hour = document.getElementById(prefix + 'Hour')?.value || '00';
-      const minute = document.getElementById(prefix + 'Minute')?.value || '00';
+      const hour = document.getElementById(prefix + 'Hour')?.value || '';
+      const minute = document.getElementById(prefix + 'Minute')?.value || '';
+      if (!hour || !minute) return '';
       return `${hour}:${minute}`;
     }
 
@@ -1629,17 +1739,29 @@
     }
 
     function calculateTotalAmount() {
+      const startDate = document.getElementById('calcStartDate').value;
+      const endDate = document.getElementById('calcEndDate').value;
       const startTime = getCalcTime('calcStart');
       const endTime = getCalcTime('calcEnd');
 
+      // 日期或時間尚未完整選擇時，不計算工時，總金額維持 0。
+      if (!startDate || !endDate || !startTime || !endTime) {
+        document.getElementById('calculatedHoursText').innerText = '0';
+        document.getElementById('calcResult').innerText = '$0';
+        return;
+      }
+
       const hours = calculateCrossDayHours(
-        document.getElementById('calcStartDate').value, startTime,
-        document.getElementById('calcEndDate').value, endTime
+        startDate, startTime,
+        endDate, endTime
       );
+
       const rate = parseFloat(document.getElementById('calcRate').value) || 0;
       const fare = parseFloat(document.getElementById('calcFare').value) || 0;
+
       document.getElementById('calculatedHoursText').innerText = hours;
-      document.getElementById('calcResult').innerText = `$${Math.round((hours * rate) + fare).toLocaleString()}`;
+      document.getElementById('calcResult').innerText =
+        `$${Math.round((hours * rate) + fare).toLocaleString()}`;
     }
 
     function renderRecords() {
