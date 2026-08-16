@@ -126,10 +126,97 @@
     .filter-btn .en { display: block; font-size: 0.68rem; opacity: 0.85; }
     .filter-btn.active { background-color: var(--primary-color); color: #ffffff; border-color: var(--primary-color); }
 
+    .status-view {
+      display: none;
+      background-color: #faf9f7;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px 18px;
+      text-align: center;
+      min-height: 180px;
+    }
+
+    .status-view.show { display: block; }
+
+    .status-view-title {
+      color: var(--primary-color);
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+
+    .status-view-name {
+      color: var(--text-main);
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .latest-status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+    }
+
+    .latest-status-badge.booked {
+      color: #7b6b5f;
+      background: #f7f3ef;
+      border: 1px solid #b9aaa0;
+    }
+
+    .latest-status-badge.working {
+      background: var(--tag-work-bg);
+      color: var(--tag-work-text);
+      border-color: var(--tag-work-text);
+    }
+
+    .latest-status-badge.pending {
+      background: #fff7e8;
+      color: #b7791f;
+      border-color: #e8c77b;
+    }
+
+    .latest-status-badge.off {
+      background: var(--tag-off-bg);
+      color: var(--tag-off-text);
+      border-color: var(--tag-off-text);
+    }
+
+    .latest-status-badge.manual {
+      background: #f0fdf4;
+      color: #16a34a;
+      border-color: #4ade80;
+    }
+
+    .latest-status-time {
+      margin-top: 12px;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .latest-status-empty {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 20px 0;
+    }
+
+
     .calc-panel { background-color: #f5f2ec; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
     .calc-panel h3 { font-size: 0.95rem; color: var(--primary-color); margin-bottom: 12px; font-weight: 600; }
     .calc-panel input { padding: 8px 6px; font-size: 0.8rem; background-color: #ffffff; }
-    .rule-tip { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+    .rule-tip {
+      margin-top: 4px;
+      font-size: 0.72rem;
+      color: #a58f80;
+      line-height: 1.5;
+    }
     .result-box { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center; }
     .result-box strong { font-size: 1.35rem; color: #3d7a5a; }
 
@@ -201,6 +288,179 @@
       background-color: #f0fdf4 !important;
       border-color: #4ade80 !important;
     }
+
+    /* 側邊計算機 */
+    .calculator-fab {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1998;
+      border: 1px solid var(--border-color);
+      border-right: none;
+      background: #ffffff;
+      color: var(--primary-color);
+      border-radius: 12px 0 0 12px;
+      padding: 12px 9px;
+      min-width: 46px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.10);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.2;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transition: .2s ease;
+    }
+
+    .calculator-fab:hover {
+      background: #faf9f7;
+      padding-right: 12px;
+    }
+
+    .calculator-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1999;
+      background: rgba(0,0,0,.18);
+    }
+
+    .calculator-overlay.show {
+      display: block;
+    }
+
+    .calculator-sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(410px, 92vw);
+      height: 100vh;
+      z-index: 2000;
+      background: #ffffff;
+      box-shadow: -10px 0 30px rgba(0,0,0,.12);
+      border-left: 1px solid var(--border-color);
+      transform: translateX(105%);
+      transition: transform .25s ease;
+      overflow-y: auto;
+      padding: 24px 20px;
+    }
+
+    .calculator-sidebar.show {
+      transform: translateX(0);
+    }
+
+    .calculator-sidebar .calc-panel {
+      margin: 0;
+      background: #f5f2ec;
+      padding: 18px;
+    }
+
+
+    .calc-time-selects {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .calc-time-selects select {
+      flex: 1;
+      min-width: 0;
+      height: 38px;
+      padding: 0 8px;
+      border: 1px solid #ddd6cf;
+      border-radius: 8px;
+      background: #fff;
+      color: #4f4842;
+      font-size: 0.95rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .calc-time-selects select:focus {
+      border-color: #8b7a6d;
+    }
+
+    .calc-time-colon {
+      font-weight: 600;
+      color: #8b7a6d;
+    }
+
+    .calc-sidebar-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .calc-sidebar-title h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .fare-tip {
+      margin-top: 4px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #a58f80;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    .calc-sidebar-title h3 .en {
+      font-size: .72rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .calc-close-btn {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--primary-color);
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .calc-close-btn:hover {
+      background: #faf9f7;
+    }
+
+    .calc-sidebar-note {
+      margin: 0 0 14px;
+      padding: 9px 11px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: #faf9f7;
+      color: var(--text-muted);
+      font-size: .76rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 520px) {
+      .calculator-fab {
+        padding: 10px 8px;
+        min-width: 42px;
+        font-size: .76rem;
+      }
+
+      .calculator-sidebar {
+        width: 94vw;
+        padding: 18px 14px;
+      }
+
+      .calculator-sidebar .form-row {
+        gap: 8px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -266,49 +526,15 @@
         <button class="filter-btn active" onclick="setFilter('daily', this)">每日<span class="en">Daily</span></button>
         <button class="filter-btn" onclick="setFilter('weekly', this)">本週<span class="en">Weekly</span></button>
         <button class="filter-btn" onclick="setFilter('thisMonth', this)">本月<span class="en">This Month</span></button>
-        <button class="filter-btn" onclick="setFilter('calc', this)">時數查詢<span class="en">Calculator</span></button>
-      </div>
-
-      <div id="calcPanel" class="calc-panel" style="display: none;">
-        <h3>🧮 計算機 <span class="en">/ Hours Calculator</span></h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label>上班日期</label>
-            <input type="date" id="calcStartDate" onchange="calculateTotalAmount()">
-          </div>
-          <div class="form-group">
-            <label>上班時間</label>
-            <input type="time" id="calcStartTime" value="23:00" onchange="calculateTotalAmount()">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>下班日期</label>
-            <input type="date" id="calcEndDate" onchange="calculateTotalAmount()">
-          </div>
-          <div class="form-group">
-            <label>下班時間</label>
-            <input type="time" id="calcEndTime" value="02:00" onchange="calculateTotalAmount()">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>時薪 ($)</label>
-            <input type="number" id="calcRate" value="140" oninput="calculateTotalAmount()">
-            <div class="rule-tip">>=15m = +0.5h, >=45m = +1h</div>
-          </div>
-          <div class="form-group">
-            <label>車資 ($)</label>
-            <input type="number" id="calcFare" value="0" oninput="calculateTotalAmount()">
-          </div>
-        </div>
-        <div class="result-box">
-          <label>計算結果 (<span id="calculatedHoursText">0</span> 小時)：</label>
-          <strong id="calcResult">$0</strong>
-        </div>
+        <button type="button" class="filter-btn" id="statusViewBtn" onclick="showLatestStatus(this)">狀態<span class="en">Status</span></button>
       </div>
 
       <ul id="recordList" class="record-list"></ul>
+
+      <div id="latestStatusView" class="status-view">
+        <div class="status-view-title">最近一筆狀態 / Latest Status</div>
+        <div id="latestStatusContent"></div>
+      </div>
     </div>
 
     <div id="statusTab" class="tab-content">
@@ -372,6 +598,74 @@
     </div>
   </div>
 
+
+  <button type="button" class="calculator-fab" onclick="openCalculator()" aria-label="開啟工時計算機">
+    🧮 計算機
+  </button>
+
+  <div id="calculatorOverlay" class="calculator-overlay" onclick="closeCalculator()"></div>
+
+  <aside id="calculatorSidebar" class="calculator-sidebar" aria-label="工時計算機">
+    <div class="calc-sidebar-note">
+      可快速計算工時與金額。輸入或修改時間、時薪、車資後會立即重新計算。
+    </div>
+    <div id="calcPanel" class="calc-panel" style="display: block;">
+        <div class="calc-sidebar-title"><h3>🧮 計算機 <span class="en">/ Hours Calculator</span></h3><button type="button" class="calc-close-btn" onclick="closeCalculator()" aria-label="關閉計算機">×</button></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>上班日期</label>
+            <input type="date" id="calcStartDate" oninput="calculateTotalAmount()">
+          </div>
+          <div class="form-group">
+            <label>上班時間</label>
+            <div class="calc-time-selects">
+              <select id="calcStartHour" aria-label="上班時間 小時" onchange="calculateTotalAmount()">
+                <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option>
+              </select>
+              <span class="calc-time-colon">:</span>
+              <select id="calcStartMinute" aria-label="上班時間 分鐘" onchange="calculateTotalAmount()">
+                <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>下班日期</label>
+            <input type="date" id="calcEndDate" oninput="calculateTotalAmount()">
+          </div>
+          <div class="form-group">
+            <label>下班時間</label>
+            <div class="calc-time-selects">
+              <select id="calcEndHour" aria-label="下班時間 小時" onchange="calculateTotalAmount()">
+                <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option>
+              </select>
+              <span class="calc-time-colon">:</span>
+              <select id="calcEndMinute" aria-label="下班時間 分鐘" onchange="calculateTotalAmount()">
+                <option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>時薪 ($)</label>
+            <input type="number" id="calcRate" value="140" oninput="calculateTotalAmount()">
+            <div class="rule-tip">>=15m = +0.5h<br>&gt;=45m = +1h</div>
+          </div>
+          <div class="form-group">
+            <label>車資 ($)</label>
+            <input type="number" id="calcFare" value="0" oninput="calculateTotalAmount()">
+            <div class="fare-tip">記得計算來回車資唷!</div>
+          </div>
+        </div>
+        <div class="result-box">
+          <label>計算結果 (<span id="calculatedHoursText">0</span> 小時)：</label>
+          <strong id="calcResult">$0</strong>
+        </div>
+      </div>
+  </aside>
+
   <div id="toast" class="toast">操作成功</div>
 
   <script>
@@ -380,9 +674,12 @@
     let selectedType = '上班';
     let currentFilter = 'daily';
     let currentStatusState = 'ON';
+    let latestStatusViewActive = false;
     let cloudRecords = [];
     let autoOffTimer = null;
     let bookedStatusLocked = false;
+    // 下班成功後先暫存本地紀錄，避免雲端資料尚未刷新時被誤判成「仍在上班」。
+    let optimisticAttendanceRecords = [];
 
     function initSavedUserName() {
       const savedName = localStorage.getItem('checkin_username') || '';
@@ -445,6 +742,21 @@
       return str.length > 5 ? str.substring(0, 5) : str;
     }
 
+
+    function getTaipeiNow() {
+      return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+    }
+
+    function getTaipeiDateStr() {
+      const d = getTaipeiNow();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function getTaipeiTimeStr() {
+      const d = getTaipeiNow();
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
+
     function getTodayStr() {
       const now = new Date();
       return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -468,6 +780,11 @@
       } else if (tabName === 'records') {
         document.querySelectorAll('.tab-btn')[1].classList.add('active');
         document.getElementById('recordsTab').classList.add('active');
+        latestStatusViewActive = false;
+        document.getElementById('recordList').style.display = 'block';
+        document.getElementById('latestStatusView').classList.remove('show');
+        document.querySelectorAll('#recordsTab .filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('#recordsTab .filter-btn').classList.add('active');
         fetchCloudData();
       } else if (tabName === 'status') {
         document.querySelectorAll('.tab-btn')[2].classList.add('active');
@@ -690,7 +1007,7 @@
         .then(res => res.json())
         .then(res => {
           if (res.result === 'success') {
-            cloudRecords = res.data.map((row, idx) => ({
+            const serverRecords = res.data.map((row, idx) => ({
               rowIndex: idx + 2,
               name: String(row[0] || '').trim(),
               date: formatDate(row[1]),
@@ -701,7 +1018,20 @@
               statusIsOn: row[6] !== undefined ? (row[6] === true || row[6] === 'TRUE' || row[6] === 'true' || row[6] === 'ON' || row[6] === 'on' || row[6] === 1) : false,
               statusMode: String(row[7] || '').trim()
             }));
+
+            // 雲端已經收到的暫存紀錄就移除；尚未同步完成的則暫時保留。
+            optimisticAttendanceRecords = optimisticAttendanceRecords.filter(opt =>
+              !serverRecords.some(server =>
+                String(server.name).toLowerCase() === String(opt.name).toLowerCase() &&
+                server.date === opt.date &&
+                server.time === opt.time &&
+                server.type === opt.type
+              )
+            );
+
+            cloudRecords = [...serverRecords, ...optimisticAttendanceRecords];
             renderRecords();
+            if (latestStatusViewActive) renderLatestStatus();
             checkUserWorkingStatus();
           }
         })
@@ -891,6 +1221,12 @@
       const statusIsOn = (currentStatusState === 'ON');
       const statusMode = statusIsOn ? document.getElementById('statusSelect').value : 'OFF';
 
+      // 「待確認」只能由下班打卡系統自動設定，員工不能手動送出。
+      if (String(statusMode || '').includes('待確認') || String(statusMode || '').includes('Pending')) {
+        alert('「待確認」為系統自動狀態，無法手動送出。請選擇其他狀態。');
+        return;
+      }
+
       if (statusIsOn && !statusMode) {
         alert('開啟 ON 時請選擇狀態模式！');
         return;
@@ -898,9 +1234,8 @@
 
       clearPendingAutoOff();
 
-      const now = new Date();
-      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-      const todayStr = getTodayStr();
+      const currentTime = getTaipeiTimeStr();
+      const todayStr = getTaipeiDateStr();
       const note = document.getElementById('statusNote').value.trim();
 
       const payload = {
@@ -955,12 +1290,267 @@
       });
     }
 
+    function openCalculator() {
+      const sidebar = document.getElementById('calculatorSidebar');
+      const overlay = document.getElementById('calculatorOverlay');
+      if (!sidebar || !overlay) return;
+
+      sidebar.classList.add('show');
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+
+      // 計算機完全獨立，只使用使用者手動輸入的資料。
+      // 不同步、不帶入任何上班／下班打卡紀錄。
+      calculateTotalAmount();
+    }
+
+    function closeCalculator() {
+      const sidebar = document.getElementById('calculatorSidebar');
+      const overlay = document.getElementById('calculatorOverlay');
+      if (sidebar) sidebar.classList.remove('show');
+      if (overlay) overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const sidebar = document.getElementById('calculatorSidebar');
+        if (sidebar && sidebar.classList.contains('show')) {
+          closeCalculator();
+        }
+      }
+    });
+
     function setFilter(filterType, btnElement) {
       currentFilter = filterType;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      latestStatusViewActive = false;
+      document.querySelectorAll('#recordsTab .filter-btn').forEach(b => b.classList.remove('active'));
       btnElement.classList.add('active');
-      document.getElementById('calcPanel').style.display = (filterType === 'calc') ? 'block' : 'none';
+
+      const recordList = document.getElementById('recordList');
+      const statusView = document.getElementById('latestStatusView');
+      if (recordList) recordList.style.display = 'block';
+      if (statusView) statusView.classList.remove('show');
+
+      const oldCalcPanel = document.getElementById('calcPanel'); if (oldCalcPanel) oldCalcPanel.style.display = 'none';
       renderRecords();
+    }
+
+    function normalizeStatusMode(mode) {
+      return String(mode || '').trim();
+    }
+
+    function isPendingStatus(mode) {
+      const value = normalizeStatusMode(mode);
+      return (
+        value.includes('待確認') ||
+        value.includes('Pending')
+      );
+    }
+
+    function getLatestStatusRecordForUser(name) {
+      const normalizedName = String(name || '').trim().toLowerCase();
+      if (!normalizedName) return null;
+
+      const userRecords = cloudRecords.filter(r =>
+        String(r.name || '').trim().toLowerCase() === normalizedName
+      );
+
+      // 核心規則：
+      // 1. 只要有「狀態」提交紀錄，就只從「狀態」紀錄取最後一筆。
+      //    這樣「最近更新」會是提交狀態的時間，不會誤抓下班時間。
+      // 2. 只有在完全沒有「狀態」紀錄時，才使用上班/下班紀錄
+      //    的 statusMode 作為初始狀態 fallback。
+      const statusCandidates = userRecords
+        .filter(r => r.type === '狀態')
+        .sort((a, b) => Number(b.rowIndex || 0) - Number(a.rowIndex || 0));
+
+      if (statusCandidates.length) {
+        return statusCandidates[0];
+      }
+
+      const attendanceCandidates = userRecords
+        .filter(r =>
+          (r.type === '上班' || r.type === '下班') &&
+          String(r.statusMode || '').trim()
+        )
+        .sort((a, b) => Number(b.rowIndex || 0) - Number(a.rowIndex || 0));
+
+      return attendanceCandidates.length ? attendanceCandidates[0] : null;
+    }
+
+    function resolveLatestStatusForUser(name) {
+      const normalizedName = String(name || '').trim().toLowerCase();
+
+      // 狀態紀錄與上下班打卡紀錄分開判斷。
+      // 「上班」打卡一旦晚於最後一筆狀態提交，就代表目前正在上班，
+      // 不能再被較早的「已預約／只嗨／只酒／都可以」覆蓋。
+      const attendanceRecords = cloudRecords
+        .filter(r =>
+          String(r.name || '').trim().toLowerCase() === normalizedName &&
+          (r.type === '上班' || r.type === '下班')
+        )
+        .sort((a, b) => Number(b.rowIndex || 0) - Number(a.rowIndex || 0));
+
+      const statusRecords = cloudRecords
+        .filter(r =>
+          String(r.name || '').trim().toLowerCase() === normalizedName &&
+          r.type === '狀態'
+        )
+        .sort((a, b) => Number(b.rowIndex || 0) - Number(a.rowIndex || 0));
+
+      const latestAttendance = attendanceRecords[0] || null;
+      const latestStatus = statusRecords[0] || null;
+
+      // 最新一筆上下班紀錄是「上班」，且沒有更新的狀態提交：
+      // 前台狀態直接顯示「上班中」。
+      if (
+        latestAttendance &&
+        latestAttendance.type === '上班' &&
+        (!latestStatus ||
+         Number(latestAttendance.rowIndex || 0) > Number(latestStatus.rowIndex || 0))
+      ) {
+        return {
+          mode: '上班中Working',
+          className: 'working',
+          date: latestAttendance.date,
+          time: latestAttendance.time
+        };
+      }
+
+      // 最新一筆是下班，且沒有更新的狀態提交：
+      // 依現有規則顯示待確認。
+      if (
+        latestAttendance &&
+        latestAttendance.type === '下班' &&
+        (!latestStatus ||
+         Number(latestAttendance.rowIndex || 0) > Number(latestStatus.rowIndex || 0))
+      ) {
+        return {
+          mode: '⏳ 待確認 (Pending)',
+          className: 'pending',
+          date: latestAttendance.date,
+          time: latestAttendance.time
+        };
+      }
+
+      // 有較新的狀態提交時，以狀態提交為準。
+      const latest = latestStatus;
+      if (!latest) return null;
+
+      const mode = normalizeStatusMode(latest.statusMode);
+
+      if (isPendingStatus(mode)) {
+        return {
+          mode: '⏳ 待確認 (Pending)',
+          className: 'pending',
+          date: latest.date,
+          time: latest.time
+        };
+      }
+
+      if (mode === 'OFF' || String(latest.statusIsOn).toLowerCase() === 'false') {
+        return {
+          mode: 'OFF｜您已下線',
+          className: 'off',
+          date: latest.date,
+          time: latest.time
+        };
+      }
+
+      if (
+        mode === 'BOOK' ||
+        mode === '已預約' ||
+        mode === '📅 已預約'
+      ) {
+        return {
+          mode: '📅 已預約',
+          className: 'booked',
+          date: latest.date,
+          time: latest.time
+        };
+      }
+
+      if (mode === '上班中Working') {
+        return {
+          mode: '上班中Working',
+          className: 'working',
+          date: latest.date,
+          time: latest.time
+        };
+      }
+
+      if (mode) {
+        return {
+          mode,
+          className: 'manual',
+          date: latest.date,
+          time: latest.time
+        };
+      }
+
+      return {
+        mode: latest.statusIsOn ? '上班中Working' : 'OFF｜您已下線',
+        className: latest.statusIsOn ? 'working' : 'off',
+        date: latest.date,
+        time: latest.time
+      };
+    }
+
+    function showLatestStatus(btnElement) {
+      latestStatusViewActive = true;
+      document.querySelectorAll('#recordsTab .filter-btn').forEach(b => b.classList.remove('active'));
+      if (btnElement) btnElement.classList.add('active');
+
+      const recordList = document.getElementById('recordList');
+      const statusView = document.getElementById('latestStatusView');
+      if (recordList) recordList.style.display = 'none';
+      if (statusView) statusView.classList.add('show');
+
+      renderLatestStatus();
+
+      // 每次進入「狀態」頁都重新向後台抓一次，確保管理者修改的
+      // 「待確認」或 OFF 能同步到前台。
+      fetchCloudData().then(() => {
+        if (latestStatusViewActive) renderLatestStatus();
+      });
+    }
+
+    function renderLatestStatus() {
+      const content = document.getElementById('latestStatusContent');
+      if (!content) return;
+
+      const name = (
+        localStorage.getItem('checkin_username') ||
+        document.getElementById('userName')?.value ||
+        document.getElementById('statusUserName')?.value ||
+        ''
+      ).trim();
+
+      if (!name) {
+        content.innerHTML = '<div class="latest-status-empty">請先輸入姓名，即可查看最近一筆狀態。</div>';
+        return;
+      }
+
+      const latest = resolveLatestStatusForUser(name);
+
+      if (!latest) {
+        content.innerHTML = `
+          <div class="status-view-name">姓名：${escapeHtml(name)}</div>
+          <div class="latest-status-empty">目前尚無狀態紀錄。</div>
+        `;
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="status-view-name">姓名：${escapeHtml(name)}</div>
+        <div class="latest-status-badge ${latest.className}">
+          ${escapeHtml(latest.mode)}
+        </div>
+        <div class="latest-status-time">
+          最後更新：${escapeHtml(latest.date || '')} ${escapeHtml(latest.time || '')}
+        </div>
+      `;
     }
 
     function filterRecords(records) {
@@ -982,18 +1572,69 @@
     }
 
     function calculateCrossDayHours(sDate, sTime, eDate, eTime) {
-      const start = new Date(`${sDate.replace(/-/g, '/')} ${sTime}:00`);
-      const end = new Date(`${eDate.replace(/-/g, '/')} ${eTime}:00`);
-      let mins = Math.floor((end - start) / (1000 * 60));
-      if (isNaN(mins) || mins <= 0) return 0;
-      const full = Math.floor(mins / 60), rem = mins % 60;
+      if (!sDate || !sTime || !eDate || !eTime) return 0;
+
+      // 純手動計算：不讀取任何打卡資料。
+      const startParts = sDate.split('-').map(Number);
+      const startTimeParts = sTime.split(':').map(Number);
+      const endParts = eDate.split('-').map(Number);
+      const endTimeParts = eTime.split(':').map(Number);
+
+      if (
+        startParts.length !== 3 || startTimeParts.length < 2 ||
+        endParts.length !== 3 || endTimeParts.length < 2 ||
+        startParts.some(Number.isNaN) || startTimeParts.some(Number.isNaN) ||
+        endParts.some(Number.isNaN) || endTimeParts.some(Number.isNaN)
+      ) return 0;
+
+      const start = new Date(
+        startParts[0], startParts[1] - 1, startParts[2],
+        startTimeParts[0], startTimeParts[1], 0, 0
+      );
+      const end = new Date(
+        endParts[0], endParts[1] - 1, endParts[2],
+        endTimeParts[0], endTimeParts[1], 0, 0
+      );
+
+      // 同一天若下班時間早於／等於上班時間，自動視為隔日下班。
+      if (sDate === eDate && end.getTime() <= start.getTime()) {
+        end.setDate(end.getDate() + 1);
+      }
+
+      const mins = Math.floor((end.getTime() - start.getTime()) / 60000);
+      if (!Number.isFinite(mins) || mins <= 0) return 0;
+
+      const full = Math.floor(mins / 60);
+      const rem = mins % 60;
+
+      // 0–14 分不計；15–44 分加 0.5 小時；45–59 分加 1 小時。
       return full + (rem >= 45 ? 1.0 : (rem >= 15 ? 0.5 : 0));
     }
 
+    function getCalcTime(prefix) {
+      const hour = document.getElementById(prefix + 'Hour')?.value || '00';
+      const minute = document.getElementById(prefix + 'Minute')?.value || '00';
+      return `${hour}:${minute}`;
+    }
+
+    function setCalcTime(prefix, timeValue) {
+      const match = String(timeValue || '00:00').match(/^(\d{1,2}):(\d{2})$/);
+      const hour = match ? String(Math.min(23, Math.max(0, Number(match[1])))).padStart(2, '0') : '00';
+      const minute = match ? String(Math.min(59, Math.max(0, Number(match[2])))).padStart(2, '0') : '00';
+
+      const hourEl = document.getElementById(prefix + 'Hour');
+      const minuteEl = document.getElementById(prefix + 'Minute');
+      if (hourEl) hourEl.value = hour;
+      if (minuteEl) minuteEl.value = minute;
+    }
+
     function calculateTotalAmount() {
+      const startTime = getCalcTime('calcStart');
+      const endTime = getCalcTime('calcEnd');
+
       const hours = calculateCrossDayHours(
-        document.getElementById('calcStartDate').value, document.getElementById('calcStartTime').value,
-        document.getElementById('calcEndDate').value, document.getElementById('calcEndTime').value
+        document.getElementById('calcStartDate').value, startTime,
+        document.getElementById('calcEndDate').value, endTime
       );
       const rate = parseFloat(document.getElementById('calcRate').value) || 0;
       const fare = parseFloat(document.getElementById('calcFare').value) || 0;
@@ -1003,17 +1644,24 @@
 
     function renderRecords() {
       const list = document.getElementById('recordList');
-      list.innerHTML = '';
-      if (currentFilter === 'calc') {
-        list.style.display = 'none';
-        const w = cloudRecords.find(r => r.type === '上班'), o = cloudRecords.find(r => r.type === '下班');
-        if (w) { document.getElementById('calcStartDate').value = w.date; document.getElementById('calcStartTime').value = w.time; }
-        if (o) { document.getElementById('calcEndDate').value = o.date; document.getElementById('calcEndTime').value = o.time; }
-        calculateTotalAmount();
+      const statusView = document.getElementById('latestStatusView');
+
+      // 點選「狀態」後，只顯示最近一筆狀態卡片。
+      // 雲端資料重新同步時也維持這個畫面，不讓打卡紀錄重新跑回來。
+      if (latestStatusViewActive) {
+        if (list) {
+          list.innerHTML = '';
+          list.style.display = 'none';
+        }
+        if (statusView) statusView.classList.add('show');
+        renderLatestStatus();
         return;
       }
 
+      list.innerHTML = '';
       list.style.display = 'block';
+      if (statusView) statusView.classList.remove('show');
+
       const filtered = filterRecords(cloudRecords).reverse();
       if (filtered.length === 0) {
         list.innerHTML = '<li class="empty-msg">尚無符合條件的紀錄</li>';
@@ -1023,6 +1671,8 @@
       filtered.forEach(item => {
         const li = document.createElement('li');
         li.className = 'record-item';
+        li.dataset.copyText = `${item.name} ${item.date} ${item.time} ${item.location} ${item.type}`;
+        li.title = '點擊此筆紀錄即可複製';
 
         const safeNote = ['TRUE', 'FALSE', 'true', 'false'].includes(String(item.note).trim()) ? '' : String(item.note || '').trim();
         const noteStr = safeNote
@@ -1050,14 +1700,52 @@
 
     // 前台編輯按鈕：只允許下班卡，使用事件委派避免 inline onclick 在部分瀏覽器/本機 HTML 環境失效
     document.getElementById('recordList').addEventListener('click', function(e) {
-      const btn = e.target.closest('.record-edit-btn');
-      if (!btn) return;
 
-      const rowIndex = Number(btn.dataset.rowIndex);
-      const currentNote = btn.dataset.note || '';
+      // 下班紀錄的編輯按鈕維持原本功能，不觸發複製
+      const editBtn = e.target.closest('.record-edit-btn');
+      if (editBtn) {
+        const rowIndex = Number(editBtn.dataset.rowIndex);
+        const currentNote = editBtn.dataset.note || '';
+        editNote(rowIndex, currentNote);
+        return;
+      }
 
-      editNote(rowIndex, currentNote);
+      // 點整筆打卡紀錄，直接複製：姓名 日期 時間 地點 上/下
+      const recordItem = e.target.closest('.record-item');
+      if (!recordItem) return;
+
+      const copyText = recordItem.dataset.copyText || '';
+      if (!copyText) return;
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(copyText)
+          .then(() => showToast('📋 已複製打卡紀錄'))
+          .catch(() => fallbackCopyText(copyText));
+      } else {
+        fallbackCopyText(copyText);
+      }
     });
+
+    function fallbackCopyText(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+
+      try {
+        const success = document.execCommand('copy');
+        showToast(success ? '📋 已複製打卡紀錄' : '複製失敗，請重新操作');
+      } catch (err) {
+        showToast('複製失敗，請重新操作');
+      }
+
+      textarea.remove();
+    }
 
     function editNote(rowIndex, currentNote) {
       const numericRowIndex = Number(rowIndex);
@@ -1194,9 +1882,8 @@
     function sendAutoOffStatus(name) {
       clearPendingAutoOff();
 
-      const now = new Date();
-      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-      const todayStr = getTodayStr();
+      const timeStr = getTaipeiTimeStr();
+      const todayStr = getTaipeiDateStr();
 
       const payload = {
         name: name,
@@ -1236,8 +1923,7 @@
         return;
       }
       const note = selectedType === '下班' ? document.getElementById('note').value.trim() : '';
-      const now = new Date();
-      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const timeStr = getTaipeiTimeStr();
 
       clearPendingAutoOff();
 
@@ -1294,8 +1980,36 @@
               statusIsOn: true,
               statusMode: '上班中Working'
             });
+            if (latestStatusViewActive) renderLatestStatus();
           } else if (selectedType === '下班') {
+            // 下班後由系統自動設定「⏳ 待確認」，員工不能手動選擇或送出此狀態。
+            // 先把下班紀錄寫入本地暫存，避免雲端尚未刷新時又被誤判為「上班中」。
+            const checkoutRecord = {
+              rowIndex: Number.MAX_SAFE_INTEGER - 1,
+              name: name,
+              date: getTodayStr(),
+              time: timeStr,
+              location: location,
+              type: '下班',
+              note: note,
+              statusIsOn: true,
+              statusMode: '⏳ 待確認 (Pending)'
+            };
+
+            optimisticAttendanceRecords.push(checkoutRecord);
+            cloudRecords = cloudRecords.filter(r =>
+              !(String(r.name).toLowerCase() === name.toLowerCase() &&
+                (r.type === '上班' || r.type === '下班'))
+            );
+            cloudRecords.push(checkoutRecord);
+
             triggerAutoOffTimer(name);
+            renderRecords();
+            if (latestStatusViewActive) renderLatestStatus();
+
+            // 下班後狀態功能維持正常可操作，不鎖定 ON / OFF 或模式選擇。
+            currentStatusState = 'ON';
+            updateSwitchButtonStyles();
           }
 
           document.getElementById('checkinForm').reset();
@@ -1306,7 +2020,10 @@
           }
           selectType('上班');
           setCurrentTimeDisplay();
-          fetchCloudData();
+
+          // 延後同步雲端，讓剛建立的下班紀錄先維持在前台狀態。
+          // fetchCloudData 本身會保留尚未同步完成的暫存紀錄。
+          setTimeout(() => fetchCloudData(), 800);
         } else {
           alert('打卡失敗：' + (res.message || '未知錯誤'));
         }
@@ -1325,6 +2042,7 @@
     updateStatusSelectColor();
     initSavedUserName();
     initCalcDates();
+    calculateTotalAmount();
     setCurrentTimeDisplay();
     updateSwitchButtonStyles();
     checkPendingOffOnLoad();
