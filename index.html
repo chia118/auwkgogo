@@ -82,21 +82,37 @@
     select:disabled, input:disabled { background-color: #f0ede6; cursor: not-allowed; opacity: 0.8; }
 
     .current-datetime-display {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 10px;
+      align-items: end;
       padding: 4px 0 2px;
       text-align: left;
+      width: 100%;
     }
-    .current-date-display {
-      font-size: 1.35rem;
-      font-weight: 700;
+    .current-datetime-item {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .current-datetime-label {
+      font-size: 0.85rem;
       color: var(--primary-color);
+      margin-bottom: 4px;
+      font-weight: 500;
+      white-space: nowrap;
     }
+    .current-datetime-label span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    .current-date-display,
     .current-time-display {
       font-size: 1.35rem;
       font-weight: 700;
       color: var(--primary-color);
+      white-space: nowrap;
     }
 
     .type-toggle-group { display: flex; gap: 10px; }
@@ -165,33 +181,52 @@
     }
 
     .latest-status-badge.booked {
-      color: #7b6b5f;
-      background: #f7f3ef;
-      border: 1px solid #b9aaa0;
+      color: #6d5aa8;
+      background: #f5f2ff;
+      border: 1px solid #b9ace8;
     }
 
     .latest-status-badge.working {
-      background: var(--tag-work-bg);
-      color: var(--tag-work-text);
-      border-color: var(--tag-work-text);
+      background: #eef5ff;
+      color: #3568b8;
+      border-color: #8fb0e3;
     }
 
     .latest-status-badge.pending {
-      background: #fff7e8;
-      color: #b7791f;
-      border-color: #e8c77b;
+      background: #f3f4f6;
+      color: #5f6673;
+      border-color: #b9bec7;
     }
 
     .latest-status-badge.off {
-      background: var(--tag-off-bg);
-      color: var(--tag-off-text);
-      border-color: var(--tag-off-text);
+      background: #f1f3f5;
+      color: #555d69;
+      border-color: #9da4ae;
     }
 
     .latest-status-badge.manual {
-      background: #f0fdf4;
-      color: #16a34a;
-      border-color: #4ade80;
+      background: #f5f2ff;
+      color: #6d5aa8;
+      border-color: #b9ace8;
+    }
+
+    /* 最近一筆狀態：與送出前／確認視窗使用完全相同的顏色 */
+    .latest-status-badge.status-mode-high {
+      color: #d97706 !important;
+      background: #fff7ed !important;
+      border-color: #f59e0b !important;
+    }
+
+    .latest-status-badge.status-mode-drinks {
+      color: #2563eb !important;
+      background: #eff6ff !important;
+      border-color: #60a5fa !important;
+    }
+
+    .latest-status-badge.status-mode-both {
+      color: #16a34a !important;
+      background: #f0fdf4 !important;
+      border-color: #4ade80 !important;
     }
 
     .latest-status-time {
@@ -245,6 +280,607 @@
     .sw-btn.active-off { background-color: var(--tag-off-bg); color: var(--tag-off-text); border-color: var(--tag-off-text); }
     .sw-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+
+    /* 狀態提交內部分頁 */
+    .status-subtabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 18px;
+    }
+    .status-subtab-btn {
+      flex: 1;
+      padding: 10px 0 11px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      transition: color .2s;
+    }
+    .status-subtab-btn .en {
+      display: block;
+      font-size: .7rem;
+      font-weight: 400;
+      opacity: .8;
+      margin-top: 2px;
+    }
+    .status-subtab-btn.active {
+      color: var(--primary-color);
+    }
+    .status-subtab-btn.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: var(--primary-color);
+    }
+    .status-subtab-content { display: none; }
+    .status-subtab-content.active { display: block; }
+
+    /* ===== 當日提交：今日狀態資料 ===== */
+    .today-status-submissions {
+      margin-top: 18px;
+      padding: 0;
+      border-top: 0;
+      font-size: 1rem;
+    }
+
+    .today-status-card {
+      width: 100%;
+      padding: 18px 16px;
+      border: 1px solid #ddd5ce;
+      border-radius: 14px;
+      background: #fff;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .today-status-title {
+      margin: 0 0 12px;
+      color: var(--primary-color);
+      font-size: .95rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .today-status-title span {
+      color: var(--text-muted);
+      font-size: .78rem;
+      font-weight: 400;
+    }
+
+    .today-status-list {
+      display: block;
+    }
+
+    .today-status-item {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .today-status-name {
+      color: var(--primary-color);
+      font-size: .95rem;
+      margin-bottom: 12px;
+    }
+
+    .today-status-mode {
+      display: inline-block;
+      min-width: 160px;
+      padding: 10px 18px;
+      border: 1px solid #4ade80;
+      border-radius: 10px;
+      background: #f0fdf4;
+      color: #16a34a;
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.35;
+      box-sizing: border-box;
+    }
+
+    /* OFF 狀態恢復原本紅色樣式 */
+    .today-status-mode.status-mode-off {
+      border-color: var(--tag-off-text);
+      background: var(--tag-off-bg);
+      color: var(--tag-off-text);
+    }
+
+    .today-status-note {
+      display: none;
+    }
+
+    .today-status-time {
+      margin-top: 11px;
+      color: var(--text-muted);
+      font-size: .78rem;
+      white-space: nowrap;
+    }
+
+    .today-status-off {
+      color: #555d69;
+    }
+
+    .today-status-mode.status-mode-working {
+      border-color: #8fb0e3;
+      background: #eef5ff;
+      color: #3568b8;
+    }
+
+    .today-status-mode.status-mode-pending {
+      border-color: #b9bec7;
+      background: #f3f4f6;
+      color: #5f6673;
+    }
+
+    .today-status-mode.status-mode-off {
+      border-color: #9da4ae;
+      background: #f1f3f5;
+      color: #555d69;
+    }
+
+    .today-status-mode.status-mode-booked {
+      border-color: #b9ace8;
+      background: #f5f2ff;
+      color: #6d5aa8;
+    }
+
+
+    /* ===== 狀態提交：確認視窗 ===== */
+    .status-review-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: rgba(0,0,0,.30);
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .status-review-modal {
+      width: 100%;
+      max-width: 420px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 14px 36px rgba(0,0,0,.16);
+      box-sizing: border-box;
+    }
+
+    .status-review-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 14px;
+    }
+
+    .status-review-title span {
+      color: var(--text-muted);
+      font-size: .72rem;
+      font-weight: 400;
+    }
+
+    .status-review-card {
+      border: 1px solid #e1d9d2;
+      border-radius: 12px;
+      padding: 18px 14px;
+      text-align: center;
+      background: #fff;
+      margin-bottom: 14px;
+    }
+
+    .status-confirm-name {
+      color: var(--primary-color);
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .status-confirm-badge {
+      display: inline-block;
+      min-width: 150px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border: 1px solid #4ade80;
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    .status-confirm-badge.status-mode-high {
+      color: #d97706 !important;
+      background: #fff7ed !important;
+      border-color: #f59e0b !important;
+    }
+
+    .status-confirm-badge.status-mode-drinks {
+      color: #2563eb !important;
+      background: #eff6ff !important;
+      border-color: #60a5fa !important;
+    }
+
+    .status-confirm-badge.status-mode-both {
+      color: #16a34a !important;
+      background: #f0fdf4 !important;
+      border-color: #4ade80 !important;
+    }
+
+    /* 確認視窗 OFF 狀態恢復原本紅色樣式 */
+    .status-confirm-badge.status-mode-off {
+      border-color: var(--tag-off-text);
+      background: var(--tag-off-bg);
+      color: var(--tag-off-text);
+    }
+
+    .status-confirm-time {
+      margin-top: 10px;
+      color: var(--text-muted);
+      font-size: .78rem;
+    }
+
+    .status-review-note label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--primary-color);
+      font-size: .88rem;
+      font-weight: 600;
+    }
+
+    .status-review-note input {
+      width: 100%;
+      min-height: 42px;
+      box-sizing: border-box;
+      padding: 9px 11px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--primary-color);
+      font-size: .88rem;
+    }
+
+    .status-review-note input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .status-review-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .status-review-cancel,
+    .status-review-confirm {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .88rem;
+      min-height: 42px;
+      box-sizing: border-box;
+    }
+
+    .status-review-cancel {
+      border: 1px solid var(--border-color);
+      background: #fff;
+      color: var(--primary-color);
+    }
+
+    .status-review-confirm {
+      border: 0;
+      background: var(--primary-color);
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .status-review-confirm:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+
+    .weekly-panel {
+      background-color: #faf9f7;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .weekly-calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .weekly-month-title {
+      flex: 1;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    .weekly-month-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--primary-color);
+      cursor: pointer;
+      font-size: 1.15rem;
+    }
+    .weekly-month-btn:hover { background: #f5f2ec; }
+    .weekly-month-btn:disabled { opacity: .35; cursor: not-allowed; background: #faf9f7; }
+    .weekly-month-btn:disabled:hover { background: #faf9f7; }
+
+    .weekly-calendar {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .weekly-weekdays,
+    .weekly-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+    .weekly-weekdays > div {
+      text-align: center;
+      padding: 8px 2px;
+      font-size: .75rem;
+      color: var(--text-muted);
+      background: #faf9f7;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .weekly-day {
+      min-height: 50px;
+      border: 0;
+      border-right: 1px solid #f0ece6;
+      border-bottom: 1px solid #f0ece6;
+      background: #fff;
+      color: var(--text-main);
+      cursor: pointer;
+      position: relative;
+      padding: 5px 2px 4px;
+      font-size: .82rem;
+    }
+    .weekly-day:nth-child(7n) { border-right: 0; }
+    .weekly-day.empty {
+      background: #faf9f7;
+      cursor: default;
+    }
+    .weekly-day:not(.empty):hover { background: #fcfaf7; }
+    .weekly-day.selected {
+      box-shadow: inset 0 0 0 2px var(--primary-color);
+      z-index: 1;
+    }
+    .weekly-day.today {
+      font-weight: 700;
+    }
+    .weekly-day-number {
+      display: block;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .weekly-booked-star {
+      display: inline-block;
+      margin-left: 3px;
+      font-size: 12px;
+      line-height: 1;
+      vertical-align: 2px;
+      color: #d8a928;
+      font-weight: 700;
+    }
+
+    .weekly-status-dot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      min-height: 32px;
+      height: auto;
+      padding: 3px 5px;
+      border-radius: 8px;
+      font-size: .68rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .weekly-status-zh {
+      display: block;
+      line-height: 1.15;
+      font-weight: 600;
+    }
+
+    .weekly-status-en {
+      display: block;
+      margin-top: 2px;
+      font-size: .62rem;
+      line-height: 1.1;
+      font-weight: 400;
+      opacity: .82;
+    }
+
+    .weekly-status-dot.high {
+      color: #d97706;
+      background: #fff7ed;
+      border-color: #f59e0b;
+    }
+    .weekly-status-dot.drinks {
+      color: #2563eb;
+      background: #eff6ff;
+      border-color: #60a5fa;
+    }
+    .weekly-status-dot.both {
+      color: #16a34a;
+      background: #f0fdf4;
+      border-color: #4ade80;
+    }
+    .weekly-day.pending-change {
+      background: #fffdf8;
+    }
+    .weekly-day.pending-change .weekly-status-dot {
+      box-shadow: 0 0 0 2px rgba(125,110,99,.12);
+    }
+
+    .weekly-editor {
+      margin-top: 14px;
+      padding: 14px;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+    }
+    .weekly-editor-date {
+      color: var(--primary-color);
+      font-weight: 600;
+      font-size: .9rem;
+      margin-bottom: 12px;
+    }
+    .weekly-status-options {
+      display: flex;
+      gap: 8px;
+    }
+    .weekly-status-btn {
+      flex: 1;
+      padding: 10px 5px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: #faf9f7;
+      cursor: pointer;
+      font-size: .88rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .weekly-status-btn .weekly-status-zh {
+      font-size: .88rem;
+    }
+
+    .weekly-status-btn .weekly-status-en {
+      font-size: .68rem;
+    }
+
+    .weekly-status-btn.high.active {
+      color: #d97706;
+      background: #fff7ed;
+      border-color: #f59e0b;
+    }
+    .weekly-status-btn.drinks.active {
+      color: #2563eb;
+      background: #eff6ff;
+      border-color: #60a5fa;
+    }
+    .weekly-status-btn.both.active {
+      color: #16a34a;
+      background: #f0fdf4;
+      border-color: #4ade80;
+    }
+    .weekly-save-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 11px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--primary-color);
+      color: #fff;
+      font-size: .95rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .weekly-save-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .weekly-pending-summary {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #f5f2ec;
+      color: var(--primary-color);
+      font-size: .78rem;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .weekly-review-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 2100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,.28);
+    }
+    .weekly-review-panel > .weekly-review-modal {
+      width: 100%;
+      max-width: 430px;
+      max-height: 82vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+      padding: 16px;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      box-shadow: 0 14px 36px rgba(0,0,0,.16);
+    }
+    .weekly-review-title { font-size: .9rem; font-weight: 600; color: var(--primary-color); margin-bottom: 10px; }
+    .weekly-review-row {
+      display: grid;
+      grid-template-columns: 82px 58px 1fr;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee9e3;
+    }
+    .weekly-review-row:last-child { border-bottom: 0; }
+    .weekly-review-date, .weekly-review-status { font-size: .82rem; color: var(--primary-color); }
+    .weekly-review-status { font-weight: 600; }
+    .weekly-review-status .weekly-status-en { font-size: .62rem; }
+    .weekly-review-note {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      padding: 8px 9px;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--primary-color);
+      font-size: .78rem;
+      outline: none;
+    }
+    .weekly-review-note:focus { border-color: var(--primary-color); }
+    .weekly-review-note-label { font-size: .72rem; color: var(--text-muted); }
+    .weekly-review-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .weekly-review-cancel, .weekly-confirm-btn {
+      flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-size: .88rem;
+    }
+    .weekly-review-cancel { border: 1px solid var(--border-color); background: #fff; color: var(--primary-color); }
+    .weekly-confirm-btn { border: 0; background: var(--primary-color); color: #fff; font-weight: 500; }
+    .weekly-confirm-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .weekly-hint {
+      margin-top: 9px;
+      color: var(--text-muted);
+      font-size: .72rem;
+      text-align: center;
+    }
+    @media (max-width: 520px) {
+      .weekly-day { min-height: 46px; }
+      .weekly-status-options { gap: 6px; }
+      .weekly-status-btn { padding: 9px 3px; font-size: .82rem; }
+    }
+
     .toast {
       position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background-color: rgba(74, 64, 58, 0.9);
       color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1000;
@@ -269,24 +905,52 @@
     .status-drinks { color:#2563eb !important; font-weight:600; }
     .status-both { color:#16a34a !important; font-weight:600; }
 
-    /* 前台狀態模式：只有三種可自行選擇 */
-    .status-mode-high {
+    /* 前台狀態模式：送出前下拉選單／確認視窗共用顏色 */
+    #statusSelect.status-mode-high,
+    .status-confirm-badge.status-mode-high {
       color: #d97706 !important;
       font-weight: 600;
       background-color: #fff7ed !important;
       border-color: #f59e0b !important;
     }
-    .status-mode-drinks {
+
+    #statusSelect.status-mode-drinks,
+    .status-confirm-badge.status-mode-drinks {
       color: #2563eb !important;
       font-weight: 600;
       background-color: #eff6ff !important;
       border-color: #60a5fa !important;
     }
-    .status-mode-both {
+
+    #statusSelect.status-mode-both,
+    .status-confirm-badge.status-mode-both {
       color: #16a34a !important;
       font-weight: 600;
       background-color: #f0fdf4 !important;
       border-color: #4ade80 !important;
+    }
+
+    /* Chrome / Edge 下拉選單選項顏色 */
+    #statusSelect option[value*="只嗨"],
+    #statusSelect option[value*="High Only"] {
+      color: #d97706;
+      background-color: #fff7ed;
+      font-weight: 600;
+    }
+
+    #statusSelect option[value*="只酒"],
+    #statusSelect option[value*="Drinks Only"] {
+      color: #2563eb;
+      background-color: #eff6ff;
+      font-weight: 600;
+    }
+
+    #statusSelect option[value*="都可以"],
+    #statusSelect option[value*="都可"],
+    #statusSelect option[value*="Both"] {
+      color: #16a34a;
+      background-color: #f0fdf4;
+      font-weight: 600;
     }
 
     /* 側邊計算機 */
@@ -478,9 +1142,137 @@
       }
     }
 
-  </style>
+  
+    #weeklySubmitWaitingNotice {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(0, 0, 0, 0.45);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    #weeklySubmitWaitingNotice .weekly-submit-waiting-box {
+      width: min(360px, 90vw);
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px 22px;
+      text-align: center;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+    }
+
+    #weeklySubmitWaitingNotice .weekly-submit-waiting-icon {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+
+    #weeklySubmitWaitingNotice .weekly-submit-waiting-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #6f6259;
+      margin-bottom: 9px;
+    }
+
+    #weeklySubmitWaitingNotice .weekly-submit-waiting-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #766d66;
+    }
+
+    /* ===== 最終狀態顏色鎖定：只嗨橘／只酒藍／都可綠 ===== */
+    #latestStatusContent .latest-status-badge.status-mode-high,
+    #todayStatusSubmissionList .today-status-mode.status-mode-high,
+    #statusConfirmCard .status-confirm-badge.status-mode-high {
+      color: #d97706 !important;
+      background: #fff7ed !important;
+      border-color: #f59e0b !important;
+    }
+
+    #latestStatusContent .latest-status-badge.status-mode-drinks,
+    #todayStatusSubmissionList .today-status-mode.status-mode-drinks,
+    #statusConfirmCard .status-confirm-badge.status-mode-drinks {
+      color: #2563eb !important;
+      background: #eff6ff !important;
+      border-color: #60a5fa !important;
+    }
+
+    #latestStatusContent .latest-status-badge.status-mode-both,
+    #todayStatusSubmissionList .today-status-mode.status-mode-both,
+    #statusConfirmCard .status-confirm-badge.status-mode-both {
+      color: #16a34a !important;
+      background: #f0fdf4 !important;
+      border-color: #4ade80 !important;
+    }
+
+    /* ===== OFF 最終樣式：紅色 ===== */
+    #latestStatusContent .latest-status-badge.status-mode-off,
+    #todayStatusSubmissionList .today-status-mode.status-mode-off,
+    #statusConfirmCard .status-confirm-badge.status-mode-off {
+      color: #c74d2d !important;
+      background: #fff1ed !important;
+      border-color: #d96b4f !important;
+    }
+
+    /* ===== OFF：依指定樣式顯示 ===== */
+    #latestStatusContent .latest-status-badge.status-mode-off,
+    #todayStatusSubmissionList .today-status-mode.status-mode-off,
+    #statusConfirmCard .status-confirm-badge.status-mode-off {
+      color: #c45b42 !important;
+      background: #fff0eb !important;
+      border: 1px solid #d96b4f !important;
+      border-radius: 10px !important;
+      font-weight: 600 !important;
+    }
+
+    /* ===== OFF 最終示意樣式：不含藍色外框 ===== */
+    #latestStatusContent .latest-status-badge.status-mode-off,
+    #todayStatusSubmissionList .today-status-mode.status-mode-off,
+    #statusConfirmCard .status-confirm-badge.status-mode-off {
+      color: #c45b42 !important;
+      background: #fff0eb !important;
+      border: 1px solid #d96b4f !important;
+      border-radius: 10px !important;
+      font-weight: 600 !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    #latestStatusContent .latest-status-badge.status-mode-off:focus,
+    #todayStatusSubmissionList .today-status-mode.status-mode-off:focus,
+    #statusConfirmCard .status-confirm-badge.status-mode-off:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ===== OFF 最終指定樣式 ===== */
+    #latestStatusContent .latest-status-badge.status-mode-off,
+    #todayStatusSubmissionList .today-status-mode.status-mode-off,
+    #statusConfirmCard .status-confirm-badge.status-mode-off {
+      color: #c45b42 !important;
+      background: #fff0eb !important;
+      border: 1px solid #d96b4f !important;
+      border-radius: 10px !important;
+      font-weight: 600 !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+</style>
 </head>
 <body>
+  <div id="weeklySubmitWaitingNotice" role="alertdialog" aria-modal="true">
+    <div class="weekly-submit-waiting-box">
+      <div class="weekly-submit-waiting-icon">⏳</div>
+      <div class="weekly-submit-waiting-title">正在送出狀態</div>
+      <div class="weekly-submit-waiting-text">
+        送出狀態需要一些時間，請耐心等候。<br>
+        <strong>請不要關閉此視窗。</strong>
+      </div>
+    </div>
+  </div>
+
 
   <div class="container">
     <div class="header">
@@ -502,10 +1294,15 @@
         </div>
 
         <div class="form-group">
-          <label>目前時間 <span class="en">Current Time</span></label>
           <div class="current-datetime-display">
-            <span class="current-date-display" id="currentDateDisplay"></span>
-            <span class="current-time-display" id="currentTimeDisplay">--:--</span>
+            <div class="current-datetime-item">
+              <span class="current-datetime-label">目前日期 <span>date</span></span>
+              <span class="current-date-display" id="currentDateDisplay"></span>
+            </div>
+            <div class="current-datetime-item current-time-item">
+              <span class="current-datetime-label">目前時間 <span>time</span></span>
+              <span class="current-time-display" id="currentTimeDisplay">--:--</span>
+            </div>
           </div>
         </div>
 
@@ -543,51 +1340,142 @@
         <button class="filter-btn active" onclick="setFilter('daily', this)">每日<span class="en">Daily</span></button>
         <button class="filter-btn" onclick="setFilter('weekly', this)">本週<span class="en">Weekly</span></button>
         <button class="filter-btn" onclick="setFilter('thisMonth', this)">本月<span class="en">This Month</span></button>
-        <button type="button" class="filter-btn" id="statusViewBtn" onclick="showLatestStatus(this)">狀態<span class="en">Status</span></button>
       </div>
 
       <ul id="recordList" class="record-list"></ul>
 
-      <div id="latestStatusView" class="status-view">
-        <div class="status-view-title">最近一筆狀態 / Latest Status</div>
-        <div id="latestStatusContent"></div>
-      </div>
     </div>
 
     <div id="statusTab" class="tab-content">
-      <div class="status-panel">
-        <div class="form-group">
-          <label for="statusUserName">姓名 <span class="en">Name</span> *</label>
-          <input type="text" id="statusUserName" placeholder="請輸入姓名" oninput="handleNameInput(this.value)">
-        </div>
+      <div class="status-subtabs">
+        <button type="button" id="statusSubtabDailyBtn" class="status-subtab-btn active" onclick="switchStatusSubtab('daily')">
+          當日提交<span class="en">Daily Status</span>
+        </button>
+        <button type="button" id="statusSubtabWeeklyBtn" class="status-subtab-btn" onclick="switchStatusSubtab('weekly')">
+          每週回報<span class="en">Weekly Report</span>
+        </button>
+      </div>
 
-        <div class="status-toggle-box">
-          <label>狀態開關 <span class="en">Status Switch</span></label>
-          <div class="switch-btn-group" id="switchBtnGroup">
-            <button type="button" id="swOnBtn" class="sw-btn active-on" onclick="setManualStatusState('ON')">ON</button>
-            <button type="button" id="swOffBtn" class="sw-btn" onclick="setManualStatusState('OFF')">OFF</button>
+      <div id="dailyStatusSubtab" class="status-subtab-content active">
+        <div class="status-panel">
+          <div class="form-group">
+            <label for="statusUserName">姓名 <span class="en">Name</span> *</label>
+            <input type="text" id="statusUserName" placeholder="請輸入姓名" oninput="handleNameInput(this.value)">
+          </div>
+
+          <div class="status-toggle-box">
+            <label>狀態開關 <span class="en">Status Switch</span></label>
+            <div class="switch-btn-group" id="switchBtnGroup">
+              <button type="button" id="swOnBtn" class="sw-btn active-on" onclick="setManualStatusState('ON')">ON</button>
+              <button type="button" id="swOffBtn" class="sw-btn" onclick="setManualStatusState('OFF')">OFF</button>
+            </div>
+          </div>
+
+          <div id="statusSelectGroup" class="form-group">
+            <label for="statusSelect">狀態模式 <span class="en">Select Mode</span></label>
+            <select id="statusSelect" onchange="handleStatusSelectChange(this.value)">
+              <option value="" disabled selected>請選擇模式</option>
+              <option value="🥳 只嗨 (High Only)">🥳 只嗨 (High Only)</option>
+              <option value="🍷 只酒 (Drinks Only)">🍷 只酒 (Drinks Only)</option>
+              <option value="🎉 都可以 (Both)">🎉 都可以 (Both)</option>
+            </select>
+          </div>
+
+          <button type="button" id="statusSubmitBtn" class="btn-submit" style="margin-top: 16px;" onclick="submitStatusForm()">
+            確認送出狀態
+            <span class="en">Submit Status</span>
+          </button>
+
+          <div id="statusConfirmPanel" class="status-review-panel" style="display:none;" onclick="if(event.target===this) cancelStatusConfirmation();">
+            <div class="status-review-modal">
+              <div class="status-review-title">請確認目前狀態 <span>Confirm Status</span></div>
+              <div id="statusConfirmCard" class="status-review-card"></div>
+
+              <div class="status-review-note">
+                <label for="statusConfirmNote">狀態提交備註 <span class="en">Status Note</span></label>
+                <input type="text" id="statusConfirmNote" placeholder="請輸入狀態提交備註">
+              </div>
+
+              <div class="status-review-actions">
+                <button type="button" class="status-review-cancel" onclick="cancelStatusConfirmation()">返回修改</button>
+                <button type="button" id="statusFinalSubmitBtn" class="status-review-confirm" onclick="finalSubmitStatus()">確認送出狀態</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="todayStatusSubmissions" class="today-status-submissions">
+            <div class="today-status-card">
+              <div class="today-status-title">
+                最近一筆狀態 <span>Latest Status</span>
+              </div>
+              <div id="todayStatusSubmissionList" class="today-status-list">
+                <div class="empty-msg">目前尚無狀態提交</div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div id="statusSelectGroup" class="form-group">
-          <label for="statusSelect">狀態模式 <span class="en">Select Mode</span></label>
-          <select id="statusSelect" onchange="handleStatusSelectChange(this.value)">
-            <option value="" disabled selected>請選擇模式</option>
-            <option value="🥳 只嗨 (High Only)">🥳 只嗨 (High Only)</option>
-            <option value="🍷 只酒 (Drinks Only)">🍷 只酒 (Drinks Only)</option>
-            <option value="🎉 都可以 (Both)">🎉 都可以 (Both)</option>
-          </select>
+      <div id="weeklyStatusSubtab" class="status-subtab-content">
+        <div class="weekly-panel">
+          <div class="form-group">
+            <label for="weeklyUserName">姓名 <span class="en">Name</span> *</label>
+            <input type="text" id="weeklyUserName" placeholder="請輸入姓名" oninput="handleWeeklyNameInput(this.value)">
+          </div>
+
+          <div class="weekly-calendar-head">
+            <button type="button" id="weeklyPrevMonthBtn" class="weekly-month-btn" onclick="changeWeeklyMonth(-1)" aria-label="上一個月">‹</button>
+            <div id="weeklyMonthTitle" class="weekly-month-title">2026年8月</div>
+            <button type="button" id="weeklyNextMonthBtn" class="weekly-month-btn" onclick="changeWeeklyMonth(1)" aria-label="下一個月">›</button>
+          </div>
+
+          <div class="weekly-calendar">
+            <div class="weekly-weekdays">
+              <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+            </div>
+            <div id="weeklyCalendarDays" class="weekly-days"></div>
+          </div>
+
+          <div class="weekly-editor">
+            
+            <div class="weekly-status-options">
+              <button type="button" class="weekly-status-btn high" data-weekly-status="嗨" onclick="selectWeeklyStatus('嗨')">
+                <span class="weekly-status-zh">🥳 只嗨</span>
+                <span class="weekly-status-en">High Only</span>
+              </button>
+              <button type="button" class="weekly-status-btn drinks" data-weekly-status="酒" onclick="selectWeeklyStatus('酒')">
+                <span class="weekly-status-zh">🍷 只酒</span>
+                <span class="weekly-status-en">Drinks Only</span>
+              </button>
+              <button type="button" class="weekly-status-btn both" data-weekly-status="都可" onclick="selectWeeklyStatus('都可')">
+                <span class="weekly-status-zh">🎉 都可</span>
+                <span class="weekly-status-en">Both</span>
+              </button>
+            </div>
+            <button type="button" id="weeklySaveBtn" class="weekly-save-btn" onclick="prepareWeeklyReview()" disabled>
+              送出狀態
+              <span class="en">Submit Status</span>
+            </button>
+            <div id="weeklyPendingSummary" class="weekly-pending-summary">最多可選擇14天，請確認後再一次送出</div>
+
+            <div id="weeklyReviewPanel" class="weekly-review-panel" style="display:none;" onclick="if(event.target===this) cancelWeeklyReview();">
+              <div class="weekly-review-modal">
+                <div class="weekly-review-title">請確認已選擇的日期與狀態</div>
+                <div class="weekly-review-row" style="padding-top:0;">
+                  <div class="weekly-review-note-label">日期</div>
+                  <div class="weekly-review-note-label">週報狀態</div>
+                  <div class="weekly-review-note-label">週報備註</div>
+                </div>
+                <div id="weeklyReviewList"></div>
+                <div class="weekly-review-actions">
+                  <button type="button" class="weekly-review-cancel" onclick="cancelWeeklyReview()">返回修改</button>
+                  <button type="button" id="weeklyConfirmBtn" class="weekly-confirm-btn" onclick="confirmWeeklyReports()">確認送出狀態</button>
+                </div>
+              </div>
+            </div>
+
+</div>
         </div>
-
-        <div class="form-group">
-          <label for="statusNote">狀態提交備註 <span class="en">Status Note</span></label>
-          <input type="text" id="statusNote" placeholder="請輸入狀態提交備註">
-        </div>
-
-        <button type="button" id="statusSubmitBtn" class="btn-submit" style="margin-top: 16px;" onclick="submitStatusForm()">
-          確認送出狀態
-          <span class="en">Submit Status</span>
-        </button>
       </div>
     </div>
   </div>
@@ -698,11 +1586,24 @@
     // 下班成功後先暫存本地紀錄，避免雲端資料尚未刷新時被誤判成「仍在上班」。
     let optimisticAttendanceRecords = [];
 
+    // 每週回報：與原本當日提交分開處理，資料寫入同一個試算表的「每週回報」工作表。
+    // 日期只開放「本月＋未來兩個月」，共三個月可選。
+    let weeklyCurrentMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let weeklySelectedDate = '';
+    let weeklySelectedStatus = '';
+    let weeklyReports = [];
+    // 尚未送出的每週回報暫存：先選日期／狀態，再進入確認畫面一次送出。
+    let weeklyPendingChanges = {};
+    let weeklyPendingNotes = {};
+    let weeklyReviewMode = false;
+
     function initSavedUserName() {
       const savedName = localStorage.getItem('checkin_username') || '';
       if (savedName) {
         document.getElementById('userName').value = savedName;
         document.getElementById('statusUserName').value = savedName;
+        const weeklyNameEl = document.getElementById('weeklyUserName');
+        if (weeklyNameEl) weeklyNameEl.value = savedName;
       }
     }
 
@@ -716,12 +1617,16 @@
       
       const userNameEl = document.getElementById('userName');
       const statusUserNameEl = document.getElementById('statusUserName');
+      const weeklyUserNameEl = document.getElementById('weeklyUserName');
       if (userNameEl.value !== trimmed) userNameEl.value = trimmed;
       if (statusUserNameEl.value !== trimmed) statusUserNameEl.value = trimmed;
+      if (weeklyUserNameEl && weeklyUserNameEl.value !== trimmed) weeklyUserNameEl.value = trimmed;
+      if (weeklyUserNameEl) fetchWeeklyReports();
 
       // 重新抓取最新後台狀態，避免後台剛改成「已預約」但前台仍使用舊資料。
       fetchCloudData().finally(() => {
         checkUserWorkingStatus();
+        renderTodayStatusSubmissions();
       });
     }
 
@@ -795,6 +1700,541 @@
       document.getElementById('calcResult').textContent = '$0';
     }
 
+
+    function switchStatusSubtab(tabName) {
+      document.querySelectorAll('.status-subtab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.status-subtab-content').forEach(panel => panel.classList.remove('active'));
+
+      if (tabName === 'weekly') {
+        document.getElementById('statusSubtabWeeklyBtn').classList.add('active');
+        document.getElementById('weeklyStatusSubtab').classList.add('active');
+
+        const savedName = localStorage.getItem('checkin_username') || '';
+        const weeklyNameEl = document.getElementById('weeklyUserName');
+        if (weeklyNameEl && !weeklyNameEl.value && savedName) weeklyNameEl.value = savedName;
+
+        // 每次開啟「每週回報」都重新從 GAS 讀取，
+        // 讓後台刪除／修改後，前台不會繼續使用舊的 weeklyReports 快取。
+        fetchWeeklyReports().then(() => {
+          renderWeeklyCalendar();
+          updateWeeklyEditor();
+        });
+      } else {
+        document.getElementById('statusSubtabDailyBtn').classList.add('active');
+        document.getElementById('dailyStatusSubtab').classList.add('active');
+        renderTodayStatusSubmissions();
+        fetchCloudData().then(() => {
+          renderTodayStatusSubmissions();
+        });
+      }
+    }
+
+    function handleWeeklyNameInput(value) {
+      const trimmed = String(value || '').trim();
+      if (trimmed) {
+        localStorage.setItem('checkin_username', trimmed);
+        const statusNameEl = document.getElementById('statusUserName');
+        const userNameEl = document.getElementById('userName');
+        if (statusNameEl && statusNameEl.value !== trimmed) statusNameEl.value = trimmed;
+        if (userNameEl && userNameEl.value !== trimmed) userNameEl.value = trimmed;
+      }
+      // 換人時不沿用上一個人的尚未送出資料，避免誤送到另一個姓名。
+      weeklyPendingChanges = {};
+      weeklyPendingNotes = {};
+      weeklySelectedDate = '';
+      weeklySelectedStatus = '';
+      weeklyReviewMode = false;
+      const weeklyReviewPanel = document.getElementById('weeklyReviewPanel');
+      if (weeklyReviewPanel) weeklyReviewPanel.style.display = 'none';
+      renderWeeklyCalendar();
+      if (weeklySelectedDate) loadWeeklyEditorForDate(weeklySelectedDate);
+    }
+
+    function normalizeWeeklyStatus(value) {
+      const v = String(value || '').trim();
+      if (!v) return '';
+      if (v.includes('嗨') || v.includes('High')) return '嗨';
+      if (v.includes('酒') || v.includes('Drinks')) return '酒';
+      if (v.includes('都可') || v.includes('都可以') || v.includes('Both')) return '都可';
+      return v;
+    }
+
+    function weeklyStatusClass(status) {
+      const v = normalizeWeeklyStatus(status);
+      if (v === '嗨') return 'high';
+      if (v === '酒') return 'drinks';
+      if (v === '都可') return 'both';
+      return '';
+    }
+
+    function weeklyStatusLabelHtml(status, withEmoji = true) {
+      const v = normalizeWeeklyStatus(status);
+      const map = {
+        '嗨': { emoji: '🥳', zh: '只嗨', en: 'High Only' },
+        '酒': { emoji: '🍷', zh: '只酒', en: 'Drinks Only' },
+        '都可': { emoji: '🎉', zh: '都可', en: 'Both' }
+      };
+      const item = map[v];
+      if (!item) return '';
+      return `<span class="weekly-status-zh">${withEmoji ? item.emoji + ' ' : ''}${item.zh}</span><span class="weekly-status-en">${item.en}</span>`;
+    }
+
+    function getWeeklyName() {
+      return (
+        document.getElementById('weeklyUserName').value.trim() ||
+        document.getElementById('statusUserName').value.trim() ||
+        document.getElementById('userName').value.trim()
+      );
+    }
+
+    function findWeeklyReport(name, date) {
+      const n = String(name || '').trim().toLowerCase();
+      return weeklyReports.find(r =>
+        String(r.name || '').trim().toLowerCase() === n &&
+        String(r.date || '').trim() === String(date || '').trim()
+      ) || null;
+    }
+
+    function getWeeklyDisplayNote(name, date) {
+      if (Object.prototype.hasOwnProperty.call(weeklyPendingNotes, date)) {
+        return String(weeklyPendingNotes[date] || '');
+      }
+      const report = findWeeklyReport(name, date);
+      return report ? String(report.note || '') : '';
+    }
+
+    function getWeeklyDisplayStatus(name, date) {
+      if (Object.prototype.hasOwnProperty.call(weeklyPendingChanges, date)) {
+        return normalizeWeeklyStatus(weeklyPendingChanges[date]);
+      }
+      const report = findWeeklyReport(name, date);
+      return report ? normalizeWeeklyStatus(report.status) : '';
+    }
+
+    function isWeeklyBooked(name, date) {
+      const report = findWeeklyReport(name, date);
+      if (!report) return false;
+
+      const managementStatus = String(report.managementStatus || '')
+        .replace(/[📅⭐★]/g, '')
+        .replace(/\s+/g, '')
+        .trim();
+
+      return managementStatus === '已預約';
+    }
+
+    function getWeeklyPendingCount() {
+      return Object.keys(weeklyPendingChanges).length;
+    }
+
+    function updateWeeklyPendingSummary() {
+      const summary = document.getElementById('weeklyPendingSummary');
+      if (!summary) return;
+      const count = getWeeklyPendingCount();
+      summary.textContent = '最多可選擇14天，請確認後再一次送出';
+    }
+
+    function getWeeklyMonthBounds() {
+      const now = getTaipeiNow();
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      // 每週回報只顯示當月與下一個月，共兩個月。
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      return { start, end };
+    }
+
+    function isWeeklyMonthAllowed(date) {
+      const { start, end } = getWeeklyMonthBounds();
+      const target = new Date(date.getFullYear(), date.getMonth(), 1);
+      return target >= start && target <= end;
+    }
+
+    function updateWeeklyMonthButtons() {
+      const prevBtn = document.getElementById('weeklyPrevMonthBtn');
+      const nextBtn = document.getElementById('weeklyNextMonthBtn');
+      const { start, end } = getWeeklyMonthBounds();
+      const current = new Date(weeklyCurrentMonth.getFullYear(), weeklyCurrentMonth.getMonth(), 1);
+      if (prevBtn) prevBtn.disabled = current <= start;
+      if (nextBtn) nextBtn.disabled = current >= end;
+    }
+
+    function renderWeeklyCalendar() {
+      const daysEl = document.getElementById('weeklyCalendarDays');
+      const titleEl = document.getElementById('weeklyMonthTitle');
+      if (!daysEl || !titleEl) return;
+
+      const bounds = getWeeklyMonthBounds();
+      if (!isWeeklyMonthAllowed(weeklyCurrentMonth)) {
+        weeklyCurrentMonth = new Date(bounds.start);
+        weeklySelectedDate = '';
+        weeklySelectedStatus = '';
+      }
+
+      const year = weeklyCurrentMonth.getFullYear();
+      const month = weeklyCurrentMonth.getMonth();
+      titleEl.textContent = `${year}年${month + 1}月`;
+      updateWeeklyMonthButtons();
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+      const today = getTaipeiDateStr();
+      const name = getWeeklyName();
+
+      let cells = '';
+      for (let i = 0; i < firstDay; i++) {
+        cells += '<button type="button" class="weekly-day empty" tabindex="-1"></button>';
+      }
+
+      for (let day = 1; day <= lastDate; day++) {
+        const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const status = getWeeklyDisplayStatus(name, date);
+        const isBooked = isWeeklyBooked(name, date);
+        const hasPendingChange = Object.prototype.hasOwnProperty.call(weeklyPendingChanges, date);
+        const cls = [
+          'weekly-day',
+          date === weeklySelectedDate ? 'selected' : '',
+          date === today ? 'today' : '',
+          hasPendingChange ? 'pending-change' : ''
+        ].filter(Boolean).join(' ');
+
+        const statusHtml = status
+          ? `<span class="weekly-status-dot ${weeklyStatusClass(status)}">${escapeHtml(status)}</span>`
+          : '';
+
+        const bookedStarHtml = isBooked
+          ? `<span class="weekly-booked-star" title="已預約">★</span>`
+          : '';
+
+        cells += `<button type="button" class="${cls}" onclick="selectWeeklyDate('${date}')">
+          <span class="weekly-day-number">${day}${bookedStarHtml}</span>${statusHtml}
+        </button>`;
+      }
+
+      daysEl.innerHTML = cells;
+      if (weeklySelectedDate) loadWeeklyEditorForDate(weeklySelectedDate);
+    }
+
+    function changeWeeklyMonth(offset) {
+      const target = new Date(
+        weeklyCurrentMonth.getFullYear(),
+        weeklyCurrentMonth.getMonth() + Number(offset),
+        1
+      );
+
+      if (!isWeeklyMonthAllowed(target)) return;
+
+      weeklyCurrentMonth = target;
+      weeklySelectedDate = '';
+      weeklySelectedStatus = '';
+      renderWeeklyCalendar();
+      updateWeeklyEditor();
+    }
+
+    function selectWeeklyDate(date) {
+      const dateParts = String(date).split('-');
+      const target = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, 1);
+      if (!isWeeklyMonthAllowed(target)) return;
+
+      weeklySelectedDate = date;
+      weeklyCurrentMonth = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, 1);
+
+      // 選日期時再同步一次 GAS，避免後台剛刪除／修改資料而前台仍顯示舊快取。
+      fetchWeeklyReports().then(() => {
+        loadWeeklyEditorForDate(date);
+        renderWeeklyCalendar();
+      });
+    }
+
+    function loadWeeklyEditorForDate(date) {
+      const name = getWeeklyName();
+      weeklySelectedStatus = getWeeklyDisplayStatus(name, date);
+      updateWeeklyEditor();
+    }
+
+    function updateWeeklyEditor() {
+      // 日期文字顯示已移除，因此這裡不再依賴 weeklyEditorDate。
+      // 仍需正常更新送出按鈕、狀態按鈕與下方選擇數量提示。
+      const submitBtn = document.getElementById('weeklySaveBtn');
+      if (!submitBtn) return;
+
+      submitBtn.disabled = !getWeeklyName() || getWeeklyPendingCount() === 0 || weeklyReviewMode;
+      submitBtn.innerHTML = '送出狀態<span class="en">Submit Status</span>';
+
+      document.querySelectorAll('.weekly-status-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.weeklyStatus === weeklySelectedStatus);
+      });
+
+      updateWeeklyPendingSummary();
+    }
+
+    function selectWeeklyStatus(status) {
+      if (!weeklySelectedDate) {
+        alert('請先選擇日期！');
+        return;
+      }
+
+      const name = getWeeklyName();
+      if (!name) {
+        alert('請先輸入姓名！');
+        return;
+      }
+
+      const normalizedStatus = normalizeWeeklyStatus(status);
+      const hasPending = Object.prototype.hasOwnProperty.call(weeklyPendingChanges, weeklySelectedDate);
+
+      if (!hasPending && getWeeklyPendingCount() >= 14) {
+        alert('您已選擇超過14天');
+        return;
+      }
+
+      // 同一狀態再點一次＝取消。
+      if (weeklySelectedStatus === normalizedStatus) {
+        const existing = findWeeklyReport(name, weeklySelectedDate);
+        if (existing) {
+          weeklyPendingChanges[weeklySelectedDate] = '';
+        } else {
+          delete weeklyPendingChanges[weeklySelectedDate];
+          delete weeklyPendingNotes[weeklySelectedDate];
+        }
+        weeklySelectedStatus = '';
+      } else {
+        weeklySelectedStatus = normalizedStatus;
+        weeklyPendingChanges[weeklySelectedDate] = weeklySelectedStatus;
+        if (!Object.prototype.hasOwnProperty.call(weeklyPendingNotes, weeklySelectedDate)) {
+          weeklyPendingNotes[weeklySelectedDate] = getWeeklyDisplayNote(name, weeklySelectedDate);
+        }
+      }
+
+      weeklyReviewMode = false;
+      const panel = document.getElementById('weeklyReviewPanel');
+      if (panel) panel.style.display = 'none';
+
+      renderWeeklyCalendar();
+      updateWeeklyEditor();
+    }
+
+    function parseWeeklyResponse(res) {
+      if (!res) return;
+      if (Array.isArray(res.weeklyReports)) {
+        weeklyReports = res.weeklyReports.map(r => ({
+          name: String(r.name || '').trim(),
+          date: formatDate(r.date),
+          status: normalizeWeeklyStatus(r.status),
+          note: String(r.note || r.weeklyNote || r.reportNote || '').trim(),
+          managementStatus: String(r.managementStatus || '').trim()
+        }));
+      } else if (Array.isArray(res.data) && res.data.length && res.data[0] && (
+        res.data[0].weeklyReport !== undefined ||
+        res.data[0].reportStatus !== undefined ||
+        res.data[0].weeklyStatus !== undefined
+      )) {
+        weeklyReports = res.data.map(r => ({
+          name: String(r.name || '').trim(),
+          date: formatDate(r.date),
+          status: normalizeWeeklyStatus(r.weeklyReport || r.reportStatus || r.weeklyStatus),
+          note: String(r.note || r.weeklyNote || r.reportNote || '').trim(),
+          managementStatus: String(r.managementStatus || '').trim()
+        }));
+      }
+    }
+
+    function fetchWeeklyReports() {
+      const name = getWeeklyName();
+      if (!name) {
+        weeklyReports = [];
+        renderWeeklyCalendar();
+        return Promise.resolve();
+      }
+
+      return fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'getWeeklyReports',
+          name: name
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.result === 'success') {
+          parseWeeklyResponse(res);
+          renderWeeklyCalendar();
+        }
+      })
+      .catch(() => {});
+    }
+
+    function prepareWeeklyReview() {
+      const name = getWeeklyName();
+      const dates = Object.keys(weeklyPendingChanges);
+
+      if (!name) {
+        alert('請先輸入姓名！');
+        return;
+      }
+      if (!dates.length) {
+        alert('請選擇日期與狀態');
+        return;
+      }
+      if (dates.length > 14) {
+        alert('您已選擇超過14天');
+        return;
+      }
+
+      renderWeeklyReview();
+      weeklyReviewMode = true;
+
+      const panel = document.getElementById('weeklyReviewPanel');
+      if (panel) panel.style.display = 'flex';
+
+      const saveBtn = document.getElementById('weeklySaveBtn');
+      if (saveBtn) saveBtn.disabled = true;
+
+      document.body.style.overflow = 'hidden';
+    }
+
+    function renderWeeklyReview() {
+      const name = getWeeklyName();
+      const list = document.getElementById('weeklyReviewList');
+      if (!list) return;
+
+      const dates = Object.keys(weeklyPendingChanges).sort();
+
+      list.innerHTML = dates.map(date => {
+        const status = normalizeWeeklyStatus(weeklyPendingChanges[date]);
+        const statusText = status ? weeklyStatusLabelHtml(status, true) : '取消';
+        const note = getWeeklyDisplayNote(name, date);
+
+        return `
+          <div class="weekly-review-row">
+            <div class="weekly-review-date">${escapeHtml(date.replace(/-/g, '/'))}</div>
+            <div class="weekly-review-status">${statusText}</div>
+            <div>
+              <input type="text" class="weekly-review-note"
+                value="${escapeHtml(note)}"
+                placeholder="請輸入週報備註"
+                oninput="weeklyPendingNotes['${date}'] = this.value">
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function cancelWeeklyReview() {
+      weeklyReviewMode = false;
+      const panel = document.getElementById('weeklyReviewPanel');
+      if (panel) panel.style.display = 'none';
+      document.body.style.overflow = '';
+
+      const saveBtn = document.getElementById('weeklySaveBtn');
+      if (saveBtn) {
+        saveBtn.disabled = !getWeeklyName() || getWeeklyPendingCount() === 0;
+        saveBtn.innerHTML = '送出狀態<span class="en">Submit Status</span>';
+      }
+
+      renderWeeklyCalendar();
+      updateWeeklyEditor();
+    }
+
+    function showWeeklySubmitWaitingNotice() {
+      const notice = document.getElementById('weeklySubmitWaitingNotice');
+      if (notice) notice.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideWeeklySubmitWaitingNotice() {
+      const notice = document.getElementById('weeklySubmitWaitingNotice');
+      if (notice) notice.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function confirmWeeklyReports() {
+      const name = getWeeklyName();
+      const dates = Object.keys(weeklyPendingChanges);
+
+      if (!name) {
+        alert('請先輸入姓名！');
+        return;
+      }
+      if (!dates.length) {
+        alert('請選擇日期與狀態');
+        return;
+      }
+      if (dates.length > 14) {
+        alert('您已選擇超過14天');
+        return;
+      }
+
+      const confirmBtn = document.getElementById('weeklyConfirmBtn');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '送出中...';
+      }
+
+      // 送出期間顯示明確提示：GAS 逐筆寫入可能需要一些時間，
+      // 請耐心等候並保持此視窗開啟。
+      showWeeklySubmitWaitingNotice();
+
+      const payloads = dates.map(date => ({
+        action: 'saveWeeklyReport',
+        name: name,
+        date: date,
+        status: weeklyPendingChanges[date],
+        note: String(weeklyPendingNotes[date] || '').trim()
+      }));
+
+      payloads.reduce((promise, payload) => {
+        return promise.then(() => fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        }).then(res => res.json()).then(res => {
+          if (res.result !== 'success') {
+            throw new Error(res.message || '未知錯誤');
+          }
+        }));
+      }, Promise.resolve())
+      .then(() => {
+        hideWeeklySubmitWaitingNotice();
+
+        dates.forEach(date => {
+          const status = normalizeWeeklyStatus(weeklyPendingChanges[date]);
+          const note = String(weeklyPendingNotes[date] || '').trim();
+          const existing = findWeeklyReport(name, date);
+
+          if (existing) {
+            existing.status = status;
+            existing.note = note;
+          } else {
+            weeklyReports.push({ name: name, date: date, status: status, note: note });
+          }
+        });
+
+        weeklyPendingChanges = {};
+        weeklyPendingNotes = {};
+        weeklyReviewMode = false;
+
+        const panel = document.getElementById('weeklyReviewPanel');
+        if (panel) panel.style.display = 'none';
+        document.body.style.overflow = '';
+
+        weeklySelectedStatus = weeklySelectedDate
+          ? getWeeklyDisplayStatus(name, weeklySelectedDate)
+          : '';
+
+        showToast(`✅ 已送出 ${dates.length} 個日期的狀態！`);
+        renderWeeklyCalendar();
+        updateWeeklyEditor();
+      })
+      .catch(err => {
+        alert('送出失敗：' + (err.message || '請檢查網路連線。'));
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = '確認送出狀態';
+        }
+        updateWeeklyEditor();
+      });
+    }
+
     function switchTab(tabName) {
       document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -814,7 +2254,12 @@
       } else if (tabName === 'status') {
         document.querySelectorAll('.tab-btn')[2].classList.add('active');
         document.getElementById('statusTab').classList.add('active');
-        fetchCloudData();
+        renderTodayStatusSubmissions();
+        fetchCloudData().then(() => {
+          renderTodayStatusSubmissions();
+        });
+        renderWeeklyCalendar();
+        if (getWeeklyName()) fetchWeeklyReports();
       }
     }
 
@@ -824,7 +2269,10 @@
       const timeEl = document.getElementById('currentTimeDisplay');
 
       if (dateEl) {
-        dateEl.textContent = now.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        dateEl.textContent = `${yyyy}/${mm}/${dd}`;
       }
       if (timeEl) {
         const hh = String(now.getHours()).padStart(2, '0');
@@ -1087,11 +2535,13 @@
       );
 
       const value = select.value || '';
-      if (value.includes('只嗨') || value.includes('High Only')) {
+      const normalized = normalizeStatusMode(value);
+
+      if (normalized === '嗨') {
         select.classList.add('status-mode-high');
-      } else if (value.includes('只酒') || value.includes('Drinks Only')) {
+      } else if (normalized === '酒') {
         select.classList.add('status-mode-drinks');
-      } else if (value.includes('都可以') || value.includes('Both')) {
+      } else if (normalized === '都可') {
         select.classList.add('status-mode-both');
       }
     }
@@ -1225,15 +2675,12 @@
         return;
       }
 
-      // 後台為「📅 已預約」時，禁止前台提交任何狀態，
-      // 包含 ON 與 OFF；只有打上班卡後才解除鎖定。
       const attendanceRecords = cloudRecords.filter(r =>
-        r.name.toLowerCase() === name.toLowerCase() &&
+        String(r.name || '').toLowerCase() === name.toLowerCase() &&
         (r.type === '上班' || r.type === '下班')
-      ).sort((a, b) => b.rowIndex - a.rowIndex);
+      ).sort((a, b) => Number(b.rowIndex || 0) - Number(a.rowIndex || 0));
 
       if (attendanceRecords.length > 0 && attendanceRecords[0].type === '上班') {
-        const statusSelect = document.getElementById('statusSelect');
         const statusSubmitBtn = document.getElementById('statusSubmitBtn');
         const swOnBtn = document.getElementById('swOnBtn');
         const swOffBtn = document.getElementById('swOffBtn');
@@ -1251,39 +2698,94 @@
       }
 
       const statusIsOn = (currentStatusState === 'ON');
-      const statusMode = statusIsOn ? document.getElementById('statusSelect').value : 'OFF';
+      const statusModeRaw = statusIsOn ? document.getElementById('statusSelect').value : 'OFF';
 
-      // 「待確認」只能由下班打卡系統自動設定，員工不能手動送出。
-      if (String(statusMode || '').includes('待確認') || String(statusMode || '').includes('Pending')) {
+      if (String(statusModeRaw || '').includes('待確認') || String(statusModeRaw || '').includes('Pending')) {
         alert('「待確認」為系統自動狀態，無法手動送出。請選擇其他狀態。');
         return;
       }
 
-      if (statusIsOn && !statusMode) {
+      if (statusIsOn && !statusModeRaw) {
         alert('開啟 ON 時請選擇狀態模式！');
         return;
       }
 
-      clearPendingAutoOff();
+      // 第一階段：只確認狀態，不寫入 GAS。
+      // 備註改在確認狀態後輸入，最後才真正送出。
+      const confirmPanel = document.getElementById('statusConfirmPanel');
+      const confirmCard = document.getElementById('statusConfirmCard');
+      const firstBtn = document.getElementById('statusSubmitBtn');
+      const finalBtn = document.getElementById('statusFinalSubmitBtn');
 
+      const displayMode = statusIsOn
+        ? getStatusDisplayMode(statusModeRaw)
+        : getStatusDisplayMode('OFF');
+
+      const modeClass = getStatusDisplayClass(displayMode) || getStatusDisplayClass(statusModeRaw);
+
+      const currentDate = getTaipeiDateStr();
       const currentTime = getTaipeiTimeStr();
-      const todayStr = getTaipeiDateStr();
-      const note = document.getElementById('statusNote').value.trim();
+
+      confirmCard.innerHTML = `
+        <div class="status-confirm-name">姓名：${escapeHtml(name)}</div>
+        <div class="status-confirm-badge ${modeClass}">
+          ${escapeHtml(displayMode || '未設定')}
+        </div>
+        <div class="status-confirm-time">
+          ${escapeHtml(currentDate)} ${escapeHtml(currentTime)}
+        </div>
+      `;
+
+      document.getElementById('statusConfirmNote').value = '';
+      confirmPanel.style.display = 'flex';
+      firstBtn.style.display = 'none';
+      document.body.style.overflow = 'hidden';
+      finalBtn.disabled = false;
+
+      // 確認視窗以彈窗方式顯示，邏輯與每週回報「請確認」視窗一致。
+    }
+
+    function cancelStatusConfirmation() {
+      const panel = document.getElementById('statusConfirmPanel');
+      const firstBtn = document.getElementById('statusSubmitBtn');
+
+      if (panel) panel.style.display = 'none';
+      document.body.style.overflow = '';
+      if (firstBtn) {
+        firstBtn.style.display = '';
+        firstBtn.disabled = false;
+        firstBtn.innerHTML = '確認送出狀態<span class="en">Submit Status</span>';
+      }
+    }
+
+    function finalSubmitStatus() {
+      const name = document.getElementById('statusUserName').value.trim();
+      if (!name) {
+        alert('請先輸入姓名！');
+        cancelStatusConfirmation();
+        return;
+      }
+
+      const statusIsOn = (currentStatusState === 'ON');
+      const statusMode = statusIsOn ? document.getElementById('statusSelect').value : 'OFF';
+      const note = document.getElementById('statusConfirmNote').value.trim();
+
+      const finalBtn = document.getElementById('statusFinalSubmitBtn');
+      finalBtn.disabled = true;
+      finalBtn.innerText = '送出中...';
+
+      clearPendingAutoOff();
 
       const payload = {
         name,
         type: '狀態',
-        date: todayStr,
-        time: currentTime,
+        date: getTaipeiDateStr(),
+        time: getTaipeiTimeStr(),
         location: '',
         note: note,
         statusIsOn: statusIsOn,
         statusMode: statusMode
       };
-
-      const submitBtn = document.getElementById('statusSubmitBtn');
-      submitBtn.disabled = true;
-      submitBtn.innerText = '送出中...';
 
       fetch(GAS_URL, {
         method: 'POST',
@@ -1292,35 +2794,37 @@
       })
       .then(res => res.json())
       .then(res => {
-        if (res.result === 'success') {
-          showToast('✅ 狀態送出成功！');
-          document.getElementById('statusNote').value = '';
-
-          fetchCloudData();
-        } else {
-          alert('送出失敗：' + (res.message || '未知錯誤'));
+        if (res.result !== 'success') {
+          throw new Error(res.message || '未知錯誤');
         }
+
+        showToast('✅ 狀態送出成功！');
+
+        const panel = document.getElementById('statusConfirmPanel');
+        const firstBtn = document.getElementById('statusSubmitBtn');
+        if (panel) panel.style.display = 'none';
+        document.body.style.overflow = '';
+        if (firstBtn) {
+          firstBtn.style.display = '';
+          firstBtn.disabled = false;
+          firstBtn.innerHTML = '確認送出狀態<span class="en">Submit Status</span>';
+        }
+
+        document.getElementById('statusConfirmNote').value = '';
+
+        fetchCloudData().then(() => {
+          renderTodayStatusSubmissions();
+        });
       })
-      .catch(() => {
-        alert('送出失敗，請檢查網路連線。');
+      .catch(err => {
+        alert('送出失敗：' + (err.message || '請檢查網路連線。'));
       })
       .finally(() => {
-        const latestAttendance = cloudRecords
-          .filter(r =>
-            r.name.toLowerCase() === name.toLowerCase() &&
-            (r.type === '上班' || r.type === '下班')
-          )
-          .sort((a, b) => b.rowIndex - a.rowIndex)[0];
-
-        if (latestAttendance && latestAttendance.type === '上班') {
-          submitBtn.disabled = true;
-          submitBtn.innerText = '上班中上班中已鎖定 (不可發送)';
-        } else {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = '確認送出狀態<span class="en">Submit Status</span>';
-        }
+        finalBtn.disabled = false;
+        finalBtn.innerText = '確認狀態並送出';
       });
     }
+
 
     function openCalculator() {
       const sidebar = document.getElementById('calculatorSidebar');
@@ -1353,6 +2857,97 @@
       }
     });
 
+    function renderTodayStatusSubmissions() {
+      const list = document.getElementById('todayStatusSubmissionList');
+      if (!list) return;
+
+      const name = (
+        localStorage.getItem('checkin_username') ||
+        document.getElementById('statusUserName')?.value ||
+        document.getElementById('userName')?.value ||
+        ''
+      ).trim();
+
+      if (!name) {
+        list.innerHTML = '<div class="empty-msg">請先輸入姓名，即可查看目前狀態。</div>';
+        return;
+      }
+
+      /*
+       * 這裡不能只讀 type ===「狀態」。
+       * 「上班卡」本身也代表目前狀態應切換成「上班中 Working」。
+       * 因此統一使用 resolveLatestStatusForUser() 判斷目前真正最新的狀態。
+       */
+      const latest = resolveLatestStatusForUser(name);
+
+      if (!latest) {
+        list.innerHTML = `
+          <div class="today-status-item">
+            <div class="today-status-name">姓名：${escapeHtml(name)}</div>
+            <div class="empty-msg">目前尚無狀態提交</div>
+          </div>
+        `;
+        return;
+      }
+
+      let modeText = String(latest.mode || '').trim();
+
+      // 統一顯示文字
+      if (modeText === '上班中Working' || modeText.includes('上班中')) {
+        modeText = '🟢 上班中 Working';
+      } else if (modeText.includes('待確認') || modeText.includes('Pending')) {
+        modeText = '⏳ 待確認 (Pending)';
+      } else if (modeText.includes('OFF')) {
+        modeText = 'OFF | 您已下線';
+      } else if (modeText.includes('已預約')) {
+        modeText = '📅 已預約';
+      } else {
+        modeText = modeText
+          .replace(/^🥳\s*只嗨(?:\s*\(High Only\))?$/, '🥳 只嗨 (High Only)')
+          .replace(/^🍷\s*只酒(?:\s*\(Drinks Only\))?$/, '🍷 只酒 (Drinks Only)')
+          .replace(/^🎉\s*都可(?:以)?(?:\s*\(Both\))?$/, '🎉 都可 (Both)')
+          .replace(/^🥳\s*嗨(?:\s*\(High Only\))?$/, '🥳 只嗨 (High Only)')
+          .replace(/^🍷\s*酒(?:\s*\(Drinks Only\))?$/, '🍷 只酒 (Drinks Only)');
+      }
+
+      const modeClass =
+        modeText.includes('上班中') ? 'status-mode-working' :
+        modeText.includes('待確認') ? 'status-mode-pending' :
+        modeText.includes('OFF') ? 'status-mode-off' :
+        modeText.includes('已預約') ? 'status-mode-booked' :
+        modeText.includes('只嗨') ? 'status-mode-high' :
+        modeText.includes('只酒') ? 'status-mode-drinks' :
+        modeText.includes('都可') ? 'status-mode-both' : '';
+
+      // 只有真正的「狀態」資料才顯示狀態備註；上班／下班卡不使用狀態備註。
+      const latestStatusRecord = cloudRecords
+        .filter(r =>
+          String(r.name || '').trim().toLowerCase() === name.toLowerCase() &&
+          r.type === '狀態'
+        )
+        .sort((a, b) => getStatusTimestamp(b) - getStatusTimestamp(a))[0];
+
+      const note = latestStatusRecord && latestStatusRecord.date === latest.date &&
+                   latestStatusRecord.time === latest.time
+        ? String(latestStatusRecord.note || '').trim()
+        : '';
+
+      const noteHtml = note
+        ? `<div class="today-status-note">📝 ${escapeHtml(note)}</div>`
+        : '';
+
+      list.innerHTML = `
+        <div class="today-status-item">
+          <div class="today-status-name">姓名：${escapeHtml(name)}</div>
+          <div class="today-status-mode ${modeClass}">${escapeHtml(modeText)}</div>
+          ${noteHtml}
+          <div class="today-status-time">
+            最後更新：${escapeHtml(latest.date || '')} ${escapeHtml(latest.time || '')}
+          </div>
+        </div>
+      `;
+    }
+
     function setFilter(filterType, btnElement) {
       currentFilter = filterType;
       latestStatusViewActive = false;
@@ -1369,7 +2964,13 @@
     }
 
     function normalizeStatusMode(mode) {
-      return String(mode || '').trim();
+      const v = String(mode || '').trim();
+      if (!v) return '';
+      if (v.includes('嗨') || v.includes('High')) return '嗨';
+      if (v.includes('酒') || v.includes('Drinks')) return '酒';
+      if (v.includes('都可') || v.includes('都可以') || v.includes('Both')) return '都可';
+      if (v.includes('OFF') || v.includes('已離線')) return 'OFF';
+      return v;
     }
 
     function isPendingStatus(mode) {
@@ -1378,6 +2979,44 @@
         value.includes('待確認') ||
         value.includes('Pending')
       );
+    }
+
+    // 內部用「嗨／酒／都可」判斷，但畫面一律顯示完整格式。
+    function getStatusDisplayMode(mode) {
+      const value = normalizeStatusMode(mode);
+
+      if (value === '嗨') return '🥳 只嗨 (High Only)';
+      if (value === '酒') return '🍷 只酒 (Drinks Only)';
+      if (value === '都可') return '🎉 都可以 (Both)';
+      if (value === 'OFF') return 'OFF | 您已下線';
+      if (value === '上班中Working') return '🟢 上班中 Working';
+      if (value === '已預約' || value === 'BOOK' || value === '📅 已預約') return '📅 已預約';
+      if (isPendingStatus(value)) return '⏳ 待確認 (Pending)';
+
+      return String(mode || '').trim();
+    }
+
+    function getStatusDisplayClass(mode) {
+      const raw = String(mode || '').trim();
+      const value = normalizeStatusMode(raw);
+
+      // 三種人工狀態優先使用「畫面文字」直接判斷，避免被舊 className 或其他狀態覆蓋。
+      if (raw.includes('只嗨') || raw.includes('High Only') || value === '嗨') {
+        return 'status-mode-high';
+      }
+      if (raw.includes('只酒') || raw.includes('Drinks Only') || value === '酒') {
+        return 'status-mode-drinks';
+      }
+      if (raw.includes('都可') || raw.includes('都可以') || raw.includes('Both') || value === '都可') {
+        return 'status-mode-both';
+      }
+
+      if (value === 'OFF' || raw.includes('OFF | 您已下線') || raw.includes('OFF｜您已下線')) return 'status-mode-off';
+      if (value === '上班中Working') return 'status-mode-working';
+      if (value === '已預約' || value === 'BOOK' || value === '📅 已預約') return 'status-mode-booked';
+      if (isPendingStatus(value)) return 'status-mode-pending';
+
+      return '';
     }
 
     function getLatestStatusRecordForUser(name) {
@@ -1514,39 +3153,36 @@
         }
       }
 
-      // OFF 超過 1 小時後，前台直接視為無狀態。
-      // 不回抓上一筆狀態。
-      if (latestIsOff) {
-        rememberOffStatus(latestStatus);
-        const offTimestamp = getStatusTimestamp(latestStatus);
-        if (offTimestamp && (Date.now() - offTimestamp) >= 60 * 60 * 1000) {
-          return null;
-        }
-      }
+      // ★ 先比較實際日期時間，不再用 rowIndex 判斷上下班紀錄與狀態提交誰更新。
+      // Google Sheet 的 rowIndex 會因新增、刪除或重新抓取而改變，不能代表時間先後。
+      const latestAttendanceTimestamp = latestAttendance
+        ? getStatusTimestamp(latestAttendance)
+        : 0;
+      const latestStatusCompareTimestamp = latestStatus
+        ? getStatusTimestamp(latestStatus)
+        : 0;
 
-      // 最新一筆上下班紀錄是「上班」，且沒有更新的狀態提交：
-      // 前台狀態直接顯示「上班中」。
+      // 最新一筆上下班紀錄是「上班」，而且時間晚於最後狀態提交：
+      // 前台直接顯示「上班中」。即使上一筆狀態是 OFF，也不能覆蓋剛打上的上班卡。
       if (
         latestAttendance &&
         latestAttendance.type === '上班' &&
-        (!latestStatus ||
-         Number(latestAttendance.rowIndex || 0) > Number(latestStatus.rowIndex || 0))
+        (!latestStatus || latestAttendanceTimestamp >= latestStatusCompareTimestamp)
       ) {
         return {
-          mode: '上班中Working',
+          mode: getStatusDisplayMode('上班中Working'),
           className: 'working',
           date: latestAttendance.date,
           time: latestAttendance.time
         };
       }
 
-      // 最新一筆是下班，且沒有更新的狀態提交：
+      // 最新一筆是下班，而且時間晚於最後狀態提交：
       // 依現有規則顯示待確認。
       if (
         latestAttendance &&
         latestAttendance.type === '下班' &&
-        (!latestStatus ||
-         Number(latestAttendance.rowIndex || 0) > Number(latestStatus.rowIndex || 0))
+        (!latestStatus || latestAttendanceTimestamp >= latestStatusCompareTimestamp)
       ) {
         return {
           mode: '⏳ 待確認 (Pending)',
@@ -1554,6 +3190,16 @@
           date: latestAttendance.date,
           time: latestAttendance.time
         };
+      }
+
+      // OFF 超過 1 小時後，前台直接視為無狀態。
+      // 但如果之後已經有更新的上下班紀錄，上面的時間判斷會優先顯示最新上下班狀態。
+      if (latestIsOff) {
+        rememberOffStatus(latestStatus);
+        const offTimestamp = getStatusTimestamp(latestStatus);
+        if (offTimestamp && (Date.now() - offTimestamp) >= 60 * 60 * 1000) {
+          return null;
+        }
       }
 
       // 有較新的狀態提交時，以狀態提交為準。
@@ -1573,7 +3219,7 @@
 
       if (mode === 'OFF' || String(latest.statusIsOn).toLowerCase() === 'false') {
         return {
-          mode: 'OFF｜您已下線',
+          mode: 'OFF | 您已下線',
           className: 'off',
           date: latest.date,
           time: latest.time
@@ -1595,7 +3241,7 @@
 
       if (mode === '上班中Working') {
         return {
-          mode: '上班中Working',
+          mode: getStatusDisplayMode('上班中Working'),
           className: 'working',
           date: latest.date,
           time: latest.time
@@ -1604,15 +3250,15 @@
 
       if (mode) {
         return {
-          mode,
-          className: 'manual',
+          mode: getStatusDisplayMode(mode),
+          className: getStatusDisplayClass(mode) || 'manual',
           date: latest.date,
           time: latest.time
         };
       }
 
       return {
-        mode: latest.statusIsOn ? '上班中Working' : 'OFF｜您已下線',
+        mode: latest.statusIsOn ? '上班中Working' : 'OFF | 您已下線',
         className: latest.statusIsOn ? 'working' : 'off',
         date: latest.date,
         time: latest.time
@@ -1675,9 +3321,12 @@
         return;
       }
 
+      const strictClass = getStatusDisplayClass(latest.mode);
+      const latestDisplayClass = strictClass || latest.className || 'manual';
+
       content.innerHTML = `
         <div class="status-view-name">姓名：${escapeHtml(name)}</div>
-        <div class="latest-status-badge ${latest.className}">
+        <div class="latest-status-badge ${latestDisplayClass}">
           ${escapeHtml(latest.mode)}
         </div>
         <div class="latest-status-time">
@@ -2127,6 +3776,7 @@
               statusMode: '上班中Working'
             });
             if (latestStatusViewActive) renderLatestStatus();
+            renderTodayStatusSubmissions();
           } else if (selectedType === '下班') {
             // 下班後由系統自動設定「⏳ 待確認」，員工不能手動選擇或送出此狀態。
             // 先把下班紀錄寫入本地暫存，避免雲端尚未刷新時又被誤判為「上班中」。
@@ -2187,6 +3837,7 @@
     removePendingStatusOption();
     updateStatusSelectColor();
     initSavedUserName();
+    renderWeeklyCalendar();
     initCalcDates();
     calculateTotalAmount();
     setCurrentTimeDisplay();
@@ -2194,6 +3845,22 @@
     checkPendingOffOnLoad();
     fetchCloudData();
     setInterval(setCurrentTimeDisplay, 1000);
+
+    // 每週回報同步：後台把管理狀態改成「已預約」後，
+    // 前台在頁面開啟期間也會自動重新抓取，讓日期星號同步更新。
+    if (window.__weeklyReportSyncTimer) {
+      clearInterval(window.__weeklyReportSyncTimer);
+    }
+    window.__weeklyReportSyncTimer = setInterval(() => {
+      const weeklyTab = document.getElementById('weeklyStatusSubtab');
+      if (!weeklyTab || !weeklyTab.classList.contains('active')) return;
+      if (!getWeeklyName()) return;
+
+      fetchWeeklyReports().then(() => {
+        renderWeeklyCalendar();
+        updateWeeklyEditor();
+      });
+    }, 10000);
   </script>
 </body>
 </html>
