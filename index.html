@@ -2894,7 +2894,7 @@
 
       // 統一顯示文字
       if (modeText === '上班中Working' || modeText.includes('上班中')) {
-        modeText = '🟢 上班中 Working';
+        modeText = 'Working | 上班中';
       } else if (modeText.includes('待確認') || modeText.includes('Pending')) {
         modeText = '⏳ 待確認 (Pending)';
       } else if (modeText.includes('OFF')) {
@@ -2989,7 +2989,7 @@
       if (value === '酒') return '🍷 只酒 (Drinks Only)';
       if (value === '都可') return '🎉 都可以 (Both)';
       if (value === 'OFF') return 'OFF | 您已下線';
-      if (value === '上班中Working') return '🟢 上班中 Working';
+      if (value === '上班中Working') return 'Working | 上班中';
       if (value === '已預約' || value === 'BOOK' || value === '📅 已預約') return '📅 已預約';
       if (isPendingStatus(value)) return '⏳ 待確認 (Pending)';
 
