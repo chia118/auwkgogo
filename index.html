@@ -2362,18 +2362,21 @@ const dateParts = String(date).split('-');
         }
       });
 
-      // 如果全部只是取消，而且沒有實際既有資料可刪除，就直接完成前端清理。
-      const sendOperations = operations.reduce((promise, payload) => {
-        return promise.then(() => fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        }).then(res => res.json()).then(res => {
-          if (res.result !== 'success') {
-            throw new Error(res.message || '未知錯誤');
-          }
-        }));
-      }, Promise.resolve());
+      // 改成一次批次送出，避免最多 14 天逐筆呼叫 GAS 造成長時間等待。
+      const sendOperations = operations.length
+        ? fetch(GAS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'saveWeeklyReportsBatch',
+              operations: operations
+            })
+          }).then(res => res.json()).then(res => {
+            if (res.result !== 'success') {
+              throw new Error(res.message || '未知錯誤');
+            }
+          })
+        : Promise.resolve();
 
       sendOperations
       .then(() => {
