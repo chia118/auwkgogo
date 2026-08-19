@@ -1264,7 +1264,7 @@
 <style id="nameLoginStyles">
   #nameLoginOverlay{
     position:fixed;inset:0;z-index:99999;background:#fff;
-    display:flex;align-items:center;justify-content:center;padding:24px;
+    display:none;align-items:center;justify-content:center;padding:24px;
   }
   #nameLoginCard{
     width:min(420px,100%);background:#fff;border:1px solid #e8e8e8;
@@ -1691,13 +1691,35 @@ async function bindDeviceToName(name){
     }
 
     function initSavedUserName() {
-      const savedName = localStorage.getItem('checkin_username') || '';
-      if (savedName) {
-        setLoggedInName(savedName);
-      } else {
-        const overlay = document.getElementById('nameLoginOverlay');
-        if (overlay) overlay.style.display = 'flex';
+      const savedName = String(localStorage.getItem('checkin_username') || '').trim();
+      const deviceId = String(localStorage.getItem('checkin_device_id') || '').trim();
+      const overlay = document.getElementById('nameLoginOverlay');
+
+      // 已登入且本機已有設備 ID：立即顯示主頁，不再出現姓名登入畫面。
+      if (savedName && deviceId) {
+        window.currentLoggedInName = savedName;
+        const userNameEl = document.getElementById('userName');
+        const statusUserNameEl = document.getElementById('statusUserName');
+        const weeklyUserNameEl = document.getElementById('weeklyUserName');
+        if (userNameEl) userNameEl.value = savedName;
+        if (statusUserNameEl) statusUserNameEl.value = savedName;
+        if (weeklyUserNameEl) weeklyUserNameEl.value = savedName;
+        document.body.classList.add('name-locked');
+        if (overlay) overlay.style.display = 'none';
+
+        // 背景同步，不阻塞主頁顯示。
+        Promise.resolve().then(() => {
+          fetchWeeklyReports();
+          return fetchCloudData();
+        }).finally(() => {
+          checkUserWorkingStatus();
+          renderTodayStatusSubmissions();
+        });
+        return;
       }
+
+      // 沒有登入資料才顯示登入頁。
+      if (overlay) overlay.style.display = 'flex';
     }
 
     function handleNameInput(value) {
@@ -3952,7 +3974,18 @@ const dateParts = String(date).split('-');
           input?.focus();
           return;
         }
-        await setLoggedInName(name);
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = '登入中…';
+        }
+        try {
+          await setLoggedInName(name);
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = '登入';
+          }
+        }
       }
 
       btn?.addEventListener('click', doLogin);
