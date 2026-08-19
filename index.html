@@ -1312,8 +1312,8 @@ async function bindDeviceToName(name){
       <div class="weekly-submit-waiting-icon">⏳</div>
       <div class="weekly-submit-waiting-title">正在送出狀態</div>
       <div class="weekly-submit-waiting-text">
-        送出狀態需要一些時間，請耐心等候。<br>
-        <strong>請不要關閉此視窗。</strong>
+        正在確認資料寫入，請稍候。<br>
+        <strong>資料成功後會立即關閉。</strong>
       </div>
     </div>
   </div>
@@ -2380,12 +2380,31 @@ const dateParts = String(date).split('-');
 
       sendOperations
       .then(() => {
-        hideWeeklySubmitWaitingNotice();
+        // GAS 已確認成功寫入後，立即更新前台本地狀態。
+        // 不再額外重新抓整份每週回報，避免「送出中」被第二次讀取拖延。
+        dates.forEach(date => {
+          const status = normalizeWeeklyStatus(weeklyPendingChanges[date]);
+          const note = String(weeklyPendingNotes[date] || '').trim();
 
-        // 重新向 GAS 讀取，確保前台與工作表2完全一致。
-        return fetchWeeklyReports();
-      })
-      .then(() => {
+          const idx = weeklyReports.findIndex(r =>
+            String(r.name || '').trim().toLowerCase() === name.trim().toLowerCase() &&
+            String(r.date || '').trim() === date
+          );
+
+          if (!status) {
+            if (idx >= 0) weeklyReports.splice(idx, 1);
+          } else {
+            const row = {
+              name: name,
+              date: date,
+              status: status,
+              note: note
+            };
+            if (idx >= 0) weeklyReports[idx] = Object.assign({}, weeklyReports[idx], row);
+            else weeklyReports.push(row);
+          }
+        });
+
         weeklyPendingChanges = {};
         weeklyPendingNotes = {};
         weeklyReviewMode = false;
@@ -2393,6 +2412,13 @@ const dateParts = String(date).split('-');
         const panel = document.getElementById('weeklyReviewPanel');
         if (panel) panel.style.display = 'none';
         document.body.style.overflow = '';
+
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.innerHTML = '確認送出狀態';
+        }
+
+        hideWeeklySubmitWaitingNotice();
 
         weeklySelectedStatus = weeklySelectedDate
           ? getWeeklyDisplayStatus(name, weeklySelectedDate)
@@ -2407,7 +2433,7 @@ const dateParts = String(date).split('-');
         alert('送出失敗：' + (err.message || '請檢查網路連線。'));
         if (confirmBtn) {
           confirmBtn.disabled = false;
-          confirmBtn.textContent = '確認送出狀態';
+          confirmBtn.innerHTML = '確認送出狀態';
         }
         updateWeeklyEditor();
       });
