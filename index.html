@@ -1292,8 +1292,8 @@ function getDeviceId(){
 async function verifyDeviceBinding(name){
   const url=DEVICE_BINDING_GAS_URL+'?action=getDeviceBinding&device='+encodeURIComponent(getDeviceId());
   const res=await fetch(url); const data=await res.json();
-  if(data && data.binding && String(data.binding.status||'')==='已綁定'){
-    const bound=String(data.binding.name||'').trim();
+  if(data && data.found && String(data.status||'')==='已綁定'){
+    const bound=String(data.name||'').trim();
     if(bound && bound!==String(name).trim()) return {ok:false,boundName:bound};
   }
   return {ok:true};
@@ -1301,7 +1301,7 @@ async function verifyDeviceBinding(name){
 async function bindDeviceToName(name){
   const url=DEVICE_BINDING_GAS_URL+'?action=bindDevice&name='+encodeURIComponent(name)+'&device='+encodeURIComponent(getDeviceId());
   const res=await fetch(url); const data=await res.json();
-  if(data && data.success===false) throw new Error(data.message||'設備綁定失敗');
+  if(data && (data.result === 'error' || data.success === false)) throw new Error(data.message||'設備綁定失敗');
   return data;
 }
 </script>
