@@ -1260,6 +1260,24 @@
       box-shadow: none !important;
     }
 </style>
+
+<style id="nameLoginStyles">
+  #nameLoginOverlay{
+    position:fixed;inset:0;z-index:99999;background:#fff;
+    display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  #nameLoginCard{
+    width:min(420px,100%);background:#fff;border:1px solid #e8e8e8;
+    border-radius:18px;padding:28px;box-shadow:0 12px 35px rgba(0,0,0,.08);
+  }
+  #nameLoginCard h2{margin:0 0 8px;text-align:center}
+  #nameLoginCard p{margin:0 0 20px;text-align:center;color:#777}
+  #nameLoginInput{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid #ccc;border-radius:10px;font-size:16px}
+  #nameLoginBtn{width:100%;margin-top:14px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-size:16px}
+  body.name-locked #userName,
+  body.name-locked #statusUserName,
+  body.name-locked #weeklyUserName{background:#f5f5f5;cursor:not-allowed}
+</style>
 </head>
 <body>
   <div id="weeklySubmitWaitingNotice" role="alertdialog" aria-modal="true">
@@ -1274,7 +1292,17 @@
   </div>
 
 
-  <div class="container">
+  
+<div id="nameLoginOverlay">
+  <div id="nameLoginCard">
+    <h2>員工登入</h2>
+    <p>請輸入姓名後登入系統</p>
+    <input id="nameLoginInput" type="text" autocomplete="name" placeholder="請輸入姓名">
+    <button id="nameLoginBtn" type="button">登入</button>
+  </div>
+</div>
+
+<div class="container">
     <div class="header">
       <h1>DAILY CHECK-IN</h1>
       <p>打卡系統 <span style="font-size: 0.8rem; opacity: 0.8;">/ Attendance System</span></p>
@@ -1290,7 +1318,7 @@
       <form id="checkinForm">
         <div class="form-group">
           <label for="userName">姓名 <span class="en">Name</span> *</label>
-          <input type="text" id="userName" placeholder="請輸入姓名" required oninput="handleNameInput(this.value)">
+          <input type="text" id="userName" placeholder="請輸入姓名" required readonly>
         </div>
 
         <div class="form-group">
@@ -1360,7 +1388,7 @@
         <div class="status-panel">
           <div class="form-group">
             <label for="statusUserName">姓名 <span class="en">Name</span> *</label>
-            <input type="text" id="statusUserName" placeholder="請輸入姓名" oninput="handleNameInput(this.value)">
+            <input type="text" id="statusUserName" placeholder="請輸入姓名" readonly>
           </div>
 
           <div class="status-toggle-box">
@@ -1420,7 +1448,7 @@
         <div class="weekly-panel">
           <div class="form-group">
             <label for="weeklyUserName">姓名 <span class="en">Name</span> *</label>
-            <input type="text" id="weeklyUserName" placeholder="請輸入姓名" oninput="handleWeeklyNameInput(this.value)">
+            <input type="text" id="weeklyUserName" placeholder="請輸入姓名" readonly>
           </div>
 
           <div class="weekly-calendar-head">
@@ -1597,37 +1625,46 @@
     let weeklyPendingNotes = {};
     let weeklyReviewMode = false;
 
-    function initSavedUserName() {
-      const savedName = localStorage.getItem('checkin_username') || '';
-      if (savedName) {
-        document.getElementById('userName').value = savedName;
-        document.getElementById('statusUserName').value = savedName;
-        const weeklyNameEl = document.getElementById('weeklyUserName');
-        if (weeklyNameEl) weeklyNameEl.value = savedName;
-      }
-    }
+    function setLoggedInName(name) {
+      const trimmed = String(name || '').trim();
+      if (!trimmed) return false;
+      localStorage.setItem('checkin_username', trimmed);
+      window.currentLoggedInName = trimmed;
 
-    function handleNameInput(value) {
-      const trimmed = value.trim();
-      if (trimmed) {
-        localStorage.setItem('checkin_username', trimmed);
-      } else {
-        localStorage.removeItem('checkin_username');
-      }
-      
       const userNameEl = document.getElementById('userName');
       const statusUserNameEl = document.getElementById('statusUserName');
       const weeklyUserNameEl = document.getElementById('weeklyUserName');
-      if (userNameEl.value !== trimmed) userNameEl.value = trimmed;
-      if (statusUserNameEl.value !== trimmed) statusUserNameEl.value = trimmed;
-      if (weeklyUserNameEl && weeklyUserNameEl.value !== trimmed) weeklyUserNameEl.value = trimmed;
-      if (weeklyUserNameEl) fetchWeeklyReports();
 
-      // 重新抓取最新後台狀態，避免後台剛改成「已預約」但前台仍使用舊資料。
+      if (userNameEl) userNameEl.value = trimmed;
+      if (statusUserNameEl) statusUserNameEl.value = trimmed;
+      if (weeklyUserNameEl) weeklyUserNameEl.value = trimmed;
+
+      document.body.classList.add('name-locked');
+      const overlay = document.getElementById('nameLoginOverlay');
+      if (overlay) overlay.style.display = 'none';
+
+      fetchWeeklyReports();
       fetchCloudData().finally(() => {
         checkUserWorkingStatus();
         renderTodayStatusSubmissions();
       });
+      return true;
+    }
+
+    function initSavedUserName() {
+      const savedName = localStorage.getItem('checkin_username') || '';
+      if (savedName) {
+        setLoggedInName(savedName);
+      } else {
+        const overlay = document.getElementById('nameLoginOverlay');
+        if (overlay) overlay.style.display = 'flex';
+      }
+    }
+
+    function handleNameInput(value) {
+      const lockedName = String(window.currentLoggedInName || localStorage.getItem('checkin_username') || '').trim();
+      const el = event && event.target ? event.target : null;
+      if (el && lockedName) el.value = lockedName;
     }
 
     function escapeHtml(str) {
@@ -1730,24 +1767,9 @@
     }
 
     function handleWeeklyNameInput(value) {
-      const trimmed = String(value || '').trim();
-      if (trimmed) {
-        localStorage.setItem('checkin_username', trimmed);
-        const statusNameEl = document.getElementById('statusUserName');
-        const userNameEl = document.getElementById('userName');
-        if (statusNameEl && statusNameEl.value !== trimmed) statusNameEl.value = trimmed;
-        if (userNameEl && userNameEl.value !== trimmed) userNameEl.value = trimmed;
-      }
-      // 換人時不沿用上一個人的尚未送出資料，避免誤送到另一個姓名。
-      weeklyPendingChanges = {};
-      weeklyPendingNotes = {};
-      weeklySelectedDate = '';
-      weeklySelectedStatus = '';
-      weeklyReviewMode = false;
-      const weeklyReviewPanel = document.getElementById('weeklyReviewPanel');
-      if (weeklyReviewPanel) weeklyReviewPanel.style.display = 'none';
-      renderWeeklyCalendar();
-      if (weeklySelectedDate) loadWeeklyEditorForDate(weeklySelectedDate);
+      const lockedName = String(window.currentLoggedInName || localStorage.getItem('checkin_username') || '').trim();
+      const el = event && event.target ? event.target : null;
+      if (el && lockedName) el.value = lockedName;
     }
 
     function normalizeWeeklyStatus(value) {
@@ -1777,6 +1799,13 @@
       const item = map[v];
       if (!item) return '';
       return `<span class="weekly-status-zh">${withEmoji ? item.emoji + ' ' : ''}${item.zh}</span><span class="weekly-status-en">${item.en}</span>`;
+    }
+
+
+    function isWeeklyReportPastDate(dateStr) {
+      const selected = String(dateStr || '').trim();
+      if (!selected) return false;
+      return selected < getTaipeiDateStr();
     }
 
     function getWeeklyName() {
@@ -1930,7 +1959,12 @@
     }
 
     function selectWeeklyDate(date) {
-      const dateParts = String(date).split('-');
+      
+      if (isWeeklyReportPastDate(date)) {
+        alert('已過去的日期不可提交每週回報。');
+        return;
+      }
+const dateParts = String(date).split('-');
       const target = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, 1);
       if (!isWeeklyMonthAllowed(target)) return;
 
@@ -1980,6 +2014,20 @@
 
       const normalizedStatus = normalizeWeeklyStatus(status);
       const hasPending = Object.prototype.hasOwnProperty.call(weeklyPendingChanges, weeklySelectedDate);
+
+      const existingDates = new Set(
+        weeklyReports
+          .filter(r => String(r.name || '').trim() === name && String(r.date || '').trim())
+          .map(r => formatDate(r.date))
+      );
+      const pendingNewDates = Object.keys(weeklyPendingChanges)
+        .filter(d => !existingDates.has(formatDate(d)));
+
+      if (!hasPending && !existingDates.has(formatDate(weeklySelectedDate))
+          && existingDates.size + pendingNewDates.length >= 14) {
+        alert('您目前已有14天的每週回報紀錄，無法再新增日期。');
+        return;
+      }
 
       if (!hasPending && getWeeklyPendingCount() >= 14) {
         alert('您已選擇超過14天');
@@ -2075,8 +2123,26 @@
         alert('請選擇日期與狀態');
         return;
       }
+
+      const pastDates = dates.filter(date => isWeeklyReportPastDate(date));
+      if (pastDates.length) {
+        alert('已過去的日期不可提交每週回報，請取消過去日期後再送出。');
+        return;
+      }
+
       if (dates.length > 14) {
         alert('您已選擇超過14天');
+        return;
+      }
+
+      const existingDates = new Set(
+        weeklyReports
+          .filter(r => String(r.name || '').trim() === name && String(r.date || '').trim())
+          .map(r => formatDate(r.date))
+      );
+      const newUniqueDates = dates.filter(d => !existingDates.has(formatDate(d)));
+      if (existingDates.size + newUniqueDates.length > 14) {
+        alert('送出後每週回報最多只能有14天紀錄，請取消部分日期後再送出。');
         return;
       }
 
@@ -3833,6 +3899,28 @@
         checkUserWorkingStatus();
       });
     });
+
+
+    (function initNameLogin() {
+      const overlay = document.getElementById('nameLoginOverlay');
+      const input = document.getElementById('nameLoginInput');
+      const btn = document.getElementById('nameLoginBtn');
+
+      function doLogin() {
+        const name = String(input?.value || '').trim();
+        if (!name) {
+          alert('請先輸入姓名！');
+          input?.focus();
+          return;
+        }
+        setLoggedInName(name);
+      }
+
+      btn?.addEventListener('click', doLogin);
+      input?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') doLogin();
+      });
+    })();
 
     removePendingStatusOption();
     updateStatusSelectColor();
