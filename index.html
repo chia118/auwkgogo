@@ -2345,10 +2345,11 @@ const dateParts = String(date).split('-');
         const note = String(weeklyPendingNotes[date] || '').trim();
         const existing = findWeeklyReport(name, date);
 
-        if (!status && existing && Number(existing.rowIndex) >= 2) {
+        if (!status && existing) {
           operations.push({
             action: 'deleteWeeklyReport',
-            rowIndex: Number(existing.rowIndex)
+            name: name,
+            date: date
           });
         } else if (status) {
           operations.push({
