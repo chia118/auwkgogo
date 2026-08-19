@@ -1690,13 +1690,50 @@ async function bindDeviceToName(name){
       return true;
     }
 
-    function initSavedUserName() {
+    async function checkSavedDeviceBinding(savedName, deviceId) {
+      const url = DEVICE_BINDING_GAS_URL +
+        '?action=getDeviceBinding&device=' + encodeURIComponent(deviceId) +
+        '&_=' + Date.now();
+
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) throw new Error('設備綁定檢查失敗');
+
+      const result = await response.json();
+
+      // GAS 沒有找到這台設備，代表後台已刪除綁定。
+      if (!result || result.found !== true) {
+        return false;
+      }
+
+      const boundName = String(result.name || '').trim();
+      const status = String(result.status || '').trim();
+
+      return status === '已綁定' && boundName === String(savedName).trim();
+    }
+
+    async function initSavedUserName() {
       const savedName = String(localStorage.getItem('checkin_username') || '').trim();
       const deviceId = String(localStorage.getItem('checkin_device_id') || '').trim();
       const overlay = document.getElementById('nameLoginOverlay');
 
-      // 已登入且本機已有設備 ID：立即顯示主頁，不再出現姓名登入畫面。
+      // 已登入且本機已有設備 ID：先向 GAS 確認設備仍然綁定。
+      // 若後台已刪除工作表3紀錄，則清除本機登入資料並回到姓名登入頁。
       if (savedName && deviceId) {
+        try {
+          const stillBound = await checkSavedDeviceBinding(savedName, deviceId);
+
+          if (!stillBound) {
+            localStorage.removeItem('checkin_username');
+            localStorage.removeItem('checkin_device_id');
+            window.currentLoggedInName = '';
+            if (overlay) overlay.style.display = 'flex';
+            return;
+          }
+        } catch (error) {
+          console.error('設備綁定檢查失敗：', error);
+          // 網路暫時失敗時不強制登出，避免影響既有打卡使用。
+        }
+
         window.currentLoggedInName = savedName;
         const userNameEl = document.getElementById('userName');
         const statusUserNameEl = document.getElementById('statusUserName');
