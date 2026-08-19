@@ -2334,19 +2334,35 @@ const dateParts = String(date).split('-');
         confirmBtn.innerHTML = '送出中...';
       }
 
-      // 送出期間顯示明確提示：GAS 逐筆寫入可能需要一些時間，
-      // 請耐心等候並保持此視窗開啟。
       showWeeklySubmitWaitingNotice();
 
-      const payloads = dates.map(date => ({
-        action: 'saveWeeklyReport',
-        name: name,
-        date: date,
-        status: weeklyPendingChanges[date],
-        note: String(weeklyPendingNotes[date] || '').trim()
-      }));
+      // 取消既有回報時，改送 deleteWeeklyReport，讓工作表2同步刪除。
+      // 新增／修改則維持原本的 saveWeeklyReport。
+      const operations = [];
 
-      payloads.reduce((promise, payload) => {
+      dates.forEach(date => {
+        const status = normalizeWeeklyStatus(weeklyPendingChanges[date]);
+        const note = String(weeklyPendingNotes[date] || '').trim();
+        const existing = findWeeklyReport(name, date);
+
+        if (!status && existing && Number(existing.rowIndex) >= 2) {
+          operations.push({
+            action: 'deleteWeeklyReport',
+            rowIndex: Number(existing.rowIndex)
+          });
+        } else if (status) {
+          operations.push({
+            action: 'saveWeeklyReport',
+            name: name,
+            date: date,
+            status: status,
+            note: note
+          });
+        }
+      });
+
+      // 如果全部只是取消，而且沒有實際既有資料可刪除，就直接完成前端清理。
+      const sendOperations = operations.reduce((promise, payload) => {
         return promise.then(() => fetch(GAS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -2356,23 +2372,16 @@ const dateParts = String(date).split('-');
             throw new Error(res.message || '未知錯誤');
           }
         }));
-      }, Promise.resolve())
+      }, Promise.resolve());
+
+      sendOperations
       .then(() => {
         hideWeeklySubmitWaitingNotice();
 
-        dates.forEach(date => {
-          const status = normalizeWeeklyStatus(weeklyPendingChanges[date]);
-          const note = String(weeklyPendingNotes[date] || '').trim();
-          const existing = findWeeklyReport(name, date);
-
-          if (existing) {
-            existing.status = status;
-            existing.note = note;
-          } else {
-            weeklyReports.push({ name: name, date: date, status: status, note: note });
-          }
-        });
-
+        // 重新向 GAS 讀取，確保前台與工作表2完全一致。
+        return fetchWeeklyReports();
+      })
+      .then(() => {
         weeklyPendingChanges = {};
         weeklyPendingNotes = {};
         weeklyReviewMode = false;
@@ -2385,11 +2394,12 @@ const dateParts = String(date).split('-');
           ? getWeeklyDisplayStatus(name, weeklySelectedDate)
           : '';
 
-        showToast(`✅ 已送出 ${dates.length} 個日期的狀態！`);
+        showToast('✅ 每週回報已更新！');
         renderWeeklyCalendar();
         updateWeeklyEditor();
       })
       .catch(err => {
+        hideWeeklySubmitWaitingNotice();
         alert('送出失敗：' + (err.message || '請檢查網路連線。'));
         if (confirmBtn) {
           confirmBtn.disabled = false;
