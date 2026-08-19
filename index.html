@@ -1278,6 +1278,33 @@
   body.name-locked #statusUserName,
   body.name-locked #weeklyUserName{background:#f5f5f5;cursor:not-allowed}
 </style>
+
+<script id="deviceBindingIntegration">
+const DEVICE_BINDING_GAS_URL = 'https://script.google.com/macros/s/AKfycbwEJG79ivxM0CrOiRegiZl_qI4Pxf_9BJKxCKyyAYcDc9bq3A3joFrfSiL7ABpq25so/exec';
+function getDeviceId(){
+  let id=localStorage.getItem('checkin_device_id');
+  if(!id){
+    id='DEV-'+Math.random().toString(36).slice(2,8).toUpperCase()+'-'+Date.now().toString(36).slice(-4).toUpperCase();
+    localStorage.setItem('checkin_device_id',id);
+  }
+  return id;
+}
+async function verifyDeviceBinding(name){
+  const url=DEVICE_BINDING_GAS_URL+'?action=getDeviceBinding&device='+encodeURIComponent(getDeviceId());
+  const res=await fetch(url); const data=await res.json();
+  if(data && data.binding && String(data.binding.status||'')==='已綁定'){
+    const bound=String(data.binding.name||'').trim();
+    if(bound && bound!==String(name).trim()) return {ok:false,boundName:bound};
+  }
+  return {ok:true};
+}
+async function bindDeviceToName(name){
+  const url=DEVICE_BINDING_GAS_URL+'?action=bindDevice&name='+encodeURIComponent(name)+'&device='+encodeURIComponent(getDeviceId());
+  const res=await fetch(url); const data=await res.json();
+  if(data && data.success===false) throw new Error(data.message||'設備綁定失敗');
+  return data;
+}
+</script>
 </head>
 <body>
   <div id="weeklySubmitWaitingNotice" role="alertdialog" aria-modal="true">
@@ -1625,9 +1652,21 @@
     let weeklyPendingNotes = {};
     let weeklyReviewMode = false;
 
-    function setLoggedInName(name) {
+    async function setLoggedInName(name) {
       const trimmed = String(name || '').trim();
       if (!trimmed) return false;
+      try {
+        const check = await verifyDeviceBinding(trimmed);
+        if (!check.ok) {
+          alert('此設備已綁定「' + check.boundName + '」，無法使用其他姓名登入。');
+          return false;
+        }
+        await bindDeviceToName(trimmed);
+      } catch (e) {
+        console.error(e);
+        alert('設備綁定失敗，請確認網路連線後再試一次。');
+        return false;
+      }
       localStorage.setItem('checkin_username', trimmed);
       window.currentLoggedInName = trimmed;
 
@@ -3906,14 +3945,14 @@ const dateParts = String(date).split('-');
       const input = document.getElementById('nameLoginInput');
       const btn = document.getElementById('nameLoginBtn');
 
-      function doLogin() {
+      async function doLogin() {
         const name = String(input?.value || '').trim();
         if (!name) {
           alert('請先輸入姓名！');
           input?.focus();
           return;
         }
-        setLoggedInName(name);
+        await setLoggedInName(name);
       }
 
       btn?.addEventListener('click', doLogin);
