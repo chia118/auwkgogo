@@ -1262,18 +1262,112 @@
 </style>
 
 <style id="nameLoginStyles">
+  /* 登入畫面只調整外觀，沿用系統原本配色與變數；不修改登入邏輯 */
   #nameLoginOverlay{
-    position:fixed;inset:0;z-index:99999;background:#fff;
-    display:none;align-items:center;justify-content:center;padding:24px;
+    position:fixed;inset:0;z-index:99999;
+    background:var(--bg-color);
+    display:none;align-items:center;justify-content:center;
+    padding:14px;
   }
   #nameLoginCard{
-    width:min(420px,100%);background:#fff;border:1px solid #e8e8e8;
-    border-radius:18px;padding:28px;box-shadow:0 12px 35px rgba(0,0,0,.08);
+    width:min(370px,100%);
+    min-height:537px;
+    background:rgba(255,255,255,.96);
+    border:1px solid var(--border-color);
+    border-radius:14px;
+    padding:36px 24px 28px;
+    box-shadow:0 8px 22px rgba(74,64,58,.07);
+    display:flex;
+    flex-direction:column;
   }
-  #nameLoginCard h2{margin:0 0 8px;text-align:center}
-  #nameLoginCard p{margin:0 0 20px;text-align:center;color:#777}
-  #nameLoginInput{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid #ccc;border-radius:10px;font-size:16px}
-  #nameLoginBtn{width:100%;margin-top:14px;padding:13px;border:0;border-radius:10px;cursor:pointer;font-size:16px}
+  #nameLoginIcon{
+    width:56px;height:56px;margin:0 auto 12px;
+    border-radius:50%;
+    background:#aa9a8e;
+    display:flex;align-items:center;justify-content:center;
+  }
+  #nameLoginIcon svg{width:34px;height:34px;display:block}
+  #nameLoginCard h2{
+    margin:0;text-align:center;
+    color:#806e64;
+    font-size:1.55rem;
+    line-height:1.35;
+    font-weight:500;
+    letter-spacing:.02em;
+  }
+  #nameLoginCard .login-en-title{
+    display:block;
+    margin-top:2px;
+    text-align:center;
+    color:#7f746d;
+    font-size:.82rem;
+    line-height:1.4;
+    font-weight:400;
+  }
+  #nameLoginCard .login-divider{
+    width:32px;height:2px;
+    margin:11px auto 22px;
+    background:#9b8278;
+    border-radius:2px;
+  }
+  #nameLoginCard .login-instruction{
+    text-align:center;
+    color:#7f746d;
+    font-size:.88rem;
+    line-height:1.55;
+    margin:0;
+  }
+  #nameLoginCard .login-instruction-en{
+    display:block;
+    margin-top:2px;
+    color:#9e938a;
+    font-size:.76rem;
+    line-height:1.5;
+  }
+  #nameLoginCard .login-field-divider{
+    height:1px;
+    background:var(--border-color);
+    margin:18px 0 24px;
+  }
+  #nameLoginCard .login-name-label{
+    display:block;
+    margin:0 0 8px;
+    color:#806e64;
+    font-size:.86rem;
+    font-weight:500;
+  }
+  #nameLoginInput{
+    width:100%;box-sizing:border-box;
+    padding:14px 14px;
+    border:1px solid #ddd2ca;
+    border-radius:8px;
+    background:#faf9f7;
+    color:var(--text-main);
+    font-size:.9rem;
+    outline:none;
+    transition:all .2s;
+  }
+  #nameLoginInput::placeholder{color:#9b948f;opacity:1}
+  #nameLoginInput:focus{
+    border-color:#a58f83;
+    background:#fff;
+    box-shadow:0 0 0 2px rgba(165,143,131,.08);
+  }
+  #nameLoginBtn{
+    width:100%;
+    margin-top:30px;
+    padding:14px;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+    background:#9b756b;
+    color:#fff;
+    font-size:.95rem;
+    font-weight:400;
+    transition:background .2s,opacity .2s;
+  }
+  #nameLoginBtn:hover{background:#89645b}
+  #nameLoginBtn:disabled{opacity:.65;cursor:not-allowed}
   body.name-locked #userName,
   body.name-locked #statusUserName,
   body.name-locked #weeklyUserName{background:#f5f5f5;cursor:not-allowed}
@@ -1322,10 +1416,30 @@ async function bindDeviceToName(name){
   
 <div id="nameLoginOverlay">
   <div id="nameLoginCard">
-    <h2>員工登入</h2>
-    <p>請輸入姓名後登入系統</p>
-    <input id="nameLoginInput" type="text" autocomplete="name" placeholder="請輸入姓名">
-    <button id="nameLoginBtn" type="button">登入</button>
+    <div id="nameLoginIcon" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="11" y="9" width="26" height="29" rx="4" stroke="#fff" stroke-width="2.4"/>
+        <path d="M11 17H37" stroke="#fff" stroke-width="2.4"/>
+        <path d="M17 6V12M31 6V12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M18 27L22 31L30 22" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <h2>打卡系統</h2>
+    <span class="login-en-title">Attendance System</span>
+    <div class="login-divider"></div>
+
+    <p class="login-instruction">
+      請輸入姓名後登入系統
+      <span class="login-instruction-en">Enter your name to log in</span>
+    </p>
+
+    <div class="login-field-divider"></div>
+
+    <label class="login-name-label" for="nameLoginInput">姓名 / Name</label>
+    <input id="nameLoginInput" type="text" autocomplete="name" placeholder="請輸入姓名 / Enter your name">
+
+    <button id="nameLoginBtn" type="button">登入 / Login</button>
   </div>
 </div>
 
